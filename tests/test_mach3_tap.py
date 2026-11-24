@@ -191,8 +191,8 @@ class Mach3Tests(unittest.TestCase):
             self.assertTrue((out/"modelos/tap-fixture-r02/tap-fixture-r02.dxf").is_file())
             idx_html=(out/"index.html").read_text(encoding="utf-8")
             det_html=(out/"modelos/tap-fixture-r02/index.html").read_text(encoding="utf-8")
-            self.assertIn("Baixar arquivo Mach3 (.TAP)",idx_html)
-            self.assertIn("Baixar arquivo Mach3 (.TAP)",det_html)
+            self.assertIn("BAIXAR ARQUIVO MACH3 (.TAP)",idx_html)
+            self.assertIn("BAIXAR ARQUIVO MACH3 (.TAP)",det_html)
             self.assertIn("Em homologação",idx_html)
             self.assertIn("Revisão substituída",det_html)
             self.assertIn("Desenho CAM (DXF R12)",det_html)
@@ -300,3 +300,62 @@ class Mach3Tests(unittest.TestCase):
             with zipfile.ZipFile(out/"HANDOFF_PRIVADO_TESTES.zip") as zf:
                 self.assertIsNone(zf.testzip())
                 self.assertFalse(any(n.endswith(".tap") for n in zf.namelist()))
+
+    def test_slab_cam_planners_and_batch_resilience(self):
+        import json, tempfile, yaml
+        from epscad.cam.slab_planner import SLAB_CATALOG, build_slab_trial_spec, plan_slab_section
+        from epscad.exporters.mach3_tap import FLAGS
+        from epscad.exporters.tap_simulator import parse_tap_modal
+        from epscad.loader import load_yaml
+        from scripts.prepare_mach3_batch import batch, plan_rows
+        from scripts.prepare_mach3_trial import prepare_trial
+        from scripts.prepare_private_handoff import build_private_handoff
+
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp)
+            snap={
+                "id":"scara_hotwire_eps","unit":"mm","process_type":"hotwire_2d","profile_locked":False,
+                "safety":{"production_allowed":False},
+                "work_area":{"x_max":1200.0,"y_max":200.0,"z_max":0.0},
+                "hotwire":{"min_segment_mm":1.0},
+                "feed":{"default_xy_mm_min":600.0},
+            }
+            snap_p=base/"snap.yaml"
+            snap_p.write_text(yaml.safe_dump(snap,sort_keys=False),encoding="utf-8")
+            contract_p=base/"contract.json"
+            contract_p.write_text(json.dumps({
+                "purpose":"local_supervised_trial","operator_trial_authorized":True,
+                "contract":{**dict.fromkeys(FLAGS,True),"controller_profile":"CNC_V","feed_mm_min":400.0,"heat_s":150.0,
+                            "dwell_value":2.0,"max_heat_s":250.0,"max_dwell_seconds":5.0,"dwell_unit":"seconds",
+                            "path_control":"G61","work_offset":"G54","machine_profile_sha256":sha(canonical(snap))},
+            }),encoding="utf-8")
+
+            # 1. All 4 slab references through constant-section XY planner + prepare_trial
+            variants=sorted(load_yaml(SLAB_CATALOG)["variants"])
+            self.assertEqual(len(variants),4)
+            for vid in variants:
+                plan=plan_slab_section(vid)
+                proj_p=base/f"{vid}.yaml"
+                proj_p.write_text(yaml.safe_dump(build_slab_trial_spec(plan),sort_keys=False),encoding="utf-8")
+                rep=prepare_trial(proj_p,snap_p,contract_p,base/f"slab_trial_{vid}")
+                parsed=parse_tap_modal((base/f"slab_trial_{vid}/TESTE-NAO-HOMOLOGADO.tap").read_bytes())
+                self.assertEqual(parsed["modal"]["distance_mode"],"G90")
+                self.assertEqual(parsed["metrics"]["segment_count"],7)
+                self.assertEqual(parsed["metrics"]["backtrack_x_count"],0)
+                self.assertFalse(rep["production_approved"])
+
+            # 2. Batch resilience: authorize 4 of 5 TP40 models -> 4 succeed, 1 blocked cleanly without aborting batch
+            handoff=base/"handoff"
+            build_private_handoff(handoff,[])
+            rows=plan_rows(handoff)
+            self.assertEqual(len(rows),5)
+            approvals={r["id"]:{"trial_authorized":True,"path_sha256":r["path_sha256"],"project_sha256":r["project_sha256"]} for r in rows[:4]}
+            approvals[rows[4]["id"]]={"trial_authorized":False,"path_sha256":rows[4]["path_sha256"],"project_sha256":rows[4]["project_sha256"]}
+            app_p=base/"approvals.json"
+            app_p.write_text(json.dumps(approvals),encoding="utf-8")
+            bres=batch(handoff,snap_p,contract_p,app_p,base/"lote_out")
+            statuses=[m["status"] for m in bres["models"]]
+            self.assertEqual(statuses.count("trial_generated"),4)
+            self.assertEqual(statuses.count("blocked"),1)
+            self.assertFalse(bres["production_approved"])
+            self.assertFalse(bres["public_authorized"])

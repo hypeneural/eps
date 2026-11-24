@@ -70,7 +70,7 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 [Auditoria dos TAP e plano de homologação](docs/25_MACH3_DIRECT_TAP.md) · [Relatório forense, simulador, biblioteca histórica e checklist](docs/26_MACH3_HOMOLOGACAO_E_BIBLIOTECA.md). O fluxo legado continua disponível; TAP somente após aprovação específica e perfil real homologado.
 
 ### Mach3: teste antes de liberação
-[Fluxo de candidato local](docs/27_MACH3_TESTE_ANTES_DA_LIBERACAO.md) · [Planejador CAM e entrega privada dos 5 modelos](docs/28_PLANEJADOR_TRAJETORIAS_5_MODELOS.md). Use `prepare_private_handoff.py` para gerar trajetórias/simulações privadas e `prepare_mach3_trial.py` para gerar TAP de teste sem aprovação comercial prévia, com contrato local revisado. Não altera o perfil nem publica candidato.
+[Fluxo de candidato local](docs/27_MACH3_TESTE_ANTES_DA_LIBERACAO.md) · [Planejador CAM dos 5 modelos](docs/28_PLANEJADOR_TRAJETORIAS_5_MODELOS.md) · [Lajes EPS](docs/29_BIBLIOTECA_LAJES_EPS.md) · [Evidência e lote](docs/30_MACH3_EVIDENCIA_E_LOTE.md) · [Relatório consolidado e biblioteca privada](docs/31_RELATORIO_LOTE_EVIDENCIA_LAJES.md). Use `recover_cnc_v_evidence.py`, `prepare_private_handoff.py`, `build_private_test_library.py` e `prepare_mach3_batch.py` para preparar testes locais sem alterar o perfil nem publicar candidato.
 
 ## Biblioteca de lajotas e capas EPS
 [Pesquisa, fontes e fluxo](docs/29_BIBLIOTECA_LAJES_EPS.md). `python scripts/prepare_slab_reference.py --list` lista referências; gere o pacote nominal com `--output` em pasta nova. Capa recortada não equivale a moldada, e rebaixos precisam de conferência.
