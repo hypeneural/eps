@@ -16,3 +16,6 @@ outputs/
 # Factory originals, proprietary configurations and locally recovered profiles
 private_evidence/
 local_catalogs/
+
+# Local agent checkpoints (never commit conversation state)
+.eps-agent/
