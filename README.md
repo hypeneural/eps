@@ -99,3 +99,6 @@ O primeiro teste inclui tambem trapezio_sintetico_400mm: 9 LINE, 400 x 40 mm, so
 
 ## Revisao de desenhos historicos
 Veja docs/15_HISTORICAL_EVIDENCE.md e `python scripts/review_historical_roof.py --help`. A recuperacao e exclusivamente visual e mantem evidencias originais locais.
+
+## Desenvolvimento separado da fabrica: TP40 base lisa
+`powershell -NoProfile -File scripts/prepare_development.ps1` no PC moderno. Sem necessidade de acessar o PC da CNC. Perfil nominal com microdobra disponivel no catalogo; `python scripts/prepare_tp40.py --help`. Evidencia original opcional em private_evidence/. Veja docs/16_DEVELOPMENT_HANDOFF.md. ZIP de revisao sem DXF/TAP.

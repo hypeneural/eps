@@ -24,3 +24,6 @@ schemas/project_hotwire.schema.json e machine_profile_hotwire.schema.json. DXF R
 
 ## Evidencia historica
 Nao enviar ZIPs originais, XML, PST, macros ou desenhos industriais de terceiros ao GitHub publico. Use private_evidence/ e local_catalogs/. A geometria CAD historica pode conter sobreposicoes e trajetorias auxiliares; nunca extrudar todo o DXF como peca. Use scripts/review_historical_roof.py com limites explicitamente conferidos para revisao visual. Nao gerar arquivo de maquina desse fluxo. Leia docs/15_HISTORICAL_EVIDENCE.md.
+
+## Handoff de desenvolvimento
+O Antigravity roda em outro PC, nao no Windows 7 da fabrica. Leia docs/16_DEVELOPMENT_HANDOFF.md e use scripts/prepare_development.ps1 no PC moderno. Para TP40 base lisa com microdobra use scripts/prepare_tp40.py: referencia normalizada disponivel sem ZIP. Se houver evidencias locais, comparar via --evidence; nao publicar originais. Nao confundir ZIP de revisao com pacote de calibracao. Inspecionar os renders reais e reportar bloqueios.

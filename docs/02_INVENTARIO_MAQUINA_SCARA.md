@@ -75,3 +75,6 @@ Guardar em `samples/real_machine/`:
 003_grade_5x5/
 004_arco_simples/
 ```
+
+## Evidencia de inventario (2026-11-24)
+Windows 7 Professional SP1 32-bit, PowerShell 2.0, Mach3.sys em execucao, LPT1 detectada, CNC_V como perfil padrao na pasta coletada. Executavel em execucao observado em outra pasta; instalacao/perfil efetivos pendentes. Manual confirma DXF R12 mm e LazyCam Foam. Post de EPS configurado; TAPs historicos metricos, estado modal inicial nao confirmado. AutoLead=0 no XML coletado. Nenhum dado de limite/velocidade/kerf/fio fisico foi homologado. Ver docs/16_DEVELOPMENT_HANDOFF.md.

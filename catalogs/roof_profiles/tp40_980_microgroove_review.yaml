@@ -1,0 +1,26 @@
+id: tp40_980_microgroove_review
+status: reference_only
+units: mm
+description: Perfil nominal de estudo TP40 com face plana e microdobra central.
+geometry:
+  pitch_mm: 196
+  periods: 5
+  ramp_run_mm: 33
+  rib_height_mm: 36
+  crest_span_mm: 98
+  valley_width_mm: 32
+  groove_width_mm: 48
+  groove_depth_mm: 2
+  min_thickness_mm: 31
+  phase: ascending_ramp_first
+visual_assumptions:
+  extrusion_length_mm: 1000
+  metal_gauge_mm: 0.43
+  complement_bottom_mm: -1
+validation:
+  physical_fit_confirmed: false
+  production_confirmed: false
+  machine_export_allowed: false
+sources:
+  - https://www.gruposks.com/pdfs/Catalogo_SKS_aco_2023.pdf
+limitations: Referencia normalizada de estudo; nao inclui estrategia de corte, bordas externas da chapa ou homologacao fisica.
