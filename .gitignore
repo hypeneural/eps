@@ -19,3 +19,11 @@ local_catalogs/
 
 # Local agent checkpoints (never commit conversation state)
 .eps-agent/
+
+portal_local/
+
+.env
+
+.env.*
+
+!.env.example

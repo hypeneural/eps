@@ -1,5 +1,7 @@
 # Plano de Implementacao - EPS SCARA Hotwire CutPlan
 
+> **Plano histórico do MVP:** o [README](README.md) e o [guia do agente](docs/18_GUIA_AGENTE.md) descrevem a estrutura atual. G-code direto permanece desabilitado; resultados históricos não comprovam liberação atual.
+
 Data: 2026-05-29
 
 ## Objetivo

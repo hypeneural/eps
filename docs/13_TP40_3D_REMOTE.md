@@ -1,4 +1,6 @@
 # TP40 3D e entrega remota (Antigravity)
+
+> **Escopo:** perfis comerciais simplificados. A referência histórica normalizada de base lisa inclui microdobras e usa `prepare_tp40.py`; veja [relatório local](17_HOMOLOGACAO_LOCAL_RELATORIO.md). Não transferir medidas de uma família para outra.
 ## Fonte e limites
 - SKS TP40/980, catalogo p.21: 196/36/32/98 mm (passo/altura/crista/vale), largura util 980, total chapa 1032. Microperfil 2 mm, cota 48 mm: nao modelado.
 - Isoeste TP40/1020, ficha p.2: 255/40/35/143 mm, largura util 1020, total 1074. Microdobras e bordas nao modeladas.

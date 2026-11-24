@@ -18,3 +18,5 @@ Prompt sugerido (não é script obrigatório):
 Abra raiz de cada worktree, Customizations > Installed e Settings > Projects > Customizations; confira skills/agentes. No CLI /skills reload quando disponível; no App abra conversa nova se necessário. Não assumir que regras em subpastas são carregadas automaticamente. Use /learn para propor melhoria específica e revisar diff, não para registrar credenciais, paths privados ou alterar gates. /btw pode esclarecer uma dúvida sem interromper a tarefa principal; não é necessário para execução.
 ## GitHub Actions
 CI valida configuração local, dependências, testes e exemplos; portal tem workflow Playwright separado quando presente. CI não instala Blender, não faz deploy e não comanda a CNC. A execução do Antigravity real, GPU e hospedagem precisam de validação local/HTTPS.
+
+GitHub Actions: https://docs.github.com/pt/actions/reference/workflows-and-actions/workflow-syntax — aplicar permissões mínimas, limites de execução e CI separado de publicação.
