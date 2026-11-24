@@ -1,0 +1,14 @@
+{
+  "must_include": [
+    "gcode experimental",
+    "golden samples",
+    "dry-run",
+    "operador"
+  ],
+  "must_not_include": [
+    "G0",
+    "G1",
+    "M3",
+    "M30"
+  ]
+}

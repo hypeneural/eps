@@ -1,0 +1,53 @@
+id: scara_hotwire_eps
+name: SCARA CNC EPS fio quente
+unit: mm
+process_type: hotwire_2d
+profile_locked: false
+
+controller:
+  software: Mach3
+  profile_shortcut: EPS
+  cam_bridge: LazyCam
+  accepted_import:
+    primary: DXF_R12
+    secondary: DXF_2007
+
+work_area:
+  x_max: confirmar
+  y_max: confirmar
+  z_max: confirmar
+
+axes:
+  x_positive: confirmar
+  y_positive: confirmar
+  zero_policy: confirmar
+  home_policy: confirmar
+
+hotwire:
+  wire_mode: line_hotwire
+  wire_count: confirmar
+  effective_kerf_mm: confirmar
+  lead_in_mm_default: 20
+  lead_out_mm_default: 20
+  min_segment_mm: confirmar
+  min_radius_mm: confirmar
+
+feed:
+  default_xy_mm_min: confirmar
+  slow_curve_mm_min: confirmar
+
+safety:
+  dry_run_required: true
+  first_cut_test_required: true
+  operator_confirmation_required: true
+
+formats:
+  dxf_primary: R12
+  dxf_secondary: 2007
+  gcode_candidates:
+    - .tap
+    - .nc
+    - .txt
+
+notes:
+  production_blocked_reason: "Campos confirmar e profile_locked=false bloqueiam producao ate inventario real da maquina."

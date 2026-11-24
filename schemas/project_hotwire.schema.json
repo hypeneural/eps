@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/epscad/project_hotwire.schema.json",
+  "title": "EPS Hotwire Project",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["project", "machine", "material", "process", "cut", "outputs"],
+  "properties": {
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "unit", "status", "source"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "unit": { "const": "mm" },
+        "status": { "enum": ["draft", "validated_geometry", "cam_ready", "machine_tested", "production_released"] },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "scale_confirmed", "dimensions_confirmed", "production_confirmed"],
+          "properties": {
+            "kind": { "enum": ["manual_text", "image_reference", "svg_reference", "dxf_reference"] },
+            "image_path": { "type": "string" },
+            "scale_confirmed": { "type": "boolean" },
+            "dimensions_confirmed": { "type": "boolean" },
+            "production_confirmed": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "machine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "process_type", "output_format", "cam_bridge", "controller_hint"],
+      "properties": {
+        "profile": { "const": "scara_hotwire_eps" },
+        "process_type": { "const": "hotwire_2d" },
+        "output_format": { "enum": ["dxf_r12", "dxf_2007"] },
+        "cam_bridge": { "type": "string", "minLength": 1 },
+        "controller_hint": { "type": "string", "minLength": 1 }
+      }
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "density", "stock"],
+      "properties": {
+        "type": { "enum": ["EPS", "XPS"] },
+        "density": { "type": ["string", "number"] },
+        "stock": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["length_x", "height_y", "thickness_z"],
+          "properties": {
+            "length_x": { "type": "number", "exclusiveMinimum": 0 },
+            "height_y": { "type": "number", "exclusiveMinimum": 0 },
+            "thickness_z": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        }
+      }
+    },
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hotwire", "feed"],
+      "properties": {
+        "hotwire": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["wire_mode", "wire_count", "effective_kerf_mm", "lead_in_mm", "lead_out_mm", "min_segment_mm", "min_radius_mm"],
+          "properties": {
+            "wire_mode": { "enum": ["line_hotwire", "spiral_hotwire", "multiwire_hotwire"] },
+            "wire_count": { "type": ["integer", "string"] },
+            "effective_kerf_mm": { "type": ["number", "string"] },
+            "lead_in_mm": { "type": "number", "minimum": 0 },
+            "lead_out_mm": { "type": "number", "minimum": 0 },
+            "min_segment_mm": { "type": ["number", "string"] },
+            "min_radius_mm": { "type": ["number", "string"] }
+          }
+        },
+        "feed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["xy_mm_min", "slow_curve_mm_min"],
+          "properties": {
+            "xy_mm_min": { "type": ["number", "string"] },
+            "slow_curve_mm_min": { "type": ["number", "string"] }
+          }
+        }
+      }
+    },
+    "cut": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["template", "origin", "cut_plane", "safe_margin_mm", "compensation", "avoid_duplicate_cuts"],
+      "properties": {
+        "template": { "enum": ["straight_cut", "square_test", "grid_blocks", "profile_2d", "photo_trace", "tp40_core"] },
+        "origin": { "enum": ["lower_left", "center", "machine_zero"] },
+        "cut_plane": { "const": "XY" },
+        "safe_margin_mm": { "type": "number", "minimum": 0 },
+        "compensation": { "enum": ["centerline", "thermal_kerf_offset_applied"] },
+        "avoid_duplicate_cuts": { "type": "boolean" },
+        "template_params": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "parts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dxf", "svg_preview", "pdf_job", "manifest", "gcode"],
+      "properties": {
+        "dxf": { "type": "boolean" },
+        "svg_preview": { "type": "boolean" },
+        "pdf_job": { "type": "boolean" },
+        "manifest": { "type": "boolean" },
+        "gcode": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "const": false }
+          }
+        }
+      }
+    }
+  }
+}

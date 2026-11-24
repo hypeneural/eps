@@ -1,0 +1,14 @@
+{
+  "must_include": [
+    "machine.profile=scara_hotwire_eps",
+    "reject_router_fields",
+    "outputs.gcode.enabled=false"
+  ],
+  "must_not_include": [
+    "tool.",
+    "spindle_rpm",
+    "z_safe_mm",
+    "pass_depth_mm",
+    "router_eps"
+  ]
+}

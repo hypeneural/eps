@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Unit tests
+        run: python -m unittest discover -s tests -p "test_*.py"
+      - name: Validate and generate examples
+        run: |
+          python scripts/validate_project.py projects/exemplos/001_linha_500mm.yaml
+          python scripts/generate_project.py projects/exemplos/001_linha_500mm.yaml
+          python scripts/validate_dxf.py outputs/001_linha_500mm/03_cutpaths_r12.dxf
+          python scripts/generate_project.py projects/exemplos/007_tp40_nucleo_eps.yaml

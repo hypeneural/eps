@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/epscad/machine_profile_hotwire.schema.json",
+  "title": "EPS SCARA Hotwire Machine Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "unit",
+    "process_type",
+    "profile_locked",
+    "controller",
+    "work_area",
+    "axes",
+    "hotwire",
+    "feed",
+    "safety",
+    "formats"
+  ],
+  "properties": {
+    "id": { "enum": ["scara_hotwire_eps", "scara_hotwire_teste"] },
+    "name": { "type": "string", "minLength": 1 },
+    "unit": { "const": "mm" },
+    "process_type": { "const": "hotwire_2d" },
+    "profile_locked": { "type": "boolean" },
+    "status": { "type": "string" },
+    "controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["software", "profile_shortcut", "cam_bridge", "accepted_import"],
+      "properties": {
+        "software": { "const": "Mach3" },
+        "profile_shortcut": { "type": "string", "minLength": 1 },
+        "cam_bridge": { "const": "LazyCam" },
+        "accepted_import": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primary", "secondary"],
+          "properties": {
+            "primary": { "enum": ["DXF_R12"] },
+            "secondary": { "enum": ["DXF_2007", "confirmar"] }
+          }
+        }
+      }
+    },
+    "work_area": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x_max", "y_max", "z_max"],
+      "properties": {
+        "x_max": { "type": ["number", "string"] },
+        "y_max": { "type": ["number", "string"] },
+        "z_max": { "type": ["number", "string"] }
+      }
+    },
+    "axes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x_positive", "y_positive", "zero_policy", "home_policy"],
+      "properties": {
+        "x_positive": { "type": "string", "minLength": 1 },
+        "y_positive": { "type": "string", "minLength": 1 },
+        "zero_policy": { "type": "string", "minLength": 1 },
+        "home_policy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "hotwire": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "wire_mode",
+        "wire_count",
+        "effective_kerf_mm",
+        "lead_in_mm_default",
+        "lead_out_mm_default",
+        "min_segment_mm",
+        "min_radius_mm"
+      ],
+      "properties": {
+        "wire_mode": { "enum": ["line_hotwire", "spiral_hotwire", "multiwire_hotwire"] },
+        "wire_count": { "type": ["integer", "string"] },
+        "effective_kerf_mm": { "type": ["number", "string"] },
+        "lead_in_mm_default": { "type": "number", "minimum": 0 },
+        "lead_out_mm_default": { "type": "number", "minimum": 0 },
+        "min_segment_mm": { "type": ["number", "string"] },
+        "min_radius_mm": { "type": ["number", "string"] }
+      }
+    },
+    "feed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_xy_mm_min", "slow_curve_mm_min"],
+      "properties": {
+        "default_xy_mm_min": { "type": ["number", "string"] },
+        "slow_curve_mm_min": { "type": ["number", "string"] }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dry_run_required", "first_cut_test_required", "operator_confirmation_required"],
+      "properties": {
+        "dry_run_required": { "const": true },
+        "first_cut_test_required": { "const": true },
+        "operator_confirmation_required": { "const": true },
+        "production_allowed": { "type": "boolean" }
+      }
+    },
+    "formats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dxf_primary", "dxf_secondary", "gcode_candidates"],
+      "properties": {
+        "dxf_primary": { "const": "R12" },
+        "dxf_secondary": { "enum": ["2007", 2007, "confirmar"] },
+        "gcode_candidates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": [".tap", ".nc", ".txt"] }
+        }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

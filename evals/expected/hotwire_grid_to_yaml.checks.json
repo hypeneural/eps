@@ -1,0 +1,14 @@
+{
+  "must_include": [
+    "machine.profile=scara_hotwire_eps",
+    "machine.process_type=hotwire_2d",
+    "process.hotwire.wire_mode=line_hotwire",
+    "cut.template=grid_blocks",
+    "project.unit=mm",
+    "outputs.gcode.enabled=false"
+  ],
+  "must_block_if": [
+    "process.hotwire.effective_kerf_mm=confirmar",
+    "process.feed.xy_mm_min=confirmar"
+  ]
+}

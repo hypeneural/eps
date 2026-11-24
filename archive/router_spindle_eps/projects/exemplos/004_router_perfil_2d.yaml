@@ -1,0 +1,63 @@
+project:
+  id: 004_router_perfil_2d
+  name: Perfil 2D router EPS - teste bloqueado
+  unit: mm
+  status: draft
+  source:
+    kind: manual_text
+    scale_confirmed: true
+    dimensions_confirmed: true
+    production_confirmed: false
+
+machine:
+  profile: router_eps
+  process_type: router_spindle
+  output_format: dxf_r12
+  cam_bridge: confirmar
+  controller_hint: Mach3
+
+material:
+  type: EPS
+  density: confirmar
+  stock:
+    length_x: 1000
+    width_y: 500
+    thickness_z: 100
+
+tool:
+  kind: endmill
+  diameter_mm: 6
+  effective_kerf_mm: 6
+  flute_length_mm: confirmar
+  max_depth_per_pass_mm: confirmar
+
+cut:
+  template: profile_2d
+  origin: lower_left
+  cut_plane: XY
+  safe_margin_mm: 10
+  compensation: centerline
+  strategy: through_cut
+  template_params:
+    points:
+      - [0, 0]
+      - [200, 0]
+      - [200, 100]
+      - [0, 100]
+    closed: true
+  depth:
+    z_safe_mm: confirmar
+    final_depth_z: 105
+    pass_depth_mm: confirmar
+  feed:
+    xy_mm_min: confirmar
+    z_mm_min: confirmar
+    spindle_rpm: confirmar
+
+outputs:
+  dxf: true
+  svg_preview: true
+  pdf_job: true
+  manifest: true
+  gcode:
+    enabled: false

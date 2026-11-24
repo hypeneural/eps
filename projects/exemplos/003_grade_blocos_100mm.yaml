@@ -1,0 +1,62 @@
+project:
+  id: 003_grade_blocos_100mm
+  name: Grade blocos EPS 100 mm - teste hotwire
+  unit: mm
+  status: validated_geometry
+  source:
+    kind: manual_text
+    scale_confirmed: true
+    dimensions_confirmed: true
+    production_confirmed: false
+
+machine:
+  profile: scara_hotwire_eps
+  process_type: hotwire_2d
+  output_format: dxf_r12
+  cam_bridge: LazyCam
+  controller_hint: Mach3_EPS
+
+material:
+  type: EPS
+  density: P3
+  stock:
+    length_x: 1000
+    height_y: 500
+    thickness_z: 100
+
+process:
+  hotwire:
+    wire_mode: line_hotwire
+    wire_count: 1
+    effective_kerf_mm: 1.5
+    lead_in_mm: 20
+    lead_out_mm: 20
+    min_segment_mm: 5
+    min_radius_mm: 2
+  feed:
+    xy_mm_min: 500
+    slow_curve_mm_min: 250
+
+cut:
+  template: grid_blocks
+  origin: lower_left
+  cut_plane: XY
+  safe_margin_mm: 10
+  compensation: centerline
+  avoid_duplicate_cuts: true
+
+parts:
+  - id: bloco_100
+    qty_x: 10
+    qty_y: 5
+    width_x: 100
+    height_y: 100
+    shared_lines: true
+
+outputs:
+  dxf: true
+  svg_preview: true
+  pdf_job: true
+  manifest: true
+  gcode:
+    enabled: false

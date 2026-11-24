@@ -1,0 +1,12 @@
+{
+  "must_include": [
+    "project.source.kind=image_reference",
+    "project.source.scale_confirmed=false",
+    "project.source.dimensions_confirmed=false",
+    "project.source.production_confirmed=false"
+  ],
+  "must_not_include": [
+    "production_released",
+    "gcode"
+  ]
+}

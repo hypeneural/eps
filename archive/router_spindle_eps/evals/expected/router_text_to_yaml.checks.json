@@ -1,0 +1,14 @@
+{
+  "must_include": [
+    "machine.profile=router_eps",
+    "machine.process_type=router_spindle",
+    "tool.diameter_mm=6",
+    "outputs.gcode.enabled=false"
+  ],
+  "must_block_if": [
+    "feed.xy_mm_min=confirmar",
+    "feed.z_mm_min=confirmar",
+    "spindle_rpm=confirmar",
+    "z_safe_mm=confirmar"
+  ]
+}

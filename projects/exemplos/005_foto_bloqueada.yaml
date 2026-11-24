@@ -1,0 +1,55 @@
+project:
+  id: 005_foto_bloqueada
+  name: Foto de referencia sem escala - bloqueada
+  unit: mm
+  status: draft
+  source:
+    kind: image_reference
+    image_path: inputs/peca_exemplo.jpg
+    scale_confirmed: false
+    dimensions_confirmed: false
+    production_confirmed: false
+
+machine:
+  profile: scara_hotwire_eps
+  process_type: hotwire_2d
+  output_format: dxf_r12
+  cam_bridge: LazyCam
+  controller_hint: Mach3_EPS
+
+material:
+  type: EPS
+  density: confirmar
+  stock:
+    length_x: 1000
+    height_y: 500
+    thickness_z: 100
+
+process:
+  hotwire:
+    wire_mode: line_hotwire
+    wire_count: confirmar
+    effective_kerf_mm: confirmar
+    lead_in_mm: 20
+    lead_out_mm: 20
+    min_segment_mm: confirmar
+    min_radius_mm: confirmar
+  feed:
+    xy_mm_min: confirmar
+    slow_curve_mm_min: confirmar
+
+cut:
+  template: photo_trace
+  origin: lower_left
+  cut_plane: XY
+  safe_margin_mm: 10
+  compensation: centerline
+  avoid_duplicate_cuts: true
+
+outputs:
+  dxf: true
+  svg_preview: true
+  pdf_job: true
+  manifest: true
+  gcode:
+    enabled: false

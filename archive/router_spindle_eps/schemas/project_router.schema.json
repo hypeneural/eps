@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/epscad/project_router.schema.json",
+  "title": "EPS Router Project",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["project", "machine", "material", "tool", "cut", "outputs"],
+  "properties": {
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "unit", "status", "source"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "unit": { "const": "mm" },
+        "status": { "enum": ["draft", "validated_geometry", "cam_ready", "machine_tested", "production_released"] },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "scale_confirmed", "dimensions_confirmed", "production_confirmed"],
+          "properties": {
+            "kind": { "enum": ["manual_text", "image_reference", "svg_reference", "dxf_reference"] },
+            "image_path": { "type": "string" },
+            "scale_confirmed": { "type": "boolean" },
+            "dimensions_confirmed": { "type": "boolean" },
+            "production_confirmed": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "machine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "process_type", "output_format", "cam_bridge", "controller_hint"],
+      "properties": {
+        "profile": { "const": "router_eps" },
+        "process_type": { "const": "router_spindle" },
+        "output_format": { "enum": ["dxf_r12", "dxf_2007"] },
+        "cam_bridge": { "type": "string", "minLength": 1 },
+        "controller_hint": { "type": "string", "minLength": 1 }
+      }
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "density", "stock"],
+      "properties": {
+        "type": { "enum": ["EPS", "XPS"] },
+        "density": { "type": ["string", "number"] },
+        "stock": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["length_x", "width_y", "thickness_z"],
+          "properties": {
+            "length_x": { "type": "number", "exclusiveMinimum": 0 },
+            "width_y": { "type": "number", "exclusiveMinimum": 0 },
+            "thickness_z": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "diameter_mm", "effective_kerf_mm", "flute_length_mm", "max_depth_per_pass_mm"],
+      "properties": {
+        "kind": { "enum": ["endmill", "ballnose", "straight_router_bit", "drill"] },
+        "diameter_mm": { "type": "number", "exclusiveMinimum": 0 },
+        "effective_kerf_mm": { "type": "number", "exclusiveMinimum": 0 },
+        "flute_length_mm": { "type": ["number", "string"] },
+        "max_depth_per_pass_mm": { "type": ["number", "string"] }
+      }
+    },
+    "cut": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["template", "origin", "cut_plane", "safe_margin_mm", "compensation", "strategy", "depth", "feed"],
+      "properties": {
+        "template": { "enum": ["straight_cut", "square_test", "grid_blocks", "profile_2d", "pocket_2_5d", "raster_surface", "photo_trace"] },
+        "origin": { "enum": ["lower_left", "center", "machine_zero"] },
+        "cut_plane": { "const": "XY" },
+        "safe_margin_mm": { "type": "number", "minimum": 0 },
+        "compensation": { "enum": ["centerline", "geometry_offset_applied", "cam_compensation_required"] },
+        "strategy": { "enum": ["profile_cut", "through_cut", "pocket", "raster", "drill", "surface"] },
+        "template_params": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "depth": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["z_safe_mm", "final_depth_z", "pass_depth_mm"],
+          "properties": {
+            "z_safe_mm": { "type": ["number", "string"] },
+            "final_depth_z": { "type": "number", "exclusiveMinimum": 0 },
+            "pass_depth_mm": { "type": ["number", "string"] }
+          }
+        },
+        "feed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["xy_mm_min", "z_mm_min", "spindle_rpm"],
+          "properties": {
+            "xy_mm_min": { "type": ["number", "string"] },
+            "z_mm_min": { "type": ["number", "string"] },
+            "spindle_rpm": { "type": ["integer", "string"] }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dxf", "svg_preview", "pdf_job", "manifest", "gcode"],
+      "properties": {
+        "dxf": { "type": "boolean" },
+        "svg_preview": { "type": "boolean" },
+        "pdf_job": { "type": "boolean" },
+        "manifest": { "type": "boolean" },
+        "gcode": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "const": false }
+          }
+        }
+      }
+    }
+  }
+}

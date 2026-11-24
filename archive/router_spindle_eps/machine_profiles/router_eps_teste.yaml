@@ -1,0 +1,71 @@
+id: router_eps_teste
+name: CNC Router EPS - perfil de teste
+unit: mm
+process_type: router_spindle
+profile_locked: false
+
+status: test_only
+notes:
+  reason: "Perfil para dry-run e calibracao. Nao liberar producao."
+
+controller:
+  software: confirmar
+  profile_shortcut: confirmar
+  cam_bridge: confirmar
+  accepted_import:
+    primary: DXF_R12
+    secondary: DXF_2007
+
+work_area:
+  x_max: confirmar
+  y_max: confirmar
+  z_max: confirmar
+
+axes:
+  x_positive: confirmar
+  y_positive: confirmar
+  z_positive: confirmar
+  zero_policy: confirmar
+  home_policy: confirmar
+
+tooling:
+  default_tool_kind: endmill
+  default_tool_diameter_mm: confirmar
+  effective_kerf_mm: confirmar
+  flute_length_mm: confirmar
+  max_depth_per_pass_mm: confirmar
+  spindle_rpm_default: confirmar
+  min_internal_radius_mm: confirmar
+
+z:
+  safe_z_mm: confirmar
+  max_cut_depth_mm: confirmar
+  overcut_allowance_mm: confirmar
+
+feed:
+  default_xy_mm_min: confirmar
+  default_z_mm_min: confirmar
+  plunge_mm_min: confirmar
+
+strategies:
+  allowed:
+    - profile_cut
+    - through_cut
+    - pocket
+    - raster
+    - drill
+    - surface
+
+safety:
+  dry_run_required: true
+  first_cut_test_required: true
+  operator_confirmation_required: true
+  production_allowed: false
+
+formats:
+  dxf_primary: R12
+  dxf_secondary: 2007
+  gcode_candidates:
+    - .tap
+    - .nc
+    - .txt
