@@ -1,0 +1,63 @@
+# Geometria sintetica de CAD: somente teste de importacao e escala, nao perfil comercial.
+project:
+  id: 008_trapezio_calibracao
+  name: Perfil sintetico de calibracao - NAO PRODUCAO
+  unit: mm
+  status: validated_geometry
+  source:
+    kind: manual_text
+    scale_confirmed: true
+    dimensions_confirmed: true
+    production_confirmed: false
+machine:
+  profile: scara_hotwire_eps
+  process_type: hotwire_2d
+  output_format: dxf_r12
+  cam_bridge: LazyCam
+  controller_hint: Mach3_EPS
+material:
+  type: EPS
+  density: confirmar
+  stock:
+    length_x: 400
+    height_y: 100
+    thickness_z: 100
+process:
+  hotwire:
+    wire_mode: line_hotwire
+    wire_count: confirmar
+    effective_kerf_mm: confirmar
+    lead_in_mm: 20
+    lead_out_mm: 20
+    min_segment_mm: confirmar
+    min_radius_mm: confirmar
+  feed:
+    xy_mm_min: confirmar
+    slow_curve_mm_min: confirmar
+cut:
+  template: profile_2d
+  origin: lower_left
+  cut_plane: XY
+  safe_margin_mm: 10
+  compensation: centerline
+  avoid_duplicate_cuts: true
+  template_params:
+    closed: false
+    points:
+      - [0, 30]
+      - [50, 30]
+      - [80, 70]
+      - [120, 70]
+      - [150, 30]
+      - [250, 30]
+      - [280, 70]
+      - [320, 70]
+      - [350, 30]
+      - [400, 30]
+outputs:
+  dxf: true
+  svg_preview: true
+  pdf_job: true
+  manifest: true
+  gcode:
+    enabled: false

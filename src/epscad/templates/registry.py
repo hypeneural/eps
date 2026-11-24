@@ -17,6 +17,11 @@ def build_paths(spec: dict[str, Any]) -> tuple[list[CutPath], list[ValidationMes
     if template == "photo_trace":
         return [], [ValidationMessage("warning", "photo_trace_draft_only", "photo_trace creates draft previews only until scale is confirmed", "cut.template")]
     if template == "profile_2d":
+        points = params.get("points")
+        from math import isfinite
+        valid = isinstance(points, list) and len(points) >= 2 and all(isinstance(p, list) and len(p)==2 and all(isinstance(v, (int,float)) and not isinstance(v,bool) and isfinite(v) for v in p) for p in points)
+        if not valid:
+            return [], [ValidationMessage("error", "profile_points_required", "Explicit finite XY profile points required", "cut.template_params.points")]
         return _profile_2d(params), []
     if template == "tp40_core":
         from epscad.templates.tp40 import build_tp40_core
@@ -66,7 +71,7 @@ def _grid_blocks(spec: dict[str, Any]) -> list[CutPath]:
 def _profile_2d(params: dict[str, Any]) -> list[CutPath]:
     points = params.get("points")
     if not isinstance(points, list) or len(points) < 2:
-        return _square_test(params)
+        raise ValueError("Explicit profile points required")
     segments: list[PathSegment] = []
     parsed = [Point(float(item[0]), float(item[1])) for item in points]
     for start, end in zip(parsed, parsed[1:]):

@@ -1,5 +1,7 @@
 # Template TP40 trapezoidal - miolo de EPS de telha sanduiche
 
+> **Escopo:** este documento descreve o template comercial simplificado `tp40_core`, não a TP40 base lisa histórica com cinco microdobras. Para base lisa, use `scripts/prepare_tp40.py` e [handoff](16_DEVELOPMENT_HANDOFF.md). As dimensões de exemplo não são medidas homologadas. A instalação histórica do LazyCam tem AutoLead=0; não presuma geração automática de entrada/saída.
+
 Data: 2026-11-24
 
 Template `cut.template: tp40_core`. Desenha o corte do miolo de EPS que fica sobre a telha de aco trapezoidal TP40 (altura de onda 40 mm): **topo plano + face inferior trapezoidal**.
@@ -104,7 +106,7 @@ Depois: LazyCam importa o DXF -> conferir escala 1:1, origem e sentido X/Y -> Ma
 
 - Medidas reais da telha TP40 (ver acima) e do bloco de EPS (X/Y/Z).
 - Quantidade de fios e perda efetiva do fio na SCARA (`docs/02_INVENTARIO_MAQUINA_SCARA.md`).
-- Lead-in/lead-out: hoje ficam por conta do LazyCam; o template nao gera geometria de lead.
+- Lead-in/lead-out: o template não gera geometria de lead; o operador precisa verificar no LazyCam, inclusive AutoLead=0 observado historicamente.
 - Confirmar se o LazyCam le o DXF R12 com `LINE` solto na escala correta (teste real).
 - Telhas com nervura/aba lateral de encaixe nas bordas: o perfil gerado e a onda central repetida; bordas especiais precisam de medida e ajuste.
 

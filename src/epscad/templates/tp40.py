@@ -14,7 +14,7 @@ ultimo vale pela metade. Largura = n_waves * pitch. Total de segmentos = 4n + 1.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import atan2, degrees, hypot
+from math import atan2, degrees, hypot, isfinite
 from typing import Any
 
 from epscad.schema import CutPath, PathSegment, Point, ValidationMessage
@@ -53,7 +53,7 @@ class Tp40Params:
 
 def _num(value: Any) -> float | None:
     if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return float(value)
+        return float(value) if isfinite(value) else None
     return None
 
 
@@ -73,8 +73,8 @@ def parse_params(spec: dict[str, Any]) -> tuple[Tp40Params | None, list[Validati
         else:
             values[key] = number
     n_waves = raw.get("n_waves")
-    if not isinstance(n_waves, int) or isinstance(n_waves, bool) or n_waves < 1:
-        error("tp40_param_invalid", "n_waves must be an integer >= 1", "cut.template_params.n_waves")
+    if not isinstance(n_waves, int) or isinstance(n_waves, bool) or not 1 <= n_waves <= 100:
+        error("tp40_param_invalid", "n_waves must be an integer from 1 to 100", "cut.template_params.n_waves")
         n_waves = 0
     x0 = _num(raw.get("x0_mm", 0))
     if x0 is None or x0 < 0:

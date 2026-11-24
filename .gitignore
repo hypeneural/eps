@@ -12,3 +12,18 @@ outputs/
 *.tmp
 *.bak
 *.log
+
+# Factory originals, proprietary configurations and locally recovered profiles
+private_evidence/
+local_catalogs/
+
+# Local agent checkpoints (never commit conversation state)
+.eps-agent/
+
+portal_local/
+
+.env
+
+.env.*
+
+!.env.example

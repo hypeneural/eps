@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shutil
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -28,6 +28,15 @@ GENERATED_FILENAMES = {
     "10_validation_report.json",
     "11_hashes.sha256",
     "12_package_for_machine.zip",
+    "20_eps_core_mm.stl",
+    "21_eps_complement_mm.stl",
+    "22_metal_reference_mm.stl",
+    "23_assembly_reference.glb",
+    "24_eps_core.glb",
+    "25_eps_material.png",
+    "26_render_eps.png",
+    "27_render_assembly.png",
+    "28_eps_normal.png",
 }
 
 
@@ -35,6 +44,17 @@ def write_outputs(job: CutJobResult, spec: dict, output_dir: str | Path) -> dict
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     _clear_known_outputs(out)
+    with tempfile.TemporaryDirectory(prefix='.eps-staging-', dir=out) as tmp:
+        files = _write_staged(job, spec, Path(tmp))
+        from epscad.exporters.integrity import verify_zip
+        verify_zip(tmp)
+        for key, value in files.items():
+            source = Path(value)
+            source.replace(out / source.name)
+        return {key: str(out / Path(value).name) for key, value in files.items()}
+
+
+def _write_staged(job, spec, out):
     files: dict[str, str] = {}
     project_path = out / "05_project.locked.yaml"
     project_path.write_text(yaml.safe_dump(spec, sort_keys=False, allow_unicode=False), encoding="utf-8")
@@ -52,9 +72,18 @@ def write_outputs(job: CutJobResult, spec: dict, output_dir: str | Path) -> dict
     report_path.write_text(json.dumps(_validation_report(job), indent=2, ensure_ascii=False), encoding="utf-8")
     files["validation_report"] = str(report_path)
 
-    if job.production_status in DXF_STATUSES and not job.has_errors:
+    if job.roof_geometry is not None and not job.has_errors:
+        from epscad.exporters.roof_3d import write_roof_assets
+        files.update(write_roof_assets(job.roof_geometry, out, job.production_status))
+
+    if spec.get("outputs", {}).get("dxf", False) and job.production_status in DXF_STATUSES and not job.has_errors and job.metadata.get("tp40", {}).get("cut_mode") != "core_outline":
         dxf_path = out / "03_cutpaths_r12.dxf"
         write_dxf_r12(job, dxf_path)
+        from epscad.exporters.dxf_validator import validate_dxf
+        from epscad.exporters.roundtrip import verify_roundtrip
+        if not validate_dxf(dxf_path).ok or not verify_roundtrip(job, dxf_path):
+            dxf_path.unlink(missing_ok=True)
+            raise ValueError("Exported DXF failed validation")
         files["dxf_r12"] = str(dxf_path)
 
     pdf_path = out / "02_ordem_corte_eps.pdf"
@@ -114,6 +143,11 @@ def _manifest(job: CutJobResult, files: dict[str, str]) -> dict:
         "production_status": job.production_status,
         "gcode_enabled": job.metadata.get("gcode_enabled", False),
         "requires_dry_run": True,
+        "package_purpose": "production" if job.production_status == "production_released" and not job.has_errors else "review_or_test_only",
+        "model_units": {"stl": "mm", "glb": "m"},
+        "roof_3d": job.metadata.get("roof_3d"),
+        "project_id": job.project_id,
+        "profile_source": job.metadata.get("profile_source"),
         "has_errors": job.has_errors,
         "files": {key: Path(value).name for key, value in files.items()},
     }
@@ -167,6 +201,9 @@ def _operator_readme(job: CutJobResult) -> str:
         f"Perfil: {job.machine_profile}\n"
         f"Processo: {job.process_type}\n"
         f"Status: {job.production_status}\n"
+        + ("PRODUCAO: conferir autorizacao e dry-run.\n" if job.production_status == "production_released" and not job.has_errors else "NAO LIBERADO PARA PRODUCAO. Conferencia/teste apenas.\n")
+        + "STL/GLB/PNG: apenas visualizacao; LazyCam recebe somente o DXF validado.\n"
+        +
         "Conferir unidade em mm, origem, escala, bbox e dry-run antes de cortar.\n"
     )
 

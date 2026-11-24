@@ -27,6 +27,8 @@ def load_json(path: str | Path) -> dict[str, Any]:
 
 
 def load_machine_profile(profile_id: str) -> dict[str, Any]:
+    if profile_id not in {"scara_hotwire_eps", "scara_hotwire_teste"}:
+        raise FileNotFoundError("Unknown machine profile: "+profile_id)
     target = ROOT / "machine_profiles" / f"{profile_id}.yaml"
     if not target.exists():
         raise FileNotFoundError(f"Machine profile not found: {target}")

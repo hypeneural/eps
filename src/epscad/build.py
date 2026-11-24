@@ -40,6 +40,15 @@ def build_job(spec: dict[str, Any]) -> CutJobResult:
 
         result.metadata["tp40"] = tp40.metadata(spec)
         result.reference_segments = tp40.reference_segments(spec)
+        if result.paths and not result.has_errors:
+            from epscad.geometry.roof import build_roof_geometry
+            from epscad.schema import ValidationMessage
+            try:
+                result.roof_geometry = build_roof_geometry(spec)
+                roof = result.roof_geometry
+                result.metadata["roof_3d"] = {"length_mm": roof.length_mm, "core_area_mm2": roof.core.area, "core_volume_mm3": roof.core.area * roof.length_mm, "metal_reference_only": True, "metal_thickness_mm": roof.metal_thickness_mm}
+            except (ValueError, TypeError) as exc:
+                result.validation.append(ValidationMessage("error", "roof_geometry_invalid", str(exc), "cut.template_params"))
     return result
 
 

@@ -1,0 +1,19 @@
+id: tp40_980_sks
+manufacturer: SKS
+source: https://www.gruposks.com/pdfs/Catalogo_SKS_aco_2023.pdf
+source_page: 21
+status: reference_only
+useful_width_mm: 980
+metal_total_width_mm: 1032
+metal_thickness_mm: 0.43
+profile:
+  profile_height_mm: 36
+  pitch_mm: 196
+  crest_width_mm: 32
+  valley_width_mm: 98
+  n_waves: 5
+  panel_width_mm: 980
+  min_thickness_mm: 30
+  profile_confirmed: false
+  cut_mode: wavy_line
+limitations: Modulo central simplificado; microdobras, fase e bordas precisam de medicao.

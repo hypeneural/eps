@@ -4,7 +4,7 @@ from typing import Any
 
 from epscad.loader import load_machine_profile
 from epscad.schema import ValidationMessage
-from epscad.validators.common import find_confirmar, is_production_like
+from epscad.validators.common import find_confirmar, is_production_like, as_number, get_path
 
 
 def validate_production_gates(spec: dict[str, Any]) -> list[ValidationMessage]:
@@ -46,6 +46,12 @@ def validate_production_gates(spec: dict[str, Any]) -> list[ValidationMessage]:
             profile = {}
         if profile.get("profile_locked") is not True:
             messages.append(ValidationMessage("error", "profile_locked_required", "profile_locked=true is required for production", "machine.profile"))
+        if not all(source.get(k) is True for k in ("production_confirmed","dimensions_confirmed","scale_confirmed")):
+            messages.append(ValidationMessage("error","production_confirmation_required","Explicit scale, dimensions and production confirmation required","project.source"))
+        for field in ("work_area.x_max","work_area.y_max","work_area.z_max","hotwire.effective_kerf_mm","hotwire.min_segment_mm","feed.default_xy_mm_min","feed.slow_curve_mm_min"):
+            value=as_number(get_path(profile,field))
+            if value is None or value<=0:
+                messages.append(ValidationMessage("error","machine_numeric_required",f"{field} must be positive and confirmed",field))
         profile_confirmar = find_confirmar(profile)
         if profile_confirmar:
             messages.append(

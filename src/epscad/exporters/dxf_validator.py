@@ -16,10 +16,11 @@ class DxfValidationResult:
     forbidden_entities: list[str] = field(default_factory=list)
     unknown_entities: list[str] = field(default_factory=list)
     bbox: dict[str, float] = field(default_factory=dict)
+    structural_errors: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
-        return not self.forbidden_entities and not self.unknown_entities
+        return self.entity_count > 0 and not self.structural_errors and not self.forbidden_entities and not self.unknown_entities
 
 
 Record = tuple[str, list[tuple[str, str]]]
@@ -53,6 +54,23 @@ def validate_dxf(path: str | Path) -> DxfValidationResult:
     result = DxfValidationResult(path=str(target), entity_count=len(entities))
     result.forbidden_entities = sorted(forbidden)
     result.unknown_entities = sorted(unknown)
+    pairs = _pairs(raw)
+    if len(raw) % 2 or not pairs or pairs[-1] != ("0", "EOF"):
+        result.structural_errors.append("invalid_or_missing_EOF")
+    if ("9", "$ACADVER") not in sections.get("HEADER", []) or ("1", "AC1009") not in sections.get("HEADER", []):
+        result.structural_errors.append("not_R12")
+    if not entities:
+        result.structural_errors.append("empty_entities")
+    from math import isfinite
+    for kind, data in entities:
+        for code, value in data:
+            if code in {"10","11","20","21","30","31","40","50","51"}:
+                try:
+                    n = float(value)
+                    if not isfinite(n) or (code in {"30","31"} and n != 0):
+                        raise ValueError()
+                except ValueError:
+                    result.structural_errors.append("invalid_coordinate")
     result.bbox = _bbox(entities)
     return result
 

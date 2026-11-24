@@ -31,3 +31,32 @@
 - `CutJobResult.reference_segments` e `view_bbox` adicionados para preview/PDF; `bbox` continua sendo so a geometria de corte.
 - Manifest ganha `template` e `tp40`; PDF ganha secao "Perfil TP40" e alerta "MEDIDAS TP40 NOMINAIS" enquanto nao confirmado.
 - Producao continua bloqueada ate o inventario real da SCARA (ver `docs/12_AUDITORIA_E_PRONTIDAO.md`).
+
+## Pacote 3D TP40
+- Poligonos nominais fechados para EPS, contraforma e chapa negativa simplificada; percurso do fio separado.
+- STL em mm, GLB em metros, textura sintetica EPS, preview CPU. Sem malha 3D como arquivo CAM.
+- Catalogos nao homologados; microdobras/fase/bordas precisam de confirmacao.
+- DXF do contorno fechado de conferencia bloqueado.
+
+## Entrega e agente Antigravity
+- AGENTS.md e skills .agents/skills; .codex preservado. Agente especializado em .agents/agents/eps-engineer/agent.md.
+- Primeiro teste gera calibracao e TP40 nominais separados. Confirmacao fisica nunca automatizada.
+- ZIP validado por lista de manifest e SHA256, reabertura DXF por ezdxf. Staging antes de publicacao.
+- GLB com normal map sintetico. Blender Cycles opcional e separado dos arquivos com hash; preview CPU permanece padrao.
+
+- Corpo de prova sintetico separado para teste de importacao: 400 x 40 mm, 9 LINE, nenhum parametro fisico assumido.
+- Perfil por pontos invalido nao gera quadrado silencioso; gates de producao exigem confirmacao explicita e capacidades numericas.
+
+## Homologacao local PC de desenvolvimento (2026-11-24)
+- `scripts/render_quality.py` e `scripts/blender/render_eps.py` expandidos com `--view` para 6 vistas studio Cycles (`perspective`, `section_front`, `microgroove_detail`, `assembly`, `exploded`, `texture_closeup`), material procedural de EPS branco com perolas fundidas arredondadas (`1 - d^2` + seams suaves), chapa Galvalume metalica spangle, color management `AgX` e deteccao automatica OptiX/CUDA com fallback CPU.
+- `scripts/prepare_tp40.py` gera automaticamente as 6 vistas Cycles (`30..35_*_cycles.png`) quando Blender e localizado (`--blender auto`) e preserva a separacao estrita sem DXF/TAP.
+- `src/epscad/visual/review_drawing.py` passou a incluir detalhe ampliado do modulo (196 mm) destacando a microdobra central (48 x 2 mm) e tabela resumo das cotas nominais em `29_section_review.png`.
+- `.agents/agents/eps-engineer/agent.md` vinculado explicitamente as 5 skills locais.
+- Testes de regressao adicionados para invariancia do perfil sob variacao de espessura minima, preservacao das 5 microdobras e contrato CLI das 6 vistas Cycles (`tests/test_render_quality.py`, `tests/test_roof_review.py`).
+
+## Arquitetura do agente (24/11/2026)
+AGENTS.md curto, skills sob demanda, agentes separados e preflight no CI; checkpoint local ignorado. Workflows legados não adicionados; /run-workflow para auditoria ampla com aprovação. Ver docs/18_GUIA_AGENTE.md e docs/19_WORKFLOWS_AGENTE.md.
+
+## Cyclorama Cycles e catalogo unico (2026-11-24)
+- `scripts/blender/render_eps.py` passou a construir fundo infinito cyclorama curvo (`StudioCyclorama`) nas vistas `perspective`, `assembly` e `exploded`, eliminando a linha de horizonte, e calibrou exposicao/key rasante em `microgroove_detail` (`exposure=-0.35`) para destacar as perolas do EPS ao redor da microdobra `48 x 2 mm`.
+- Novo ponto de entrada unico `scripts/generate_catalog.py` (`--list` + `<catalog_id>`) roteia `microgroove_review` para `prepare_tp40.py` e `trapezoidal_simplified` para `new_tp40.py`, com regressao em `tests/test_catalog_cli.py`, evitando confusao entre templates e preservando o bloqueio de DXF em catalogos nominais.

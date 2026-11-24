@@ -56,6 +56,8 @@ class CutJobResult:
     # Linhas de referencia (bloco EPS, linha nominal). Nunca vao para o DXF de corte.
     reference_segments: list[PathSegment] = field(default_factory=list)
 
+    roof_geometry: Any = field(default=None, repr=False)
+
     @property
     def has_errors(self) -> bool:
         return any(item.level == "error" for item in self.validation)
@@ -81,6 +83,7 @@ class CutJobResult:
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
+        data.pop("roof_geometry", None)
         data["bbox"] = self.bbox
         data["has_errors"] = self.has_errors
         return data
