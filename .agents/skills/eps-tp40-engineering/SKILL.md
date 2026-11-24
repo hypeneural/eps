@@ -1,6 +1,13 @@
 ---
 name: eps-tp40-engineering
-description: Analisa medidas TP40 trapezoidal, perfil negativo da chapa, EPS, kerf e geometria XY industrial.
+description: Gera ou altera perfil TP40 de EPS a partir de catálogo e medidas; use para base lisa, microdobras, negativo metálico, espessura e malhas.
 ---
-# Engenharia
-Leia docs/11_TP40_TRAPEZOIDAL.md, docs/13_TP40_3D_REMOTE.md e docs/16_DEVELOPMENT_HANDOFF.md. Use `python scripts/generate_catalog.py --list` como ponto de entrada unico de catalogos em `catalogs/roof_profiles/` para nunca confundir o perfil com microdobras (`tp40_980_microgroove_review`) com os catalogos trapezoidais simplificados (`tp40_980_sks`, `tp40_1020_isoeste`). Compare passo, crista, vale, altura, largura, fase, bordas, microdobras e espessura na face interna de contato. Registre medidas reais antes de liberar DXF de teste. Use `templates/tp40.py`, `geometry/roof.py` e `geometry/roof_review.py`; nao redesenhe pela imagem. Shapely valida poligonos; Trimesh e Earcut extrudam.
+
+# Escolha do gerador
+- Ponto de entrada único por catálogo: `python scripts/generate_catalog.py --list` e `python scripts/generate_catalog.py <catalog_id> --output <pasta>` roteia automaticamente sem misturar perfis.
+- Base lisa histórica com microdobras (`tp40_980_microgroove_review`): `scripts/prepare_tp40.py --help`; catálogo `tp40_980_microgroove_review.yaml`. Referência de 980 × 67 mm, 31 mm mínimos, 5 módulos de 196, microdobra 48 × 2, área 42560 mm² no baseline. Leia `docs/16_DEVELOPMENT_HANDOFF.md`.
+- TP40/980 SKS ou TP40/1020 Isoeste simplificada: `scripts/new_tp40.py --help`; leia `docs/11_TP40_TRAPEZOIDAL.md` e `docs/13_TP40_3D_REMOTE.md`.
+- Foto sem medidas: draft, sem DXF. Evidência histórica: `eps-historical-review`.
+
+# Execução
+Escolha ID explícito; não misture perfis. Comprimento e bitola de referência não são medidas homologadas. Use scripts existentes, Shapely/Trimesh/Earcut. Verifique área, volume, cinco microdobras e invariância da interface ao mudar espessura mínima. Não alterar geometria para melhorar estética. Compare relatório e hashes, registre hipóteses, não liberar corte.

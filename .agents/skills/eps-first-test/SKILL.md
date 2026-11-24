@@ -1,10 +1,7 @@
 ---
 name: eps-first-test
-description: Gera primeiro pacote de teste EPS SCARA, catalogos TP40, DXF de calibracao, malhas STL GLB e previews.
+description: Prepara o ambiente de desenvolvimento e gera calibrações SCARA e primeiro pacote nominal TP40; use em instalação, smoke test ou regressão integral.
 ---
+
 # Primeiro teste
-Leia AGENTS.md e docs/14_ANTIGRAVITY_LOCAL.md. Confira branch, venv, pip check e unittest. Execute python scripts/first_test.py --help e gere em outputs/primeiro_teste. Abra imagens e PDF. Valide os hashes com scripts/verify_package.py. DXF de calibracao separado; TP40 nominal sem DXF. Use eps-render-quality se houver Blender. Reporte caminhos e bloqueios.
-
-O segundo DXF e corpo de prova sintetico 400 x 40 mm, 9 LINE, somente importacao e dry-run sem aquecimento. Nao confundir com TP40 comercial.
-
-No PC moderno Windows execute scripts/prepare_development.ps1 para reunir calibracoes e revisao TP40 em uma pasta versionada por data. Leia docs/16_DEVELOPMENT_HANDOFF.md. Nunca rodar bootstrap na maquina da fabrica.
+Leia docs/16_DEVELOPMENT_HANDOFF.md. Confirme PC moderno, branch e venv. Execute pip check e unittest. Use scripts/first_test.py --help e escolha pasta nova em outputs/. Para fluxo completo Windows use scripts/prepare_development.ps1 (Blender opcional). Valide os ZIPs de calibração e os modelos de revisão; linha 500 mm e trapézio sintético 400 × 40 mm são testes, não peças comerciais. Use eps-package-audit e eps-render-quality apenas quando necessário. Se outputs anteriores íntegros existem, reutilize-os; não reinstale ou renderize sem motivo. Entregue caminhos, exit codes e pendências.

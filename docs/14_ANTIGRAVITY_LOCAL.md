@@ -1,26 +1,18 @@
-# Antigravity 2.35.0 — primeira entrega local
-Documentacao consultada 2026-11-24: https://antigravity.google/docs/skills/ ; https://antigravity.google/docs/rules/ ; https://antigravity.google/docs/subagents ; https://antigravity.google/docs/customization-discovery/ .
-AGENTS.md sem frontmatter e regra permanente. Skills em .agents/skills/<nome>/SKILL.md com name/description; regra modular usa trigger model_decision. Agente custom em .agents/agents/eps-engineer/agent.md. Preserve .codex. Confirme descoberta no menu Customizations ou abra novo chat; nao foi testado na instalacao 2.35.0.
-## Terminal Windows
+# Antigravity — início rápido local
+App 2.35.0 conforme relatório de homologação. Para customizações e documentação oficial veja docs/19_WORKFLOWS_AGENTE.md; para roteamento e retomada veja docs/18_GUIA_AGENTE.md.
+Abra a raiz do worktree correspondente; não use o PC Windows 7 da fábrica.
+```powershell
 git status --short
-git fetch origin
-git switch feat/tp40-3d-industrial-package
-git pull --ff-only
+git branch --show-current
+git rev-parse HEAD
 python -m venv .venv
 .venv/Scripts/python.exe -m pip install -r requirements.txt
+.venv/Scripts/python.exe scripts/agent_preflight.py
 .venv/Scripts/python.exe -m pip check
 .venv/Scripts/python.exe -m unittest discover -s tests -p "test_*.py"
-.venv/Scripts/python.exe scripts/first_test.py --output outputs/primeiro_teste
-
-Abra summary.json, PDFs, PNGs e GLBs. Em cada subpasta execute scripts/verify_package.py. DXF calibracao_500mm e apenas teste de escala em LazyCam/Mach3 com fio desligado e operador. Nenhum DXF nos dois TP40 nominais.
-## Render qualidade
-Instale Blender 4.2+ por fonte oficial se necessario e autorizado. Exemplo:
-python scripts/render_quality.py --blender "C:/Program Files/Blender Foundation/Blender 4.5/blender.exe" --input outputs/primeiro_teste/tp40_980_sks/24_eps_core.glb --output outputs/primeiro_teste/render_980_cycles.png --view perspective
-Vistas disponiveis em `--view`: `perspective`, `section_front`, `microgroove_detail`, `assembly`, `exploded`, `texture_closeup`. Usa GPU Cycles (OptiX/CUDA) quando disponivel com fallback automatico para CPU. Repita com `23_assembly_reference.glb`. Abra imagens; Cycles e opcional, nao modifica ZIP nem DXF.
-## Bibliotecas
-Shapely: poligonos/area/intersecao; Trimesh + Earcut: extrusao, volume e malha; GLB em m, STL mm; Pillow/NumPy: textura e normal; ezdxf: leitura independente R12. Referencias https://trimesh.org/trimesh.creation.html , https://trimesh.org/trimesh.visual.material.html , https://ezdxf.readthedocs.io/ , https://docs.blender.org/manual/en/latest/advanced/command_line/render.html .
-## Limites
-Nao afirmar fotorealismo sem inspecao. Nao confirmar medidas catalogo. Microdobras/fase/bordas, kerf, lead-in/out e perfil real pendentes. Nao alterar Mach3. Gere log de testes, versoes pip freeze, caminhos e status no relatorio local.
-
-## Corpo de prova sintetico
-primeiro_teste/trapezio_sintetico_400mm: DXF R12 aberto de 9 linhas, largura 400 mm, altura 40 mm, para teste de importacao/escala com fio desligado. As medidas sao de geometria matematica criada para calibracao, nao do fornecedor nem da telha fotografada. Nao e peca de encaixe, nao liberar producao. Parametros fisicos seguem confirmar.
+```
+Reutilize a venv se íntegra. Para bootstrap completo veja docs/16_DEVELOPMENT_HANDOFF.md. Para TP40 base lisa use prepare_tp40.py, não new_tp40.py. Veja docs/17_HOMOLOGACAO_LOCAL_RELATORIO.md para resultados observados (62 testes no commit histórico, seis vistas Cycles); não reaproveitar contagem como resultado atual.
+## Render
+`python scripts/render_quality.py --help` lista vistas e opções. `python scripts/prepare_tp40.py --blender auto --output outputs/tp40_review_nova` gera pacote completo; renders isolados ficam fora do ZIP já verificado. Não instalar Blender na fábrica. Inspecionar imagens reais.
+## Calibração e pendências
+500 mm e trapézio sintético 400 × 40 mm são somente importação/dry-run sem calor supervisionado. Microdobras da referência normalizada já recuperadas; bordas e encaixe real, kerf, origem, fios, limites, velocidade, aquecimento e configuração ativa continuam pendentes. Ver inventário.

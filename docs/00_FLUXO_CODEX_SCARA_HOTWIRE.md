@@ -1,5 +1,7 @@
 # Fluxo Codex - SCARA Hotwire EPS
 
+> **Runbook original:** aplica-se ao fluxo YAML de calibração e corte. Para TP40 histórica, render e portal, use [roteamento atual](18_GUIA_AGENTE.md). O operador supervisiona a máquina; o agente não a opera.
+
 Data: 2026-05-29
 
 Este runbook e o caminho curto para o Codex entender, gerar, validar e entregar um pacote de corte EPS/isopor para a SCARA CNC de fio quente/linha quente.

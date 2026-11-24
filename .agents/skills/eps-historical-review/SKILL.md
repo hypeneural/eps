@@ -1,7 +1,7 @@
 ---
 name: eps-historical-review
-description: Audita DXF historico de EPS e recupera geometria nominal para STL GLB e render sem liberar corte.
+description: Analisa DXF/TAP histórico e ZIP de evidências da fábrica para reconstrução geométrica e comparação; use somente em revisão local.
 ---
-Leia docs/15_HISTORICAL_EVIDENCE.md. Mantenha evidencias em private_evidence/. Inspecione versao, unidades, entidades, extensoes e sobreposicao. Use scripts/review_historical_roof.py apenas com limites CAD explicitos e topo plano conferido. Compare preview e desenho original. Nao assumir que TAP historico foi executado com sucesso. Nao gerar TAP nem DXF de corte deste fluxo.
 
-Para o primeiro modelo TP40 base lisa, leia docs/16_DEVELOPMENT_HANDOFF.md e execute scripts/prepare_tp40.py. Nao depende de acesso ao PC da fabrica. ZIP opcional via --evidence ou private_evidence/MACROS_CNC_V.zip. Validar comparacao e imagens, nunca liberar corte.
+# Procedimento
+Leia docs/15_HISTORICAL_EVIDENCE.md. Preserve originais em private_evidence/; não executar TAP/macros. Identifique unidades, versão, entidades, sobreposição e limites CAD selecionados. Para referência TP40 base lisa use scripts/prepare_tp40.py --evidence <ZIP> --output <pasta-nova>; sem ZIP, reporte referência normalizada não recomparada. Para outro perfil LINE use scripts/review_historical_roof.py --help, limites e topo explicitamente conferidos. Não assumir que a trajetória é o contorno da peça, nem apagar retornos de fio. Compare seção, diferença simétrica, área e preview. Entrega visual apenas; nenhuma autorização de corte ou publicação dos originais.
