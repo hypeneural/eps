@@ -129,23 +129,15 @@ def write_model(entry,base,stage,env):
     source=(base/entry["source"]).resolve()
     status,report,verified=verified_source(source)
     # Only released, explicitly digest-approved machine file is published.
-    release=entry.get("release") or {}
     dxf="03_cutpaths_r12.dxf"
-    approved=bool(status=="production_released" and report.get("package_purpose")=="production"
-                  and dxf in verified and release.get("approved") is True
-                  and release.get("dxf_sha256")==digest(safe_file(source,dxf).read_bytes()))
-    if approved:
-        from epscad.loader import load_yaml
-        from epscad.build import build_job
-        from epscad.exporters.roundtrip import verify_roundtrip
-        if "05_project.locked.yaml" not in verified:
-            raise ValueError("Released project contract missing")
-        spec=load_yaml(safe_file(source,"05_project.locked.yaml"))
-        job=build_job(spec)
-        if job.has_errors or job.production_status!="production_released" or not verify_roundtrip(job,safe_file(source,dxf)):
-            raise ValueError("Released project fails current production gates or DXF readback")
-    if status=="production_released" and not approved:
-        raise ValueError("Production package requires explicit revision DXF hash approval")
+    approved=False
+    if status=="production_released":
+        from epscad.publishing.release import candidate_hashes
+        expected=candidate_hashes(source,report,verified)
+        release=entry.get("release") or {}
+        if release.get("approved") is not True or any(release.get(k)!=v for k,v in expected.items()):
+            raise ValueError("Production requires explicit DXF, project and machine profile hash approval")
+        approved=True
     slug=model_id+"-"+revision
     folder=stage/"modelos"/slug
     folder.mkdir(parents=True)

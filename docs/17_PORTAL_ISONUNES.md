@@ -50,3 +50,6 @@ Tema usa a imagem oficial local (fetch_portal_logo.py) e extrai cor dominante sa
 - Após deploy autorizado e TLS válido: python scripts/check_gallery_live.py --site outputs/site_r01 --url https://eps.etijucas.com.br
 - Para revogação, adicionar --previous-site outputs/site_anterior. Verifica bytes HTTP de todos os arquivos públicos, cabeçalho de DXF e bloqueio do .htaccess, mas não substitui teste do operador, do servidor e de todos os navegadores.
 - Não liberar DXF comercial só para homologar o portal; status draft permanece. Trocar credencial compartilhada anteriormente. Não publicar a partir de CI.
+
+## Atualização V3
+O contrato de liberação anterior com hash único foi substituído pelo contrato de três hashes (DXF, projeto e perfil). Ver docs/21_PORTAL_V3_AUDITORIA.md e scripts/check_release_candidate.py. Viewer apenas local com verificação SHA-256; não há mais fallback CDN. A homologação anterior documenta o snapshot antigo, não prova este novo build.

@@ -158,3 +158,52 @@ class PublishingTests(unittest.TestCase):
         (vendor/"MODEL-VIEWER-LICENSE.txt").write_bytes(b"bad")
         with self.assertRaisesRegex(ValueError,"model-viewer integrity"):
             build_site(self.registry([self.entry]),self.base/"blocked-vendor",viewer_dir=vendor)
+
+    def test_synthetic_positive_release_and_changed_profile_block(self):
+        # Synthetic in-memory fixture; never write a confirmed profile into the repo.
+        from contextlib import ExitStack
+        from unittest.mock import patch
+        from epscad.loader import load_yaml
+        from epscad.build import build_job
+        from epscad.exporters import write_outputs
+        from epscad.publishing.site import verified_source
+        from epscad.publishing.release import candidate_hashes
+        spec=load_yaml(ROOT/"projects/exemplos/001_linha_500mm.yaml")
+        spec["project"]["status"]="production_released"
+        spec["project"]["source"]["production_confirmed"]=True
+        profile=load_yaml(ROOT/"machine_profiles/scara_hotwire_eps.yaml")
+        profile["profile_locked"]=True
+        profile["work_area"]={"x_max":2000,"y_max":1000,"z_max":200}
+        profile["axes"]={k:"synthetic_fixture" for k in profile["axes"]}
+        profile["hotwire"].update(wire_count=1,effective_kerf_mm=1.5,min_segment_mm=5,min_radius_mm=2)
+        profile["feed"].update(default_xy_mm_min=500,slow_curve_mm_min=250)
+        profile["safety"]["production_allowed"]=True
+        profile["notes"]={}
+        source=self.base/"synthetic-release"
+        entry=dict(self.entry,id="synthetic-fixture",source=source.name,name="Synthetic fixture - tests only")
+        with ExitStack() as stack:
+            for module in ("epscad.validators.machine_validator","epscad.validators.production_gate","epscad.validators.geometry_validator","epscad.publishing.release"):
+                stack.enter_context(patch(module+".load_machine_profile",return_value=profile))
+            job=build_job(spec)
+            self.assertFalse(job.has_errors,[x.message for x in job.validation])
+            write_outputs(job,spec,source)
+            status,report,names=verified_source(source)
+            hashes=candidate_hashes(source,report,names)
+            with self.assertRaisesRegex(ValueError,"hash approval"):
+                build_site(self.registry([entry]),self.base/"release-no-approval")
+            entry["release"]={"approved":True,**hashes}
+            out=self.base/"release-fixture-site"
+            item=build_site(self.registry([entry]),out)[0]
+            self.assertEqual(item["status"],"production_released")
+            folder=out/"modelos"/item["slug"]
+            self.assertEqual((folder/item["machine"]).read_bytes(),(source/"03_cutpaths_r12.dxf").read_bytes())
+            with zipfile.ZipFile(folder/item["bundle"]) as z:
+                self.assertIn(item["machine"],z.namelist())
+                self.assertNotIn("05_project.locked.yaml",z.namelist())
+            self.assertIn("Baixar DXF de corte",(out/"index.html").read_text(encoding="utf-8"))
+            profile["notes"]={"fixture":"changed"}
+            with self.assertRaisesRegex(ValueError,"hash approval"):
+                build_site(self.registry([entry]),self.base/"release-stale")
+        # Real profile still blocks the very same synthetic package.
+        with self.assertRaisesRegex(ValueError,"production gates"):
+            build_site(self.registry([entry]),self.base/"release-real-machine-blocked")
