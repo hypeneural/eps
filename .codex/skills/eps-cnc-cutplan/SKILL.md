@@ -7,12 +7,15 @@ description: Use when creating, validating, or improving EPS/isopor CNC cut plan
 
 ## Fast Path
 
+Read root AGENTS.md first. Use python scripts/agent_preflight.py and check the active worktree. For historical evidence and web publishing, follow the current guide and applicable contracts rather than this legacy YAML-only path.
+
 1. Confirm `machine.profile=scara_hotwire_eps` and `machine.process_type=hotwire_2d`.
 2. For flow/output/delivery changes, read `docs/00_FLUXO_CODEX_SCARA_HOTWIRE.md`.
 3. Edit YAML, schemas, validators, templates, or docs; never generate DXF/G-code directly in chat.
 4. Validate `unit=mm`, machine profile, material stock, hotwire data, bbox, production status, and `confirmar` fields.
 5. Generate only deterministic outputs from `CutJobResult -> CutPath[] -> exporters`.
-6. Keep G-code disabled unless experimental gates, golden samples, dry-run, and operator confirmation exist.
+6. Keep direct G-code disabled in this project. Never relax gates on the agent's authority.
+7. For historical TP40 base lisa with microgrooves use scripts/prepare_tp40.py, not the simplified tp40_core template. Follow docs/18_GUIA_AGENTE.md for routing, checkpoints and portal when available.
 
 ## Process Rules
 
