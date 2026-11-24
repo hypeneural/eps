@@ -43,3 +43,6 @@
 - Primeiro teste gera calibracao e TP40 nominais separados. Confirmacao fisica nunca automatizada.
 - ZIP validado por lista de manifest e SHA256, reabertura DXF por ezdxf. Staging antes de publicacao.
 - GLB com normal map sintetico. Blender Cycles opcional e separado dos arquivos com hash; preview CPU permanece padrao.
+
+- Corpo de prova sintetico separado para teste de importacao: 400 x 40 mm, 9 LINE, nenhum parametro fisico assumido.
+- Perfil por pontos invalido nao gera quadrado silencioso; gates de producao exigem confirmacao explicita e capacidades numericas.

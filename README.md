@@ -94,3 +94,5 @@ python -m unittest discover -s tests -p "test_*.py"
 python scripts/first_test.py --output outputs/primeiro_teste
 ```
 DXF de 500 mm e calibracao, as duas TP40 sao referencias sem DXF. Consulte docs/14_ANTIGRAVITY_LOCAL.md e skills em .agents/skills. Render Cycles opcional: scripts/render_quality.py --help.
+
+O primeiro teste inclui tambem trapezio_sintetico_400mm: 9 LINE, 400 x 40 mm, somente importacao/dry-run sem calor. Nao representa TP40 comercial.

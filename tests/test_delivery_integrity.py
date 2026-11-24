@@ -37,3 +37,24 @@ class DeliveryTests(unittest.TestCase):
                     self.assertNotIn("dxf_r12",files)
                     self.assertIn("24_eps_core.glb",verify_zip(tmp))
                     self.assertIn("28_eps_normal.png",verify_zip(tmp))
+
+    def test_first_test_cli(self):
+        import subprocess
+        from epscad.exporters.dxf_validator import validate_dxf
+        with tempfile.TemporaryDirectory() as tmp:
+            subprocess.run([sys.executable,str(ROOT/"scripts/first_test.py"),"--output",tmp],cwd=ROOT,check=True,capture_output=True)
+            root=Path(tmp)
+            for name in ("calibracao_500mm","trapezio_sintetico_400mm","tp40_980_sks","tp40_1020_isoeste"):
+                verify_zip(root/name)
+            result=validate_dxf(root/"trapezio_sintetico_400mm"/"03_cutpaths_r12.dxf")
+            self.assertEqual(result.entity_count,9)
+            self.assertAlmostEqual(result.bbox["width"],400)
+            self.assertAlmostEqual(result.bbox["height"],40)
+            for name in ("tp40_980_sks","tp40_1020_isoeste"):
+                self.assertFalse((root/name/"03_cutpaths_r12.dxf").exists())
+    def test_profile_missing_points_is_not_square(self):
+        spec=load_yaml(ROOT/"projects/exemplos/008_trapezio_calibracao.yaml")
+        spec["cut"]["template_params"]={}
+        job=build_job(spec)
+        self.assertTrue(job.has_errors)
+        self.assertFalse(job.paths)

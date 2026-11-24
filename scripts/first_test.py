@@ -21,6 +21,11 @@ def main():
     run(ROOT/"scripts/validate_dxf.py",cal/"03_cutpaths_r12.dxf")
     verify_zip(cal)
     summary={"calibracao_500mm":{"status":"test_only","dxf":str(cal/"03_cutpaths_r12.dxf")}}
+    coupon=out/"trapezio_sintetico_400mm"
+    run(ROOT/"scripts/generate_project.py",ROOT/"projects/exemplos/008_trapezio_calibracao.yaml","--output",coupon)
+    run(ROOT/"scripts/validate_dxf.py",coupon/"03_cutpaths_r12.dxf")
+    verify_zip(coupon)
+    summary["trapezio_sintetico_400mm"]={"status":"import_test_only","dxf":str(coupon/"03_cutpaths_r12.dxf"),"note":"Synthetic CAD calibration; not a commercial TP40 profile."}
     for variant in ("tp40_980_sks","tp40_1020_isoeste"):
         directory=out/variant
         run(ROOT/"scripts/new_tp40.py",variant,"--output",directory)

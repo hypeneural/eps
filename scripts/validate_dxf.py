@@ -26,6 +26,7 @@ def main() -> int:
         "entity_count": result.entity_count,
         "forbidden_entities": result.forbidden_entities,
         "unknown_entities": result.unknown_entities,
+        "structural_errors": result.structural_errors,
         "bbox": result.bbox,
     }
     if args.json:

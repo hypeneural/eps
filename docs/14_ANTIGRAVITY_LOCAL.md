@@ -21,3 +21,6 @@ Repita com 23_assembly_reference.glb. Abra imagens; Cycles e opcional, nao modif
 Shapely: poligonos/area/intersecao; Trimesh + Earcut: extrusao, volume e malha; GLB em m, STL mm; Pillow/NumPy: textura e normal; ezdxf: leitura independente R12. Referencias https://trimesh.org/trimesh.creation.html , https://trimesh.org/trimesh.visual.material.html , https://ezdxf.readthedocs.io/ , https://docs.blender.org/manual/en/latest/advanced/command_line/render.html .
 ## Limites
 Nao afirmar fotorealismo sem inspecao. Nao confirmar medidas catalogo. Microdobras/fase/bordas, kerf, lead-in/out e perfil real pendentes. Nao alterar Mach3. Gere log de testes, versoes pip freeze, caminhos e status no relatorio local.
+
+## Corpo de prova sintetico
+primeiro_teste/trapezio_sintetico_400mm: DXF R12 aberto de 9 linhas, largura 400 mm, altura 40 mm, para teste de importacao/escala com fio desligado. As medidas sao de geometria matematica criada para calibracao, nao do fornecedor nem da telha fotografada. Nao e peca de encaixe, nao liberar producao. Parametros fisicos seguem confirmar.

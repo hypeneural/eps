@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from math import isfinite
 
 
 PRODUCTION_STATUSES = {"cam_ready", "machine_tested", "production_released"}
@@ -32,7 +33,7 @@ def get_path(data: dict[str, Any], dotted: str) -> Any:
 
 def as_number(value: Any) -> float | None:
     if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return float(value)
+        return float(value) if isfinite(value) else None
     return None
 
 
