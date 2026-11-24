@@ -27,8 +27,11 @@ IMAGE_GROUPS=(
     ("explodida", "Vista explodida", ("34_exploded_cycles.png",)),
     ("textura", "Textura do EPS", ("35_texture_closeup_cycles.png",)),
 )
-STATUS={"draft":"Em revisão","validated_geometry":"Somente teste","cam_ready":"Em revisão",
-        "machine_tested":"Em revisão","production_released":"Liberado para corte"}
+STATUS={"draft":"Em revisão","validated_geometry":"Em homologação","cam_ready":"Em homologação",
+        "machine_tested":"Em homologação","production_released":"Liberado para corte",
+        "superseded":"Revisão substituída"}
+STATUS_CLASS={"draft":"review","validated_geometry":"homologating","cam_ready":"homologating",
+              "machine_tested":"homologating","production_released":"ready","superseded":"superseded"}
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
@@ -177,14 +180,26 @@ def write_model(entry,base,stage,env):
         if tap_data is not None:
             machine=slug+".tap"
             (folder/machine).write_bytes(tap_data)
+            if entry.get("public_cam_dxf_authorized") is True and dxf in verified:
+                cam_dxf=slug+".dxf"
+                shutil.copyfile(safe_file(source,dxf),folder/cam_dxf)
+                downloads.append({"file":cam_dxf,"label":"Desenho CAM (DXF R12 · referência técnica)"})
         else:
             machine=slug+".dxf"
             shutil.copyfile(safe_file(source,dxf),folder/machine)
     specs=public_specs(report)
+    effective_status="production_released" if approved else (status if status in ("validated_geometry","cam_ready","machine_tested") else "draft")
+    raw_history=entry.get("revision_history") or []
+    history=[]
+    for h in raw_history[:20]:
+        if isinstance(h,dict) and re.fullmatch(r"r[0-9]{2,5}",str(h.get("revision",""))):
+            history.append({"revision":str(h["revision"]),"status_label":STATUS["superseded"],"note":str(h.get("note",""))[:160]})
     item={"id":model_id,"revision":revision,"slug":slug,"name":name,"category":category,
-          "status":status if approved or status=="validated_geometry" else "draft",
-          "status_label":STATUS[status] if approved or status=="validated_geometry" else STATUS["draft"],
+          "status":effective_status,
+          "status_label":STATUS[effective_status],
+          "status_class":STATUS_CLASS[effective_status],
           "machine":machine,"machine_format":"TAP" if tap_data is not None else ("DXF" if machine else None),"images":images,"specs":specs,"downloads":downloads,
+          "history":history,
           "render_note":"Renderização ilustrativa ou de estúdio. Conferir medidas e revisão.",
           "dimensions":" × ".join(str(specs[k]) for k in ("Largura (mm)","Altura total (mm)") if k in specs)}
     (folder/"especificacoes.json").write_text(json.dumps(item,ensure_ascii=False,indent=2),encoding="utf-8")

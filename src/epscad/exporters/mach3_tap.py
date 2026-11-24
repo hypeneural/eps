@@ -21,15 +21,20 @@ def number(x,name,zero=False):
         raise ValueError("Invalid "+name)
     return float(x)
 
+ALLOWED_CUT_LAYERS={"CUT","CUT_OUTSIDE"}
+ALLOWED_CUT_OPERATIONS={"cut","straight_cut","profile_cut","profile_2d","tp40_core"}
+
 def ordered_points(job):
     if job.has_errors or job.unit!="mm" or job.process_type!="hotwire_2d" or len(job.paths)!=1:
         raise ValueError("Requires one validated continuous hotwire path")
+    if (job.metadata or {}).get("tp40",{}).get("cut_mode")=="core_outline":
+        raise ValueError("Reference outline mode cannot be exported as a cutting trajectory")
     path=job.paths[0]
-    if not path.segments or path.operation!="cut":
+    if not path.segments or path.operation not in ALLOWED_CUT_OPERATIONS:
         raise ValueError("Missing cut path")
     points=[]
     for s in path.segments:
-        if s.kind!="LINE" or s.layer!="CUT":
+        if s.kind!="LINE" or s.layer not in ALLOWED_CUT_LAYERS:
             raise ValueError("Only LINE CUT segments supported; arcs and reference geometry are blocked")
         a,b=[(number(p.x,"X",True),number(p.y,"Y",True)) for p in (s.start,s.end)]
         if s.start.z!=0 or s.end.z!=0 or a==b or (points and points[-1]!=a):
@@ -78,7 +83,10 @@ def render_tap(job,profile,contract):
     # No implicit move to origin; operator must verify physical starting position.
     lines.extend("G1 X%.4f Y%.4f"%p for p in q[1:])
     lines.extend(["M5","M30"])
-    return ("\r\n".join("N%d %s"%((i+1)*5,line) for i,line in enumerate(lines))+"\r\n").encode("ascii")
+    payload=("\r\n".join("N%d %s"%((i+1)*5,line) for i,line in enumerate(lines))+"\r\n").encode("ascii")
+    from epscad.exporters.tap_simulator import validate_candidate_tap
+    validate_candidate_tap(payload,points,profile,contract)
+    return payload
 
 def approval_hashes(job,profile,contract):
     data=render_tap(job,profile,contract)

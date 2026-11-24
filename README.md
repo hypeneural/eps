@@ -67,4 +67,4 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 [Auditoria UX V4 e próximos critérios](docs/24_PORTAL_V4_UX.md).
 
 ## Mach3 direto (experimental)
-[Auditoria dos TAP e plano de homologação](docs/25_MACH3_DIRECT_TAP.md). O fluxo legado continua disponível; TAP somente após aprovação específica e perfil real homologado.
+[Auditoria dos TAP e plano de homologação](docs/25_MACH3_DIRECT_TAP.md) · [Relatório forense, simulador, biblioteca histórica e checklist](docs/26_MACH3_HOMOLOGACAO_E_BIBLIOTECA.md). O fluxo legado continua disponível; TAP somente após aprovação específica e perfil real homologado.
