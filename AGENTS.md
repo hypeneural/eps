@@ -21,3 +21,6 @@ Gerar perfis EPS em mm com YAML, catalogo rastreavel e perfil SCARA. Python calc
 
 ## Contratos
 schemas/project_hotwire.schema.json e machine_profile_hotwire.schema.json. DXF R12 2D sem texto/cotas, spline, blocos de usuario ou entidades 3D. STL em mm, GLB em m. Dry-run sem aquecimento, escala 1:1, origem, entrada/saida e teste supervisionado obrigatorios antes de corte.
+
+## Evidencia historica
+Nao enviar ZIPs originais, XML, PST, macros ou desenhos industriais de terceiros ao GitHub publico. Use private_evidence/ e local_catalogs/. A geometria CAD historica pode conter sobreposicoes e trajetorias auxiliares; nunca extrudar todo o DXF como peca. Use scripts/review_historical_roof.py com limites explicitamente conferidos para revisao visual. Nao gerar arquivo de maquina desse fluxo. Leia docs/15_HISTORICAL_EVIDENCE.md.
