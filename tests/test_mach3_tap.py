@@ -191,8 +191,8 @@ class Mach3Tests(unittest.TestCase):
             self.assertTrue((out/"modelos/tap-fixture-r02/tap-fixture-r02.dxf").is_file())
             idx_html=(out/"index.html").read_text(encoding="utf-8")
             det_html=(out/"modelos/tap-fixture-r02/index.html").read_text(encoding="utf-8")
-            self.assertIn("Baixar corte para Mach3 (.TAP)",idx_html)
-            self.assertIn("Baixar corte para Mach3 (.TAP)",det_html)
+            self.assertIn("Baixar arquivo Mach3 (.TAP)",idx_html)
+            self.assertIn("Baixar arquivo Mach3 (.TAP)",det_html)
             self.assertIn("Em homologação",idx_html)
             self.assertIn("Revisão substituída",det_html)
             self.assertIn("Desenho CAM (DXF R12)",det_html)
@@ -216,3 +216,87 @@ class Mach3Tests(unittest.TestCase):
         with self.assertRaises(ValueError): render_trial_tap(j,p,dict(c,machine_profile_sha256="wrong"))
         j.production_status="draft"
         with self.assertRaises(ValueError): render_trial_tap(j,p,c)
+
+    def test_tp40_planners_and_prepare_trial_end_to_end_for_all_five_portal_models(self):
+        import json, tempfile, yaml
+        from scripts.prepare_mach3_trial import prepare_trial
+        from epscad.cam.tp40_planner import PORTAL_MODELS, build_trial_project_spec, plan_portal_model, plan_tp40_base_lisa
+        from epscad.exporters.mach3_tap import FLAGS
+        from epscad.exporters.tap_simulator import parse_tap_modal
+
+        # Verify historical pocket reconstruction exact geometry (50 segments, 986x67 mm, 21 -X returns)
+        hist_plan=plan_tp40_base_lisa(min_thickness_mm=31.0,strategy="historical_pocket")
+        self.assertEqual(hist_plan["metrics"]["segment_count"],50)
+        self.assertEqual(hist_plan["metrics"]["backtrack_x_count"],21)
+        self.assertAlmostEqual(hist_plan["metrics"]["bbox_mm"]["width"],986.0,places=4)
+        self.assertAlmostEqual(hist_plan["metrics"]["bbox_mm"]["height"],67.0,places=4)
+        self.assertAlmostEqual(hist_plan["metrics"]["total_length_mm"],3005.365,places=2)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp)
+            # Synthetic test-only local machine snapshot (never modifies versioned machine profile)
+            snap={
+                "id":"scara_hotwire_eps","unit":"mm","process_type":"hotwire_2d","profile_locked":False,
+                "safety":{"production_allowed":False},
+                "work_area":{"x_max":1200.0,"y_max":200.0,"z_max":0.0},
+                "hotwire":{"min_segment_mm":1.0},
+                "feed":{"default_xy_mm_min":600.0},
+            }
+            snap_path=base/"snap.yaml"
+            snap_path.write_text(yaml.safe_dump(snap,sort_keys=False),encoding="utf-8")
+            contract_payload={
+                "purpose":"local_supervised_trial",
+                "operator_trial_authorized":True,
+                "contract":{
+                    **dict.fromkeys(FLAGS,True),
+                    "controller_profile":"CNC_V","feed_mm_min":400.0,"heat_s":150.0,
+                    "dwell_value":2.0,"max_heat_s":250.0,"max_dwell_seconds":5.0,
+                    "dwell_unit":"seconds","path_control":"G61","work_offset":"G54",
+                    "machine_profile_sha256":sha(canonical(snap)),
+                },
+            }
+            contract_path=base/"contract.json"
+            contract_path.write_text(json.dumps(contract_payload),encoding="utf-8")
+
+            self.assertEqual(len(PORTAL_MODELS),5)
+            for meta in PORTAL_MODELS:
+                bundle=plan_portal_model(meta["portal_id"])
+                proj_path=base/f"{meta['portal_id']}.yaml"
+                proj_path.write_text(yaml.safe_dump(build_trial_project_spec(bundle),sort_keys=False),encoding="utf-8")
+                out_dir=base/f"trial_{meta['portal_id']}"
+                rep=prepare_trial(proj_path,snap_path,contract_path,out_dir)
+                self.assertEqual(rep["purpose"],"local_supervised_trial")
+                self.assertFalse(rep["production_approved"])
+                self.assertFalse(rep["approved"])
+                self.assertFalse(rep["tap_approved"])
+                self.assertFalse(rep["public_authorized"])
+                tap_file=out_dir/"TESTE-NAO-HOMOLOGADO.tap"
+                self.assertTrue(tap_file.is_file())
+                self.assertTrue((out_dir/"simulacao.png").is_file())
+                self.assertTrue((out_dir/"relatorio.json").is_file())
+                self.assertTrue((out_dir/"LEIA-ME.txt").is_file())
+                parsed=parse_tap_modal(tap_file.read_bytes())
+                self.assertEqual(parsed["modal"]["distance_mode"],"G90")
+                self.assertEqual(parsed["modal"]["m_sequence"],[3,5,30])
+                self.assertEqual(parsed["metrics"]["arc_count"],0)
+                self.assertEqual(parsed["metrics"]["backtrack_x_count"],0)
+                self.assertEqual(parsed["metrics"]["collinear_overlap_mm"],0.0)
+                self.assertLess(parsed["blocks"],500)
+
+    def test_private_handoff_never_fabricates_taps_or_exposes_publicly(self):
+        import json, tempfile, zipfile
+        from scripts.prepare_private_handoff import build_private_handoff
+        with tempfile.TemporaryDirectory() as tmp:
+            out=Path(tmp)/"handoff"
+            res=build_private_handoff(out,[])
+            self.assertEqual(res["models_count"],5)
+            self.assertFalse(res["public_catalog_allowed"])
+            self.assertFalse(any(out.rglob("*.tap")))
+            self.assertTrue((out/"SHA256SUMS.txt").is_file())
+            self.assertTrue((out/"HANDOFF_PRIVADO_TESTES.zip").is_file())
+            tpl=json.loads((out/"local_trial_contract.TEMPLATE.json").read_text(encoding="utf-8"))
+            self.assertFalse(tpl["operator_trial_authorized"])
+            self.assertTrue(all(v is False for k,v in tpl["contract"].items() if k.endswith("_confirmed")))
+            with zipfile.ZipFile(out/"HANDOFF_PRIVADO_TESTES.zip") as zf:
+                self.assertIsNone(zf.testzip())
+                self.assertFalse(any(n.endswith(".tap") for n in zf.namelist()))
