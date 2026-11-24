@@ -11,3 +11,12 @@ AddType application/octet-stream .dxf .stl
     Header set Cache-Control "no-store"
   </FilesMatch>
 </IfModule>
+
+# Temporary uploads must never be downloadable, even if a transfer fails.
+<FilesMatch "^\.eps-upload-">
+  Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+  Header always set Referrer-Policy "no-referrer"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>

@@ -18,3 +18,6 @@ Leia `docs/17_PORTAL_ISONUNES.md`. Confirme worktree portal. Se tarefa for UI, u
 
 # Publicação
 Deploy local dry-run primeiro. `--execute` somente com autorização explícita atual, FTPS TLS estrito (verificar hostname canônico do certificado TLS do servidor, ex.: `br46-pl.valueserver.net`) e raiz dedicada confirmada; senha fora do Git. `--allow-production` adicional para corte homologado. Após deploy, `scripts/check_gallery_live.py --site <pasta> --url https://eps.etijucas.com.br` e conferência no navegador real. Retirada não revoga cópias baixadas. Se não houver autorização ou conexão, entregue snapshot, relatório e bloqueio, sem afirmar site no ar.
+
+## Portal V3
+Leia docs/21_PORTAL_V3_AUDITORIA.md. Reutilize pacote e registro local. Gere snapshot novo, teste busca por medidas, download por hash e catálogo pequeno/grande. Use viewer local com SHA verificado, sem CDN. PNG técnico é conferência. Não use --initialize em site já publicado. Não liberar DXF para melhorar aparência. Verifique HTTPS após deploy autorizado.

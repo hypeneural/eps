@@ -41,6 +41,12 @@ def main():
                 assert page.locator("#empty").is_visible()
                 page.locator("#reset-filters").click()
                 assert page.locator(".model-card").first.is_visible()
+                if item["specs"].get("Largura (mm)")==980 and item["specs"].get("Altura total (mm)")==67:
+                    page.locator("#search").fill("980x67")
+                    assert page.locator(".model-card").first.is_visible()
+                    page.locator("#search").fill("980000")
+                    assert page.locator("#empty").is_visible()
+                    page.locator("#reset-filters").click()
                 page.locator("#list-mode").click()
                 fits(page)
                 page.screenshot(path=a.screenshots/f"list-{w}x{h}.png")
@@ -65,6 +71,9 @@ def main():
                 with page.expect_download() as download:
                     page.locator(".download-panel a[download]").last.click()
                 assert download.value.suggested_filename.endswith(".zip")
+                from hashlib import sha256
+                local_bundle=a.site/"modelos"/item["slug"]/item["bundle"]
+                assert sha256(download.value.path().read_bytes()).digest()==sha256(local_bundle.read_bytes()).digest()
                 if not item["machine"]:
                     assert page.locator("a[href$='.dxf']").count()==0
                 assert not any(x.endswith(".glb") or "model-viewer.min.js" in x for x in requests)

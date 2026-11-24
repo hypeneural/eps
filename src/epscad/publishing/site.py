@@ -16,6 +16,8 @@ ROOT=Path(__file__).resolve().parents[3]
 PORTAL=ROOT/"portal"
 SLUG=re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
 MAX_ASSET=32*1024*1024
+VIEWER_SHA256="18b2e711035aa4705ee281530a55dc2338ff05eed3d70ae16d54105282a75ed5"
+VIEWER_LICENSE_SHA256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
 IMAGE_GROUPS=(
     ("perspectiva", "Perspectiva do EPS", ("30_eps_perspective_cycles.png","30_eps_cycles.png","26_render_eps.png","01_preview.png")),
     ("montagem", "Montagem com chapa", ("33_assembly_cycles.png","31_assembly_cycles.png","27_render_assembly.png")),
@@ -159,6 +161,9 @@ def write_model(entry,base,stage,env):
     if not images:
         raise ValueError("No verified preview")
     downloads=[]
+    if "29_section_review.png" in verified:
+        shutil.copyfile(safe_file(source,"29_section_review.png"),folder/"desenho-tecnico.png")
+        downloads.append({"file":"desenho-tecnico.png","label":"Desenho técnico (PNG, conferência)"})
     for original,target,label in (
         ("24_eps_core.glb","modelo.glb","Modelo 3D (GLB)"),
         ("23_assembly_reference.glb","montagem.glb","Montagem 3D (GLB)"),
@@ -230,6 +235,8 @@ def build_site(registry,output,*,logo=None,viewer_dir=None):
         local_mv_lic=vdir/"MODEL-VIEWER-LICENSE.txt"
         has_local_viewer=local_mv.is_file() and local_mv_lic.is_file()
         if has_local_viewer:
+            if local_mv.is_symlink() or local_mv_lic.is_symlink() or digest(local_mv.read_bytes())!=VIEWER_SHA256 or digest(local_mv_lic.read_bytes())!=VIEWER_LICENSE_SHA256:
+                raise ValueError("Local model-viewer integrity mismatch; run fetch_model_viewer.py again")
             shutil.copyfile(local_mv,stage/"assets/model-viewer.min.js")
             shutil.copyfile(local_mv_lic,stage/"assets/MODEL-VIEWER-LICENSE.txt")
         env.globals["local_viewer"]=has_local_viewer

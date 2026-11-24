@@ -60,3 +60,6 @@ python scripts/gallery_demo.py --output outputs/portal_demo
 python -m http.server 8000 --bind 127.0.0.1 --directory outputs/portal_demo/site
 ```
 Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por register_gallery_model.py; depois build_gallery.py, check_gallery_browser.py, deploy_gallery.py (dry-run) e check_gallery_live.py após autorização de publicação. A hospedagem não executa Python. Não confundir ZIP de revisão e arquivo de corte.
+
+### Portal V3
+[Auditoria e checklist de homologação](docs/21_PORTAL_V3_AUDITORIA.md). Use `python scripts/generate_catalog.py --list` para escolher o gerador CAD correto. Visualizador local: `python scripts/fetch_model_viewer.py`; sem vendor válido, apenas imagens/downloads. Publicação web não libera fabricação.

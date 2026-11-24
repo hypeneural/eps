@@ -130,10 +130,31 @@ class PublishingTests(unittest.TestCase):
         (vendor/"model-viewer.min.js").write_text("/* vendor viewer stub */\n",encoding="utf-8")
         (vendor/"MODEL-VIEWER-LICENSE.txt").write_text("Apache License 2.0\n",encoding="utf-8")
         out_local=self.base/"local-viewer-site"
-        items_local=build_site(self.registry([self.entry]),out_local,viewer_dir=vendor)
+        from unittest.mock import patch
+        with patch("epscad.publishing.site.VIEWER_SHA256", hashlib.sha256((vendor/"model-viewer.min.js").read_bytes()).hexdigest()), patch("epscad.publishing.site.VIEWER_LICENSE_SHA256", hashlib.sha256((vendor/"MODEL-VIEWER-LICENSE.txt").read_bytes()).hexdigest()):
+            items_local=build_site(self.registry([self.entry]),out_local,viewer_dir=vendor)
         page_local=(out_local/"modelos"/items_local[0]["slug"]/"index.html").read_text(encoding="utf-8")
         self.assertIn('data-local-viewer="1"',page_local)
         self.assertNotIn("model-viewer.min.js",page_local)
         inv=local_inventory(out_local)
         self.assertIn("assets/model-viewer.min.js",inv)
         self.assertIn("assets/MODEL-VIEWER-LICENSE.txt",inv)
+
+    def test_v3_review_download_and_vendor_integrity(self):
+        out=self.base/"v3"
+        items=build_site(self.registry([self.entry]),out,viewer_dir=self.base/"missing-vendor")
+        item=items[0]
+        folder=out/"modelos"/item["slug"]
+        self.assertIn("single-model",(out/"index.html").read_text(encoding="utf-8"))
+        self.assertIn("data-numbers",(out/"index.html").read_text(encoding="utf-8"))
+        self.assertEqual((folder/"desenho-tecnico.png").read_bytes(),(self.base/"source/29_section_review.png").read_bytes())
+        with zipfile.ZipFile(folder/item["bundle"]) as z:
+            self.assertIn("desenho-tecnico.png",z.namelist())
+            self.assertFalse(any(n.endswith((".dxf",".tap",".nc")) for n in z.namelist()))
+        self.assertNotIn("https://ajax.googleapis.com",(out/"assets/app.js").read_text(encoding="utf-8"))
+        vendor=self.base/"tampered-vendor"
+        vendor.mkdir()
+        (vendor/"model-viewer.min.js").write_bytes(b"bad")
+        (vendor/"MODEL-VIEWER-LICENSE.txt").write_bytes(b"bad")
+        with self.assertRaisesRegex(ValueError,"model-viewer integrity"):
+            build_site(self.registry([self.entry]),self.base/"blocked-vendor",viewer_dir=vendor)

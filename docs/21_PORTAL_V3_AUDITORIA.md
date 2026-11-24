@@ -1,0 +1,13 @@
+# Auditoria V3 — Iso Nunes
+Base auditada: CAD ebca588, Portal c2c637e. Relatório 20 registra publicação HTTPS e 79 testes; CI 5/5 aprovado nesse commit. Não confundir com nova validação. 
+## Melhorias
+- Layout horizontal quando catálogo contém uma peça; logo maior e contagem de modelos/liberados; busca por medidas exatas (980x67, 980 × 67, 31), cards compactos, download de revisão em destaque sem simular liberação industrial.
+- Medidas principais em destaque, tira horizontal de vistas, atalho 3D; preservar a imagem inteira (contain), sem cortar nervuras. PNG técnico original disponibilizado como conferência, sem DXF.
+- Viewer local conferido por SHA-256 no build; sem CDN. Sem vendor válido, fallback por imagens/GLB. Baixar via fetch_model_viewer.py no PC moderno.
+- FTPS mantém readback SHA256 e evita retransmitir bytes idênticos; revoga arquivos de máquina antes da mudança de índice e remove visualizações antigas depois. Não é transação distribuída: interrupção pode deixar snapshot parcial; reconstruir/revalidar antes de repetir. Temporários bloqueados por Apache quando diretiva suportada; verificar no Plesk/nginx.
+## Homologação web
+Reutilizar registro real e pacote já validado. Novo snapshot em outputs/site_v3; nunca alterar o snapshot R01 original. Testar Playwright em seis resoluções, PNG original, ZIP baixado hash idêntico, busca por medidas, 3D local e fallback. Testar catálogo de 1, 10 e 100 modelos sintéticos, sem inventar peças comerciais. Medir bytes de home e detalhe; metas até 100 KB e 200 KB respectivamente para catálogo de uma peça, sem 3D. Para catálogo amplo medir imagens lazy e buscar/paginar se necessário. 
+Dry-run: python scripts/deploy_gallery.py --site outputs/site_v3
+Deploy autorizado apenas no ambiente local já configurado, sem --initialize. Validar TLS/HTTPS, /assets/, /modelos/, .htaccess, temporários, cabeçalhos e download ZIP/PNG real. Não publicar por CI. Manter snapshot anterior local para recuperação.
+## Produção física
+O portal pode estar em produção web enquanto TP40 continua draft. O DXF da TP40 histórica NÃO existe no pacote de revisão. Para produzir: confirmar instalação Mach3 e perfil, medir chapa/bloco, origem, limites, fio/kerf/feed, testar escala LazyCam, dry-run e corte supervisionado; desenvolver trajetória específica com retornos/entradas/saídas e validar em revisão própria. Não usar STL/GLB/PNG como corte. Aprovar DXF por hash e contrato production_released somente após homologação humana. Testar fluxo positivo com fixture sintética local (não publicar) e negativa com perfil real bloqueado. Revisões produtivas devem ser imutáveis; alterações no ZIP produtivo exigem revisão nova. 

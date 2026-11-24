@@ -131,10 +131,22 @@ def deploy(root,*,initialize=False,allow_production=False):
         # Persist the union before uploading. Interrupted runs can revoke known stale paths.
         pending={"format":1,"files":{**previous,**current}}
         upload(ftp,STATE,json.dumps(pending,sort_keys=True).encode())
+        # Revoke machine downloads first, then publish new assets before switching
+        # the index. Keep old visual links alive until the new index is ready.
         for name in stale:
-            remove(ftp,name)
+            if machine_file(name):
+                remove(ftp,name)
         for name in sorted(current,key=lambda n:(n=="index.html",n=="catalog.json",n)):
-            # Always verify the remote bytes, even when the previous hash matches.
+            # Never trust the previous inventory alone. Skip only after readback.
+            if previous.get(name)==current[name]:
+                try:
+                    if digest(read_remote(ftp,name))==current[name]:
+                        continue
+                except error_perm:
+                    pass
             upload(ftp,name,(root/name).read_bytes())
+        for name in stale:
+            if not machine_file(name):
+                remove(ftp,name)
         upload(ftp,STATE,(root/STATE).read_bytes())
     return len(current)
