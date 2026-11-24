@@ -16,3 +16,9 @@ outputs/
 # Factory originals, proprietary configurations and locally recovered profiles
 private_evidence/
 local_catalogs/
+
+# Portal local registry, deployment secrets and generated files
+.env
+.env.*
+!.env.example
+portal_local/
