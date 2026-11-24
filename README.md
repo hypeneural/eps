@@ -74,3 +74,6 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 
 ## Biblioteca de lajotas e capas EPS
 [Pesquisa, fontes e fluxo](docs/29_BIBLIOTECA_LAJES_EPS.md). `python scripts/prepare_slab_reference.py --list` lista referências; gere o pacote nominal com `--output` em pasta nova. Capa recortada não equivale a moldada, e rebaixos precisam de conferência.
+
+### Recuperação automática CNC_V e lote TAP
+[Fluxo de evidência e geração em lote](docs/30_MACH3_EVIDENCIA_E_LOTE.md). Recuperar dados dos backups antes de solicitar valores; uma execução de lote produz os candidatos individuais revisados.

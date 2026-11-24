@@ -22,3 +22,6 @@ Leia docs/27_MACH3_TESTE_ANTES_DA_LIBERACAO.md. O agente deve gerar e testar sof
 
 ## Lajes e tavelas
 Para capa de laje/lajota, leia docs/29_BIBLIOTECA_LAJES_EPS.md e use scripts/prepare_slab_reference.py. Não usar gerador TP40. Separar dimensões publicadas de geometria assumida; render próprio, sem inferir certificação ou percurso pelo nome. TAP segue a rota local de teste e homologação existente.
+
+## Recuperação documental e lote Mach3
+Antes de pedir parâmetros já coletados, execute scripts/recover_cnc_v_evidence.py sobre o backup privado; leia docs/30_MACH3_EVIDENCIA_E_LOTE.md. Reutilize evidência documental, sem confundi-la com limites físicos ou autorização. Use prepare_mach3_batch.py --list e, quando houver contrato local e aprovação individual dos hashes, gere todos os candidatos em uma execução. Continue as tarefas não bloqueadas e reporte lacunas por modelo, sem repetir questionários completos.
