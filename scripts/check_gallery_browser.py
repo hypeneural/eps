@@ -67,6 +67,7 @@ def main():
                     assert page.locator("#image-count").inner_text().startswith("2 /")
                 page.keyboard.press("Escape")
                 assert not page.locator("#lightbox").is_visible()
+                page.wait_for_function("() => { const i = document.querySelector('#hero-image'); return i && i.complete && i.naturalWidth > 0; }", timeout=5000)
                 page.screenshot(path=a.screenshots/f"detail-{w}x{h}.png",full_page=True)
                 with page.expect_download() as download:
                     page.locator(".download-panel a[download]").last.click()

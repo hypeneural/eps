@@ -53,7 +53,7 @@ Leia [AGENTS.md](AGENTS.md), [guia operacional](docs/18_GUIA_AGENTE.md) e [workf
 CAD: feat/tp40-3d-industrial-package. Portal: feat/isonunes-production-gallery. Use worktrees separados; preserve mudanças locais e integre via PR revisado. Não publicar dados privados nem credenciais. Não gerar G-code direto. Homologação física, liberação de corte e publicação web são decisões distintas.
 
 ## Portal Iso Nunes (esta branch)
-Galeria pública estática, Python + Jinja2, imagens JPEG, GLB opcional, sem PHP/MySQL obrigatório. [Manual do portal](docs/17_PORTAL_ISONUNES.md) · [Relatório final de homologação](docs/20_HOMOLOGACAO_PORTAL_RELATORIO.md).
+Galeria pública estática, Python + Jinja2, imagens JPEG, GLB opcional, sem PHP/MySQL obrigatório. [Manual do portal](docs/17_PORTAL_ISONUNES.md) · [Relatório R01/HTTPS](docs/20_HOMOLOGACAO_PORTAL_RELATORIO.md) · [Relatório V3](docs/23_HOMOLOGACAO_PORTAL_V3_RELATORIO.md).
 ```powershell
 python scripts/fetch_portal_logo.py
 python scripts/gallery_demo.py --output outputs/portal_demo

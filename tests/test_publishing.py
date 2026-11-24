@@ -207,3 +207,102 @@ class PublishingTests(unittest.TestCase):
         # Real profile still blocks the very same synthetic package.
         with self.assertRaisesRegex(ValueError,"production gates"):
             build_site(self.registry([entry]),self.base/"release-real-machine-blocked")
+
+    def test_check_release_candidate_cli_and_incremental_deploy_recovery(self):
+        import os
+        from ftplib import error_perm
+        from unittest.mock import patch
+        from epscad.publishing.deploy import deploy
+
+        # 1) check_release_candidate.py refuses draft review package (read-only)
+        res=subprocess.run([sys.executable,str(ROOT/"scripts/check_release_candidate.py"),str(self.base/"source")],capture_output=True,text=True)
+        self.assertNotEqual(res.returncode,0)
+
+        # 2) In-memory mock FTPS verifying incremental skip, revocation order, and crash recovery
+        class MockFTPS:
+            files={}
+            ops=[]
+            fail_on_upload=None
+            def __init__(self,*a,**kw): self.cwd_path=""
+            def __enter__(self): return self
+            def __exit__(self,*a): return False
+            def connect(self,h,p): pass
+            def login(self,u,p): pass
+            def prot_p(self): pass
+            def pwd(self): return "/"+self.cwd_path
+            def cwd(self,path):
+                p=path.strip("/")
+                if path.startswith("/"): self.cwd_path=p
+                elif p and p!=".": self.cwd_path=(self.cwd_path+"/"+p).strip("/")
+            def _full(self,name):
+                p=name.lstrip("/")
+                return (self.cwd_path+"/"+p).strip("/") if not name.startswith("/") else p
+            def mkd(self,part): pass
+            def nlst(self,folder="."):
+                base=self._full("" if folder=="." else folder)
+                pref=(base+"/") if base else ""
+                names=set()
+                for k in self.files:
+                    if k.startswith(pref):
+                        rest=k[len(pref):]
+                        if rest: names.add(rest.split("/",1)[0])
+                return sorted(names)
+            def storbinary(self,cmd,bio):
+                target=self._full(cmd.split(" ",1)[1])
+                data=bio.read()
+                self.ops.append(("STOR",target))
+                if self.fail_on_upload and self.fail_on_upload in target:
+                    type(self).fail_on_upload=None
+                    raise RuntimeError("Simulated mid-deploy drop")
+                self.files[target]=data
+            def retrbinary(self,cmd,cb):
+                target=self._full(cmd.split(" ",1)[1])
+                if target not in self.files: raise error_perm("550 Not found")
+                cb(self.files[target])
+            def rename(self,src,dst):
+                s,d=self._full(src),self._full(dst)
+                self.ops.append(("RENAME",d))
+                if self.fail_on_upload and self.fail_on_upload==d:
+                    type(self).fail_on_upload=None
+                    raise RuntimeError("Simulated mid-rename drop")
+                self.files[d]=self.files.pop(s)
+            def delete(self,name):
+                t=self._full(name)
+                if t not in self.files: raise error_perm("550 Not found")
+                self.ops.append(("DELETE",t))
+                del self.files[t]
+
+        s1=self.base/"deploy-s1"; s2=self.base/"deploy-s2"
+        build_site(self.registry([dict(self.entry,revision="r01")]),s1,viewer_dir=self.base/"missing-vendor")
+        build_site(self.registry([dict(self.entry,revision="r02")]),s2,viewer_dir=self.base/"missing-vendor")
+        env={"EPS_FTP_HOST":"mock.local","EPS_FTP_USER":"u","EPS_FTP_PASSWORD":"p","EPS_FTP_REMOTE_ROOT":"/"}
+        MockFTPS.files={}; MockFTPS.ops=[]; MockFTPS.fail_on_upload=None
+        with patch("epscad.publishing.deploy.FTP_TLS",MockFTPS), patch.dict(os.environ,env):
+            # Initial deploy into empty root
+            n1=deploy(s1,initialize=True)
+            self.assertEqual(n1,len(local_inventory(s1)))
+            self.assertFalse(any(".eps-upload-" in k for k in MockFTPS.files))
+
+            # Incremental identical re-deploy skips unchanged files (0 renames except portal-state)
+            MockFTPS.ops=[]
+            deploy(s1,initialize=False)
+            renames=[p for op,p in MockFTPS.ops if op=="RENAME"]
+            self.assertEqual(renames,["portal-state.json","portal-state.json"])
+
+            # Simulate interrupted r01 -> r02 deploy mid-transfer, then recover cleanly
+            MockFTPS.ops=[]
+            MockFTPS.fail_on_upload="modelos/tp40-base-lisa-r02/index.html"
+            with self.assertRaisesRegex(RuntimeError,"Simulated"):
+                deploy(s2,initialize=False)
+            # No orphan temp file left after finally cleanup
+            self.assertFalse(any(".eps-upload-" in k for k in MockFTPS.files))
+            # Retry recovers completely, revokes stale r01 files, and leaves exact s2 inventory
+            MockFTPS.ops=[]
+            deploy(s2,initialize=False)
+            self.assertFalse(any("tp40-base-lisa-r01" in k for k in MockFTPS.files))
+            self.assertTrue("modelos/tp40-base-lisa-r02/index.html" in MockFTPS.files)
+            self.assertEqual(set(MockFTPS.files.keys()),set(local_inventory(s2).keys())|{"portal-state.json"})
+            # Stale non-machine visual files removed AFTER index.html switch
+            idx_pos=next(i for i,(op,p) in enumerate(MockFTPS.ops) if op=="RENAME" and p=="index.html")
+            del_positions=[i for i,(op,p) in enumerate(MockFTPS.ops) if op=="DELETE" and "tp40-base-lisa-r01" in p]
+            self.assertTrue(del_positions and all(i>idx_pos for i in del_positions))
