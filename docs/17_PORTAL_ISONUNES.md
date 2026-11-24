@@ -35,3 +35,6 @@ python scripts/register_gallery_model.py add --id tp40-base-lisa --revision r01 
 python scripts/build_gallery.py --registry portal_local/registry.json --output outputs/site_r01
 ```
 A ferramenta de cadastro não habilita produção; exige publicação pública autorizada e revisão crescente. Para retirar: python scripts/register_gallery_model.py remove --id tp40-base-lisa; reconstruir e fazer deploy explicitamente. Os ZIPs são determinísticos para evitar mudança de hash em rebuild idêntico. Logo baixada localmente é detectada automaticamente.
+
+## UX v2
+Tema usa a imagem oficial local (fetch_portal_logo.py) e extrai cor dominante saturada, escurecida para contraste mínimo 5:1 sobre branco; verde de corte e âmbar de revisão permanecem semânticos. Textura EPS SVG e ícones SVG locais, sem fontes remotas. Busca por tokens em todos os dados públicos, categorias, somente liberados, lista persistida localmente; sem JS, links continuam disponíveis. Galeria com miniaturas individuais, setas, ampliação, teclado e Escape. Desenho técnico e frontal independentes; seis vistas Cycles + desenho quando presentes nos hashes. GLB núcleo/montagem opcional; fechar remove o elemento WebGL. Não confundir previews compactados de docs com pacote verificado. O relatório CAD 4739fc4 foi integrado sem alterar motor.

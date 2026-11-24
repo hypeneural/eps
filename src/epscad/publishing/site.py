@@ -19,7 +19,8 @@ MAX_ASSET=32*1024*1024
 IMAGE_GROUPS=(
     ("perspectiva", "Perspectiva do EPS", ("30_eps_perspective_cycles.png","30_eps_cycles.png","26_render_eps.png","01_preview.png")),
     ("montagem", "Montagem com chapa", ("33_assembly_cycles.png","31_assembly_cycles.png","27_render_assembly.png")),
-    ("secao", "Seção técnica", ("29_section_review.png","31_section_front_cycles.png")),
+    ("frontal", "Vista frontal", ("31_section_front_cycles.png",)),
+    ("secao", "Desenho técnico", ("29_section_review.png",)),
     ("microdobra", "Detalhe da microdobra", ("32_microgroove_detail_cycles.png",)),
     ("explodida", "Vista explodida", ("34_exploded_cycles.png",)),
     ("textura", "Textura do EPS", ("35_texture_closeup_cycles.png",)),
@@ -148,7 +149,8 @@ def write_model(entry,base,stage,env):
         selected=next((f for f in candidates if f in verified),None)
         if selected:
             jpeg(safe_file(source,selected),folder/(key+".jpg"),(1400,1000),86)
-            images.append({"file":key+".jpg","label":label})
+            jpeg(safe_file(source,selected),folder/(key+"-thumb.jpg"),(240,160),72)
+            images.append({"file":key+".jpg","thumb":key+"-thumb.jpg","label":label})
             if len(images)==1:
                 jpeg(safe_file(source,selected),folder/"thumb.jpg",(420,280),76)
     if not images:
@@ -220,6 +222,8 @@ def build_site(registry,output,*,logo=None):
             shutil.copyfile(PORTAL/"assets"/"wordmark.svg",stage/"assets"/"logo.svg")
         logo_name="logo.png" if logo else "logo.svg"
         env.globals["logo_name"]=logo_name
+        from epscad.publishing.brand import write_brand
+        write_brand(stage/"assets"/"brand.css",stage/"assets"/"logo.png" if logo else None)
         items=[]
         seen=set()
         for entry in records:

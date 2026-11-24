@@ -1,23 +1,31 @@
-/* ES5 baseline: browsing/downloads do not require this script. */
+/* ES5 baseline; all downloads and image links work without JS. */
 (function(){
-  var filter=document.getElementById('filters'),list=document.getElementById('models');
-  if(filter&&list){var search=document.getElementById('search'),category=document.getElementById('category'),toggle=document.getElementById('list-toggle'),cards=list.getElementsByTagName('article');
-    function norm(s){s=s.toLowerCase();return s.normalize?s.normalize('NFD').replace(/[\u0300-\u036f]/g,''):s;}
-    function refresh(){var count=0,i,card,q=norm(search.value);for(i=0;i<cards.length;i++){card=cards[i];var show=norm(card.getAttribute('data-search')).indexOf(q)!==-1&&(!category.value||category.value===card.getAttribute('data-category'));card.hidden=!show;if(show){count++;}}document.getElementById('results').textContent=count+' modelo(s)';document.getElementById('empty').hidden=count!==0;}
-    search.oninput=refresh;category.onchange=refresh;toggle.onclick=function(){var active=list.className.indexOf('list-mode')!==-1;list.className=active?'models':'models list-mode';toggle.setAttribute('aria-pressed',String(!active));toggle.textContent=active?'Modo lista':'Modo galeria';};filter.hidden=false;
-  }
-  var button=document.getElementById('load-3d');
-  if(!button){return;}
-  var canvas=document.createElement('canvas'),modern=('noModule' in document.createElement('script'))&&window.customElements;
-  try{modern=modern&&canvas.getContext('webgl2');}catch(e){modern=false;}
-  var message=document.getElementById('viewer-message');
-  if(!modern){message.textContent='Visualização 3D não disponível neste navegador.';return;}
-  button.hidden=false;
-  button.onclick=function(){button.disabled=true;message.textContent='Carregando visualizador…';var script=document.createElement('script');script.type='module';
-    // Pinned optional CDN, fetched only after a click. A local vendor can be supplied later.
-    script.src='https://ajax.googleapis.com/ajax/libs/model-viewer/4.4.0/model-viewer.min.js';
-    script.onerror=function(){message.textContent='Não foi possível carregar o 3D. Use as imagens ou baixe o GLB.';button.disabled=false;};
-    script.onload=function(){window.customElements.whenDefined('model-viewer').then(function(){var viewer=document.createElement('model-viewer');viewer.setAttribute('src',button.getAttribute('data-model'));viewer.setAttribute('poster',button.getAttribute('data-poster'));viewer.setAttribute('alt','Modelo tridimensional EPS');viewer.setAttribute('camera-controls','');viewer.setAttribute('touch-action','pan-y');viewer.setAttribute('shadow-intensity','0.6');viewer.addEventListener('error',function(){message.textContent='Falha ao abrir o modelo. As imagens continuam disponíveis.';});viewer.addEventListener('load',function(){message.textContent='Arraste para girar; use a roda para ampliar.';});document.getElementById('viewer').appendChild(viewer);button.hidden=true;});};
-    document.head.appendChild(script);
-  };
+var $=function(id){return document.getElementById(id);};
+var filter=$('filters'),list=$('models');
+if(filter&&list){
+var search=$('search'),clear=$('clear-search'),ready=$('ready-only'),cards=list.getElementsByTagName('article'),cats=filter.querySelectorAll('[data-category-filter]'),category='';
+function norm(s){s=s.toLowerCase();return s.normalize?s.normalize('NFD').replace(/[\u0300-\u036f]/g,''):s.replace(/[áàãâä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i').replace(/[óòõôö]/g,'o').replace(/[úùûü]/g,'u').replace(/ç/g,'c');}
+function refresh(){var q=norm(search.value).split(/\s+/),count=0,i,j,c,show,hay;for(i=0;i<cards.length;i++){c=cards[i];hay=norm(c.getAttribute('data-search'));show=(!category||c.getAttribute('data-category')===category)&&(!ready.checked||c.getAttribute('data-ready')==='1');for(j=0;j<q.length;j++){if(hay.indexOf(q[j])===-1){show=false;}}c.hidden=!show;if(show){count++;}}$('results').textContent=count+(count===1?' modelo':' modelos');$('empty').hidden=count!==0;clear.hidden=!search.value;}
+function selectCategory(value){category=value;for(var i=0;i<cats.length;i++){cats[i].setAttribute('aria-pressed',String(cats[i].getAttribute('data-category-filter')===value));}refresh();}
+function mode(value){list.className=value==='list'?'models list-mode':'models';$('list-mode').setAttribute('aria-pressed',String(value==='list'));$('gallery-mode').setAttribute('aria-pressed',String(value==='gallery'));try{localStorage.setItem('iso-view',value);}catch(e){}}
+for(var i=0;i<cats.length;i++){cats[i].onclick=function(){selectCategory(this.getAttribute('data-category-filter'));};}
+search.oninput=refresh;ready.onchange=refresh;clear.onclick=function(){search.value='';refresh();search.focus();};$('reset-filters').hidden=false;$('reset-filters').onclick=function(){search.value='';ready.checked=false;selectCategory('');search.focus();};$('list-mode').onclick=function(){mode('list');};$('gallery-mode').onclick=function(){mode('gallery');};try{if(localStorage.getItem('iso-view')==='list'){mode('list');}}catch(e){}filter.hidden=false;
+}
+var strip=$('image-strip'),box=$('lightbox');
+if(strip&&box){
+var links=strip.getElementsByTagName('a'),index=0,prior=null,hero=$('hero-link'),focusables=box.getElementsByTagName('button');
+function show(i){index=(i+links.length)%links.length;var link=links[index],src=link.getAttribute('data-image'),label=link.getAttribute('data-label');hero.href=src;$('hero-image').src=src;$('hero-image').alt=label;$('hero-label').textContent=label;$('image-count').textContent=(index+1)+' / '+links.length;for(var n=0;n<links.length;n++){links[n].setAttribute('aria-current',String(n===index));}if(!box.hidden){$('lightbox-image').src=src;$('lightbox-image').alt=label;$('lightbox-label').textContent=label;}}
+function close(){box.hidden=true;document.body.className=document.body.className.replace('overlay-open','');$('lightbox-image').removeAttribute('src');if(prior){prior.focus();}}
+for(var k=0;k<links.length;k++){(function(n){links[n].onclick=function(e){if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey){return;}e.preventDefault();show(n);};})(k);}
+hero.onclick=function(e){if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey){return;}e.preventDefault();prior=document.activeElement;box.hidden=false;document.body.className+=' overlay-open';show(index);$('lightbox-close').focus();};
+$('gallery-arrows').hidden=links.length<2;$('image-prev').onclick=$('lightbox-prev').onclick=function(){show(index-1);};$('image-next').onclick=$('lightbox-next').onclick=function(){show(index+1);};$('lightbox-close').onclick=close;
+document.addEventListener('keydown',function(e){if(box.hidden){return;}if(e.keyCode===27){e.preventDefault();close();}else if(e.keyCode===37){show(index-1);}else if(e.keyCode===39){show(index+1);}else if(e.keyCode===9){var first=focusables[0],last=focusables[focusables.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});show(0);
+}
+var button=$('load-3d');if(!button){return;}var message=$('viewer-message'),controls=$('viewer-controls'),select=$('viewer-model'),close3=$('close-3d'),holder=$('viewer'),modern=false,viewer=null,loading=false,timer;
+try{modern=('noModule' in document.createElement('script'))&&window.customElements&&!!document.createElement('canvas').getContext('webgl2');}catch(e){}if(!modern){message.textContent='3D indisponível neste navegador. Use as imagens ou baixe o GLB.';return;}controls.hidden=false;
+function reset(){clearTimeout(timer);loading=false;button.disabled=false;button.hidden=false;close3.hidden=true;holder.innerHTML='';viewer=null;}
+function fail(){reset();message.textContent='Não foi possível abrir o 3D. As imagens continuam disponíveis.';}
+function mount(){if(!loading){return;}viewer=document.createElement('model-viewer');viewer.setAttribute('src',select.value);viewer.setAttribute('poster',button.getAttribute('data-poster'));viewer.setAttribute('alt','Modelo EPS');viewer.setAttribute('camera-controls','');viewer.setAttribute('touch-action','pan-y');viewer.addEventListener('error',fail);viewer.addEventListener('load',function(){clearTimeout(timer);loading=false;message.textContent='Arraste para girar; use a roda para ampliar.';});holder.appendChild(viewer);button.hidden=true;close3.hidden=false;}
+button.onclick=function(){if(loading){return;}loading=true;button.disabled=true;message.textContent='Carregando visualizador…';timer=setTimeout(fail,30000);if(window.customElements.get('model-viewer')){mount();return;}var s=document.createElement('script');s.type='module';s.src='https://ajax.googleapis.com/ajax/libs/model-viewer/4.4.0/model-viewer.min.js';s.onerror=fail;s.onload=function(){window.customElements.whenDefined('model-viewer').then(mount);};document.head.appendChild(s);};
+close3.onclick=function(){reset();message.textContent='Visualizador fechado.';button.focus();};select.onchange=function(){if(viewer){reset();button.click();}};
 }());

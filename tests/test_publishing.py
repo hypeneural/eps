@@ -91,3 +91,23 @@ class PublishingTests(unittest.TestCase):
         path=Path("modelos")/first["slug"]/first["bundle"]
         self.assertEqual((a/path).read_bytes(),(b/path).read_bytes())
         self.assertEqual(first["bundle"],second["bundle"])
+
+    def test_brand_contrast_and_gallery_contract(self):
+        from PIL import Image
+        from epscad.publishing.brand import palette,luminance
+        logo=self.base/"logo.png"
+        Image.new("RGB",(40,20),(250,200,20)).save(logo)
+        primary,soft,accent=palette(logo)
+        self.assertGreaterEqual(1.05/(luminance(primary)+.05),5)
+        out=self.base/"design"
+        items=build_site(self.registry([self.entry]),out,logo=logo)
+        folder=out/"modelos"/items[0]["slug"]
+        self.assertTrue((out/"assets/brand.css").is_file())
+        for im in items[0]["images"]:
+            self.assertTrue((folder/im["thumb"]).is_file())
+        page=(folder/"index.html").read_text(encoding="utf-8")
+        self.assertIn('id="lightbox"',page)
+        self.assertIn('id="viewer-model"',page)
+        self.assertNotIn("model-viewer.min.js",page)
+        self.assertNotIn("Baixar DXF de corte",page)
+        self.assertIn("assets/brand.css",local_inventory(out))
