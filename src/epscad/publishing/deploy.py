@@ -154,7 +154,10 @@ def deploy(root,*,initialize=False,allow_production=False):
             except error_perm:
                 pass
             finally:
-                conn.cwd(root_dir)
+                try:
+                    conn.cwd(root_dir)
+                except (error_perm,OSError):
+                    pass
 
     ftp=open_session()
     reconnects=0
@@ -199,8 +202,17 @@ def deploy(root,*,initialize=False,allow_production=False):
             if not machine_file(name):
                 remove(ftp,name)
         managed_dirs={str(PurePosixPath(n).parent) for n in set(previous)|set(current)}|{"."}
-        sweep_temp(ftp,managed_dirs)
-        upload(ftp,STATE,(root/STATE).read_bytes())
+        for attempt in range(2):
+            try:
+                sweep_temp(ftp,managed_dirs)
+                upload(ftp,STATE,(root/STATE).read_bytes())
+                break
+            except (OSError,EOFError):
+                if attempt==1 or reconnects>=10:
+                    raise
+                reconnects+=1
+                close_session(ftp)
+                ftp=open_session()
     finally:
         close_session(ftp)
     return len(current)
