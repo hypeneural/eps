@@ -1,5 +1,7 @@
 # Analise Detalhada - Melhorias para Codex
 
+> **Registro histórico de planejamento:** para as instruções atuais de Antigravity/Codex consulte [guia do agente](18_GUIA_AGENTE.md).
+
 Data: 2026-05-29
 
 ## Direcao atual

@@ -1,5 +1,7 @@
 # Auditoria do repositorio e prontidao para corte
 
+> **Registro histórico:** a contagem de testes e os achados abaixo descrevem a auditoria inicial. Para o fluxo atual, consulte [guia do agente](18_GUIA_AGENTE.md), [relatório local](17_HOMOLOGACAO_LOCAL_RELATORIO.md) e CI do commit em uso. Nenhuma homologação física foi estabelecida.
+
 Data: 2026-11-24
 
 ## Veredito
@@ -39,7 +41,7 @@ Enquanto isso, qualquer projeto em `cam_ready` ou superior falha (`confirmar_blo
 ## Limitacoes conhecidas (nao bloqueiam teste, registradas)
 
 - Compensacao do fio (kerf) so existe no `tp40_core`; os demais templates usam `centerline`.
-- Lead-in/lead-out nao viram geometria (ficam no LazyCam).
+- Lead-in/lead-out não são gerados pelo template; confirmar configuração e procedimento do LazyCam.
 - `photo_trace` continua sem geometria (apenas rascunho).
 - Validadores de geometria tratam segmentos pelo comprimento da corda; nenhum template atual gera ARC.
 - O PDF e escrito por gerador proprio (sem reportlab); conteudo e simples e de uma pagina.

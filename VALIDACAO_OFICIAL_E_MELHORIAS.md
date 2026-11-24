@@ -1,5 +1,7 @@
 # Validacao Oficial e Melhorias Necessarias
 
+> **Auditoria histórica:** consulte [README](README.md) e [guia do agente](docs/18_GUIA_AGENTE.md) para o estado operacional atual.
+
 Data: 2026-05-29
 
 ## Veredito
