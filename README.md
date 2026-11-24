@@ -71,3 +71,6 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 
 ### Mach3: teste antes de liberação
 [Fluxo de candidato local](docs/27_MACH3_TESTE_ANTES_DA_LIBERACAO.md) · [Planejador CAM e entrega privada dos 5 modelos](docs/28_PLANEJADOR_TRAJETORIAS_5_MODELOS.md). Use `prepare_private_handoff.py` para gerar trajetórias/simulações privadas e `prepare_mach3_trial.py` para gerar TAP de teste sem aprovação comercial prévia, com contrato local revisado. Não altera o perfil nem publica candidato.
+
+## Biblioteca de lajotas e capas EPS
+[Pesquisa, fontes e fluxo](docs/29_BIBLIOTECA_LAJES_EPS.md). `python scripts/prepare_slab_reference.py --list` lista referências; gere o pacote nominal com `--output` em pasta nova. Capa recortada não equivale a moldada, e rebaixos precisam de conferência.

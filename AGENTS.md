@@ -19,3 +19,6 @@
 
 ## Rota Mach3 direto (branch dedicada)
 Leia docs/27_MACH3_TESTE_ANTES_DA_LIBERACAO.md. O agente deve gerar e testar software, simular trajetórias e preparar candidatos locais sem depender de liberação comercial prévia. Use scripts/prepare_mach3_trial.py para teste supervisionado com parâmetros reais revisados e autorização de teste, sem mudar profile_locked ou production_confirmed. Use arquivos históricos apenas com identidade e proveniência explícitas; nunca substitua um modelo por outro. Não invente limites, parâmetros térmicos ou confirmações. Não publique candidato como produção nem opere a máquina. Após teste físico, use a rota de aprovação por hashes existente.
+
+## Lajes e tavelas
+Para capa de laje/lajota, leia docs/29_BIBLIOTECA_LAJES_EPS.md e use scripts/prepare_slab_reference.py. Não usar gerador TP40. Separar dimensões publicadas de geometria assumida; render próprio, sem inferir certificação ou percurso pelo nome. TAP segue a rota local de teste e homologação existente.

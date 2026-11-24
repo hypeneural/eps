@@ -64,7 +64,8 @@ def verified_source(source):
             hashes[name]=checksum
         if "review.json" not in hashes:
             raise ValueError("Review metadata not verified")
-        with zipfile.ZipFile(safe_file(source,"TP40_REVISAO.zip")) as z:
+        archive_name="EPS_REVISAO.zip" if report.get("review_family")=="slab_lajota_reference" else "TP40_REVISAO.zip"
+        with zipfile.ZipFile(safe_file(source,archive_name)) as z:
             names=set(hashes)|{"SHA256SUMS.txt"}
             if sorted(z.namelist())!=sorted(names) or z.testzip() is not None:
                 raise ValueError("Review ZIP inventory mismatch")
@@ -94,6 +95,8 @@ def public_specs(report):
         "Microdobra - largura (mm)":geom.get("groove_width_mm"),
         "Microdobra - profundidade (mm)":geom.get("groove_depth_mm"),
         "Área transversal (mm²)":report.get("area_mm2",roof.get("core_area_mm2")),
+        "Rebaixo assumido - largura (mm)":report.get("assumed_rebate_width_mm"),
+        "Rebaixo assumido - altura (mm)":report.get("assumed_rebate_height_mm"),
         "Extensão X do percurso (mm)":(report.get("bbox_mm") or {}).get("width"),
         "Extensão Y do percurso (mm)":(report.get("bbox_mm") or {}).get("height"),
     }
@@ -201,7 +204,7 @@ def write_model(entry,base,stage,env):
           "status_class":STATUS_CLASS[effective_status],
           "machine":machine,"machine_format":"TAP" if tap_data is not None else ("DXF" if machine else None),"images":images,"specs":specs,"downloads":downloads,
           "history":history,
-          "render_note":"Renderização ilustrativa ou de estúdio. Conferir medidas e revisão.",
+          "render_note":("Conceito recortado. Rebaixos assumidos, sem relevo moldado. Conferir encaixe e medidas; não homologado." if report.get("review_family")=="slab_lajota_reference" else "Renderização ilustrativa ou de estúdio. Conferir medidas e revisão."),
           "dimensions":" × ".join(str(specs[k]) for k in ("Largura (mm)","Altura total (mm)") if k in specs)}
     (folder/"especificacoes.json").write_text(json.dumps(item,ensure_ascii=False,indent=2),encoding="utf-8")
     # Rebuild public ZIP from allowlisted files only; never expose source manifest/evidence.
