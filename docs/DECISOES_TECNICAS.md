@@ -37,3 +37,9 @@
 - STL em mm, GLB em metros, textura sintetica EPS, preview CPU. Sem malha 3D como arquivo CAM.
 - Catalogos nao homologados; microdobras/fase/bordas precisam de confirmacao.
 - DXF do contorno fechado de conferencia bloqueado.
+
+## Entrega e agente Antigravity
+- AGENTS.md e skills .agents/skills; .codex preservado. Agente especializado em .agents/agents/eps-engineer/agent.md.
+- Primeiro teste gera calibracao e TP40 nominais separados. Confirmacao fisica nunca automatizada.
+- ZIP validado por lista de manifest e SHA256, reabertura DXF por ezdxf. Staging antes de publicacao.
+- GLB com normal map sintetico. Blender Cycles opcional e separado dos arquivos com hash; preview CPU permanece padrao.

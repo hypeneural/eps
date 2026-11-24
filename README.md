@@ -86,3 +86,11 @@ python scripts/new_tp40.py tp40_1020_isoeste --length 1000 --thickness 30
 Abertura em outputs/<variante>/26_render_eps.png e 27_render_assembly.png.
 GLB em metros, STL em mm. Nenhum 3D vai para o LazyCam.
 Catalogos sao referencias e nunca liberam DXF automaticamente. Veja docs/13_TP40_3D_REMOTE.md.
+
+## Antigravity: primeiro teste completo
+```powershell
+python -m pip check
+python -m unittest discover -s tests -p "test_*.py"
+python scripts/first_test.py --output outputs/primeiro_teste
+```
+DXF de 500 mm e calibracao, as duas TP40 sao referencias sem DXF. Consulte docs/14_ANTIGRAVITY_LOCAL.md e skills em .agents/skills. Render Cycles opcional: scripts/render_quality.py --help.

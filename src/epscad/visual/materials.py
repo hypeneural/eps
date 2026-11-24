@@ -15,3 +15,12 @@ def eps_texture(size=512, seed=40):
             draw.ellipse(box,fill=(tone,tone,tone-2),outline=(194,195,192))
             draw.arc(box,195,285,fill=(252,252,250),width=1)
     return image.filter(ImageFilter.GaussianBlur(.35))
+
+def eps_normal(size=512):
+    """Approximate tangent-space normal map from the procedural bead relief."""
+    import numpy as np
+    height=np.asarray(eps_texture(size).convert("L"),dtype=np.float32)/255.0
+    gy,gx=np.gradient(height)
+    normals=np.stack((-gx*3,gy*3,np.ones_like(height)),axis=-1)
+    normals/=np.linalg.norm(normals,axis=-1,keepdims=True)
+    return Image.fromarray(np.uint8(np.clip((normals*.5+.5)*255,0,255)))

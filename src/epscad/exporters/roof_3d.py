@@ -4,7 +4,7 @@ import numpy as np
 import trimesh
 from trimesh.visual.texture import TextureVisuals
 from trimesh.visual.material import PBRMaterial
-from epscad.visual.materials import eps_texture
+from epscad.visual.materials import eps_texture, eps_normal
 from epscad.visual.render import render_roof
 
 def mesh_mm(polygon,length):
@@ -23,7 +23,7 @@ def _eps_visual(mesh):
     for triangle,normal in zip(triangles,mesh.face_normals):
         axes=[i for i in range(3) if i!=int(np.argmax(np.abs(normal)))]
         uv.extend(triangle[:,axes]/80.0)
-    material=PBRMaterial(name="EPS_white_beads",baseColorTexture=eps_texture(),roughnessFactor=.88,metallicFactor=0.0)
+    material=PBRMaterial(name="EPS_white_beads",baseColorTexture=eps_texture(),normalTexture=eps_normal(),roughnessFactor=.88,metallicFactor=0.0)
     return trimesh.Trimesh(vertices=vertices/1000.0,faces=faces,visual=TextureVisuals(uv=np.asarray(uv),material=material),process=False)
 
 def write_roof_assets(roof,output,status):
@@ -48,6 +48,7 @@ def write_roof_assets(roof,output,status):
     target("assembly_glb","23_assembly_reference.glb").write_bytes(scene.export(file_type="glb"))
     target("eps_glb","24_eps_core.glb").write_bytes(trimesh.Scene(_eps_visual(core)).export(file_type="glb"))
     eps_texture().save(target("eps_texture","25_eps_material.png"))
+    eps_normal().save(target("eps_normal","28_eps_normal.png"))
     render_roof(roof,target("render_eps","26_render_eps.png"),status=status)
     render_roof(roof,target("render_assembly","27_render_assembly.png"),assembly=True,status=status)
     return files

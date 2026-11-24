@@ -36,6 +36,7 @@ GENERATED_FILENAMES = {
     "25_eps_material.png",
     "26_render_eps.png",
     "27_render_assembly.png",
+    "28_eps_normal.png",
 }
 
 

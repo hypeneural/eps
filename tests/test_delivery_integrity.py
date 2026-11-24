@@ -36,3 +36,4 @@ class DeliveryTests(unittest.TestCase):
                     files=write_outputs(job,spec,tmp)
                     self.assertNotIn("dxf_r12",files)
                     self.assertIn("24_eps_core.glb",verify_zip(tmp))
+                    self.assertIn("28_eps_normal.png",verify_zip(tmp))
