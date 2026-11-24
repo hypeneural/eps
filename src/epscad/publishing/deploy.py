@@ -34,7 +34,7 @@ def local_inventory(root):
     return files
 
 def machine_file(name):
-    return name.lower().endswith((".dxf","-producao.zip","/ordem.pdf"))
+    return name.lower().endswith((".dxf",".tap","-producao.zip","/ordem.pdf"))
 
 def check_revision(previous,current):
     for name in previous.keys() & current.keys():

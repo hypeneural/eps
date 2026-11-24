@@ -131,12 +131,16 @@ def write_model(entry,base,stage,env):
     # Only released, explicitly digest-approved machine file is published.
     dxf="03_cutpaths_r12.dxf"
     approved=False
+    tap_data=None
     if status=="production_released":
         from epscad.publishing.release import candidate_hashes
         expected=candidate_hashes(source,report,verified)
         release=entry.get("release") or {}
         if release.get("approved") is not True or any(release.get(k)!=v for k,v in expected.items()):
             raise ValueError("Production requires explicit DXF, project and machine profile hash approval")
+        if release.get("tap_approved") is True:
+            from epscad.publishing.tap_release import approved_tap
+            tap_data=approved_tap(source,report,verified,release)
         approved=True
     slug=model_id+"-"+revision
     folder=stage/"modelos"/slug
@@ -170,13 +174,17 @@ def write_model(entry,base,stage,env):
             downloads.append({"file":target,"label":label})
     machine=None
     if approved:
-        machine=slug+".dxf"
-        shutil.copyfile(safe_file(source,dxf),folder/machine)
+        if tap_data is not None:
+            machine=slug+".tap"
+            (folder/machine).write_bytes(tap_data)
+        else:
+            machine=slug+".dxf"
+            shutil.copyfile(safe_file(source,dxf),folder/machine)
     specs=public_specs(report)
     item={"id":model_id,"revision":revision,"slug":slug,"name":name,"category":category,
           "status":status if approved or status=="validated_geometry" else "draft",
           "status_label":STATUS[status] if approved or status=="validated_geometry" else STATUS["draft"],
-          "machine":machine,"images":images,"specs":specs,"downloads":downloads,
+          "machine":machine,"machine_format":"TAP" if tap_data is not None else ("DXF" if machine else None),"images":images,"specs":specs,"downloads":downloads,
           "render_note":"Renderização ilustrativa ou de estúdio. Conferir medidas e revisão.",
           "dimensions":" × ".join(str(specs[k]) for k in ("Largura (mm)","Altura total (mm)") if k in specs)}
     (folder/"especificacoes.json").write_text(json.dumps(item,ensure_ascii=False,indent=2),encoding="utf-8")
@@ -186,7 +194,7 @@ def write_model(entry,base,stage,env):
     with zipfile.ZipFile(folder/bundle,"w",zipfile.ZIP_DEFLATED) as z:
         for p in payload:
             zip_member(z,p.name,p.read_bytes())
-        zip_member(z,"LEIA-ME.txt",("PRODUÇÃO: conferir revisão, escala e dry-run." if approved else "REVISÃO: não é arquivo de corte.")+"\n")
+        zip_member(z,"LEIA-ME.txt",(("PRODUÇÃO: TAP para Mach3; conferir revisão e procedimento local." if tap_data is not None else "PRODUÇÃO: DXF para CAM; conferir revisão, escala e dry-run.") if approved else "REVISÃO: não é arquivo de corte.")+"\n")
         zip_member(z,"SHA256SUMS.txt","".join(digest(p.read_bytes())+"  "+p.name+"\n" for p in payload))
     with zipfile.ZipFile(folder/bundle) as z:
         if z.testzip() is not None:

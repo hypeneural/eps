@@ -16,3 +16,6 @@
 2. Execute a menor mudança coerente; testes focados primeiro, depois pip check e suíte completa quando houver alteração de código. Não desative testes/gates. Não instale dependência sem justificar.
 3. Valide artefatos, hashes e unidades; abra imagens/GLB se a tarefa envolver visualização. Distinguir teste executado, inspeção visual, CI, HTTPS e homologação física.
 4. Reporte comandos/exit codes, arquivos, commit, limitações e próximo passo. Não afirmar sucesso sem evidência nem liberar produção automaticamente.
+
+## Rota experimental Mach3 direto (branch dedicada)
+Leia docs/25_MACH3_DIRECT_TAP.md. A proibição de G-code do fluxo legado permanece; a única nova rota é candidato local restrito e TAP público regenerado com aprovação específica após gates reais. Não mudar flags, não operar a máquina, não publicar testes. O perfil real continua bloqueado. Nenhuma conversão automática de STL/GLB/DXF em percurso sem validação.

@@ -65,3 +65,6 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 [Auditoria e checklist de homologação](docs/21_PORTAL_V3_AUDITORIA.md). Use `python scripts/generate_catalog.py --list` para escolher o gerador CAD correto. Visualizador local: `python scripts/fetch_model_viewer.py`; sem vendor válido, apenas imagens/downloads. Publicação web não libera fabricação.
 
 [Auditoria UX V4 e próximos critérios](docs/24_PORTAL_V4_UX.md).
+
+## Mach3 direto (experimental)
+[Auditoria dos TAP e plano de homologação](docs/25_MACH3_DIRECT_TAP.md). O fluxo legado continua disponível; TAP somente após aprovação específica e perfil real homologado.

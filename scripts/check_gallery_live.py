@@ -42,8 +42,8 @@ def main():
                 sha.update(block)
             if sha.hexdigest()!=expected:
                 raise ValueError("HTTPS hash mismatch: "+name)
-            if name.endswith(".dxf") and "attachment" not in response.headers.get("Content-Disposition","").lower():
-                raise ValueError("DXF attachment header missing: "+name)
+            if name.endswith((".dxf",".tap")) and "attachment" not in response.headers.get("Content-Disposition","").lower():
+                raise ValueError("Machine attachment header missing: "+name)
     if a.previous_site:
         from epscad.publishing.deploy import machine_file
         for name in local_inventory(a.previous_site).keys()-current.keys():
