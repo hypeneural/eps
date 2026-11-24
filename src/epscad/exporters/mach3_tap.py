@@ -48,6 +48,17 @@ def ordered_points(job):
 def render_tap(job,profile,contract):
     if job.production_status!="production_released" or job.machine_profile!="scara_hotwire_eps" or profile.get("profile_locked") is not True or profile.get("safety",{}).get("production_allowed") is not True:
         raise ValueError("Real machine and project production gates not confirmed")
+    return _render_reviewed_linear(job,profile,contract)
+
+def render_trial_tap(job,profile,contract):
+    """Local supervised test candidate. No change to commercial release gates."""
+    if job.production_status!="validated_geometry" or job.machine_profile!="scara_hotwire_eps":
+        raise ValueError("Local trial requires a validated_geometry project for the real machine")
+    if profile.get("id")!="scara_hotwire_eps" or profile.get("unit")!="mm" or profile.get("process_type")!="hotwire_2d":
+        raise ValueError("Local trial requires an explicit real-machine profile snapshot")
+    return _render_reviewed_linear(job,profile,contract)
+
+def _render_reviewed_linear(job,profile,contract):
     if set(contract)!=KEYS or not all(contract.get(k) is True for k in FLAGS):
         raise ValueError("Explicit reviewed Mach3 contract required")
     if contract["controller_profile"]!="CNC_V" or contract["machine_profile_sha256"]!=sha(canonical(profile)):

@@ -199,3 +199,20 @@ class Mach3Tests(unittest.TestCase):
             with zipfile.ZipFile(out/"modelos/tap-fixture-r02"/titem["bundle"]) as z:
                 self.assertIn("tap-fixture-r02.tap",z.namelist())
                 self.assertNotIn("05_project.locked.yaml",z.namelist())
+
+    def test_local_trial_without_commercial_release(self):
+        from epscad.exporters.mach3_tap import render_trial_tap, render_tap
+        j,p,c=self.fixture()
+        j.production_status="validated_geometry"
+        p.update(id="scara_hotwire_eps",unit="mm",process_type="hotwire_2d",profile_locked=False)
+        p["safety"]["production_allowed"]=False
+        c["machine_profile_sha256"]=sha(canonical(p))
+        data=render_trial_tap(j,p,c)
+        self.assertTrue(data.endswith(b"M30\r\n"))
+        self.assertFalse(p["profile_locked"])
+        self.assertFalse(p["safety"]["production_allowed"])
+        with self.assertRaises(ValueError): render_tap(j,p,c)
+        with self.assertRaises(ValueError): render_trial_tap(j,p,dict(c,limits_confirmed=False))
+        with self.assertRaises(ValueError): render_trial_tap(j,p,dict(c,machine_profile_sha256="wrong"))
+        j.production_status="draft"
+        with self.assertRaises(ValueError): render_trial_tap(j,p,c)

@@ -68,3 +68,6 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 
 ## Mach3 direto (experimental)
 [Auditoria dos TAP e plano de homologação](docs/25_MACH3_DIRECT_TAP.md) · [Relatório forense, simulador, biblioteca histórica e checklist](docs/26_MACH3_HOMOLOGACAO_E_BIBLIOTECA.md). O fluxo legado continua disponível; TAP somente após aprovação específica e perfil real homologado.
+
+### Mach3: teste antes de liberação
+[Fluxo de candidato local](docs/27_MACH3_TESTE_ANTES_DA_LIBERACAO.md). Use prepare_mach3_trial.py para gerar TAP de teste sem aprovação comercial prévia, com contrato local revisado. Não altera o perfil nem publica candidato.

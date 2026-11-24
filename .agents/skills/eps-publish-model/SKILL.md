@@ -29,3 +29,5 @@ Consulte docs/24_PORTAL_V4_UX.md. Teste foco modal, restauração de busca no me
 
 ## Mach3 direto (branch experimental)
 Leia docs/25_MACH3_DIRECT_TAP.md. TAP regenerado e aprovado por hashes é o download direto para CNC_V. DXF permanece alternativa de CAM. Não publicar candidato, teste ou histórico bruto. Não emitir TAP de draft. Revalidar perfil, parâmetros, limites, ordem e autorização, sem operar máquina. Teste apenas em ambiente local sem hardware.
+
+Na branch Mach3, teste local não exige liberação comercial prévia. Use prepare_mach3_trial.py com parâmetros revisados e saída fora do site. Não coloque candidatos em ZIP público ou catálogo comercial. Ver docs/27_MACH3_TESTE_ANTES_DA_LIBERACAO.md.
