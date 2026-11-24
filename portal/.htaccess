@@ -1,0 +1,22 @@
+Options -Indexes
+AddType model/gltf-binary .glb
+AddType application/octet-stream .dxf .stl
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Robots-Tag "noindex, nofollow"
+  <FilesMatch "\.(dxf|stl|zip)$">
+    Header set Content-Disposition "attachment"
+  </FilesMatch>
+  <FilesMatch "\.(html|json|dxf|zip)$">
+    Header set Cache-Control "no-store"
+  </FilesMatch>
+</IfModule>
+
+# Temporary uploads must never be downloadable, even if a transfer fails.
+<FilesMatch "^\.eps-upload-">
+  Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+  Header always set Referrer-Policy "no-referrer"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>

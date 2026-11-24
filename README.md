@@ -51,3 +51,17 @@ Leia [AGENTS.md](AGENTS.md), [guia operacional](docs/18_GUIA_AGENTE.md) e [workf
 - [Decisões técnicas](docs/DECISOES_TECNICAS.md)
 ## Segurança e branches
 CAD: feat/tp40-3d-industrial-package. Portal: feat/isonunes-production-gallery. Use worktrees separados; preserve mudanças locais e integre via PR revisado. Não publicar dados privados nem credenciais. Não gerar G-code direto. Homologação física, liberação de corte e publicação web são decisões distintas.
+
+## Portal Iso Nunes (esta branch)
+Galeria pública estática, Python + Jinja2, imagens JPEG, GLB opcional, sem PHP/MySQL obrigatório. [Manual do portal](docs/17_PORTAL_ISONUNES.md) · [Relatório R01/HTTPS](docs/20_HOMOLOGACAO_PORTAL_RELATORIO.md) · [Relatório V3](docs/23_HOMOLOGACAO_PORTAL_V3_RELATORIO.md).
+```powershell
+python scripts/fetch_portal_logo.py
+python scripts/gallery_demo.py --output outputs/portal_demo
+python -m http.server 8000 --bind 127.0.0.1 --directory outputs/portal_demo/site
+```
+Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por register_gallery_model.py; depois build_gallery.py, check_gallery_browser.py, deploy_gallery.py (dry-run) e check_gallery_live.py após autorização de publicação. A hospedagem não executa Python. Não confundir ZIP de revisão e arquivo de corte.
+
+### Portal V3
+[Auditoria e checklist de homologação](docs/21_PORTAL_V3_AUDITORIA.md). Use `python scripts/generate_catalog.py --list` para escolher o gerador CAD correto. Visualizador local: `python scripts/fetch_model_viewer.py`; sem vendor válido, apenas imagens/downloads. Publicação web não libera fabricação.
+
+[Auditoria UX V4 e próximos critérios](docs/24_PORTAL_V4_UX.md).

@@ -1,0 +1,16 @@
+# Portal V4 — experiência do operador
+Base V3 e44c461, relatório 23: CI confirmado, 82 testes locais reportados, 34 arquivos HTTPS verificados pelo Antigravity, 17 capturas. V4 não foi publicada automaticamente.
+## Alterações
+- Nome acessível da navegação mobile; SVGs sem bibliotecas externas; downloads individuais com formato, finalidade e ícone distinto.
+- Busca, categoria, filtro e quantidade mostrada recuperados por sessionStorage no mesmo separador; lista/galeria permanece em localStorage. Não depende de armazenamento para navegar. Não é URL compartilhável.
+- Galeria: selecionado trazido à faixa visível sem mover a página; foco isolado no modal com inert quando suportado, aria-hidden e fallback de teclado; retorno ao acionador; título e contagem de vistas acessíveis. Imagem original e links funcionam sem JS.
+- 3D: restaurar câmera de referência; manter GLB local sob demanda; testar alternância e fechamento. Botões maiores, atalho mobile para medidas e labels por extenso. Não alterar arquivos CAD, ZIP nem contrato de liberação.
+## Próxima fase (validar localmente)
+1. WCAG 2.2 AA: contraste 4.5:1 texto normal, 3:1 componentes quando aplicável; alvo mínimo 24 CSS px com exceções, meta interna 44 px para ações. Teclado, foco, zoom 200%, reflow 320 CSS px, leitor de tela e axe-core opcional em desenvolvimento. Não declarar conformidade por teste automatizado isolado.
+2. Busca estruturada: diferenciar campos (largura, altura, espessura, comprimento e área), unidades mm/cm/m e pares largura×altura. Não tratar 980×67 como dois números em qualquer campo. Manter busca textual e códigos. Testar modelos sintéticos adversariais.
+3. Layout: hierarquia marca vermelha/preto/branco, texto legível, textura EPS discreta, primeiro download autorizado e medidas essenciais próximos do topo. Revisão claramente separada da produção. Favoritos locais opcionais só se ajudarem o operador. Evitar dashboard decorativo.
+4. Imagens: reservar espaço com dimensões/aspect-ratio real, sem crop de nervuras; testar trocas rápidas, imagem com erro, teclado e zoom. Não pré-carregar GLB/JS do viewer. Acessibilidade modal: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/ ; galeria: https://www.w3.org/WAI/tutorials/carousels/
+5. Desempenho: V3 59.2 KB home, 112.4 KB detalhe, 382.5 KB / 4.996 ms networkidle com 100 modelos; medições locais reportadas, não Core Web Vitals. Medir LCP, CLS e interações (INP de campo quando disponível), CPU throttling, sem WebGL, 1/10/100/500 modelos. Consolidar CSS/JS por componentes sem frameworks pesados. Ver https://web.dev/articles/vitals e https://web.dev/articles/optimize-lcp
+6. Viewer: https://modelviewer.dev/docs/ — verificar API da versão local fixada 4.4.0, câmera, progresso e fallback. Não alterar malha para UX.
+7. Testes: suite, Playwright 6 resoluções, catálogo filtrado ao voltar, foco modal, scroll de miniaturas, reset 3D real, downloads por hash. WCAG https://www.w3.org/TR/WCAG22/ . Inspecionar screenshots reais e comparar V3. CI não comprova computador antigo ou leitor de tela.
+8. Deploy: novo snapshot local, dry-run, revisão/autorizações e HTTPS apenas após autorização explícita. TP40 draft, sem DXF público; preservar três hashes, gates e evidências privadas. Não usar --initialize.

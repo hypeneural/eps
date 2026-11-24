@@ -17,13 +17,11 @@ outputs/
 private_evidence/
 local_catalogs/
 
-# Local agent checkpoints (never commit conversation state)
-.eps-agent/
-
+# Portal local registry, deployment secrets and generated files
+.env
+.env.*
+!.env.example
 portal_local/
 
-.env
-
-.env.*
-
-!.env.example
+# Local agent checkpoints
+.eps-agent/
