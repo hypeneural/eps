@@ -7,9 +7,11 @@ import math
 
 VERSION="mach3-linear-v1"
 FLAGS=("io_mapping_confirmed","origin_confirmed","modal_state_confirmed",
-       "thermal_parameters_confirmed","limits_confirmed","ordered_path_confirmed")
+       "thermal_parameters_confirmed","limits_confirmed","ordered_path_confirmed",
+       "program_end_confirmed","starting_position_confirmed")
 KEYS=set(FLAGS)|{"controller_profile","feed_mm_min","heat_s","dwell_value",
-                 "dwell_unit","path_control","work_offset","machine_profile_sha256"}
+                 "dwell_unit","path_control","work_offset","machine_profile_sha256",
+                 "max_heat_s","max_dwell_seconds"}
 
 def sha(data): return hashlib.sha256(data).hexdigest()
 def canonical(value): return json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False).encode("utf-8")
@@ -52,6 +54,9 @@ def render_tap(job,profile,contract):
         raise ValueError("Feed exceeds confirmed profile")
     heat=number(contract["heat_s"],"heat")
     dwell=number(contract["dwell_value"],"dwell",True)
+    dwell_seconds=dwell if contract["dwell_unit"]=="seconds" else dwell/1000
+    if heat>number(contract["max_heat_s"],"confirmed heat limit") or dwell_seconds>number(contract["max_dwell_seconds"],"confirmed dwell limit",True):
+        raise ValueError("Thermal settings exceed reviewed contract")
     points=ordered_points(job)
     xmax=number(profile["work_area"]["x_max"],"X limit")
     ymax=number(profile["work_area"]["y_max"],"Y limit")
@@ -60,11 +65,16 @@ def render_tap(job,profile,contract):
         raise ValueError("Path outside confirmed work area")
     # Reject quantization that changes continuity or minimum segment.
     q=[(round(x,4),round(y,4)) for x,y in points]
-    if any(math.dist(a,b)<minimum for a,b in zip(q,q[1:])):
+    if any(x>xmax or y>ymax for x,y in q) or any(math.dist(a,b)<minimum for a,b in zip(q,q[1:])):
         raise ValueError("Segment below confirmed minimum")
     # No homing, offset modification, rapid repositioning or automatic machine access.
+    def word(value):
+        s=f"{value:.8f}".rstrip("0").rstrip(".") or "0"
+        if float(s)!=value:
+            raise ValueError("Unsupported numeric precision")
+        return s
     lines=["G21 G17 G90 G94 G40 G49 G80",contract["work_offset"],contract["path_control"],
-           "S"+format(heat,".8g"),"F"+format(feed,".8g"),"M3","G4 P"+format(dwell,".8g")]
+           "S"+word(heat),"F"+word(feed),"M3","G4 P"+word(dwell)]
     # No implicit move to origin; operator must verify physical starting position.
     lines.extend("G1 X%.4f Y%.4f"%p for p in q[1:])
     lines.extend(["M5","M30"])

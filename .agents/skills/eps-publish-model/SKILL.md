@@ -26,3 +26,6 @@ Para produção já homologada, use scripts/check_release_candidate.py apenas pa
 
 ## UX V4
 Consulte docs/24_PORTAL_V4_UX.md. Teste foco modal, restauração de busca no mesmo separador, downloads individuais, retorno do 3D, contraste e reflow. Não misturar melhorias UX com liberação industrial. Sem deploy automático.
+
+## Mach3 direto (branch experimental)
+Leia docs/25_MACH3_DIRECT_TAP.md. TAP regenerado e aprovado por hashes é o download direto para CNC_V. DXF permanece alternativa de CAM. Não publicar candidato, teste ou histórico bruto. Não emitir TAP de draft. Revalidar perfil, parâmetros, limites, ordem e autorização, sem operar máquina. Teste apenas em ambiente local sem hardware.
