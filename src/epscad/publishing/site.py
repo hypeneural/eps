@@ -82,14 +82,15 @@ def verified_source(source):
 def public_specs(report):
     geom=report.get("geometry") or {}
     roof=report.get("roof_3d") or {}
+    tp40=report.get("tp40") or {}
     # Deliberately omit origins, source paths, evidence, macros and machine settings.
     raw={
-        "Largura (mm)":report.get("width_mm"),
-        "Altura total (mm)":report.get("height_mm"),
-        "Espessura mínima (mm)":report.get("min_thickness_mm"),
+        "Largura (mm)":report.get("width_mm",tp40.get("panel_width_mm")),
+        "Altura total (mm)":report.get("height_mm",tp40.get("core_total_height_mm")),
+        "Espessura mínima (mm)":report.get("min_thickness_mm",tp40.get("min_thickness_mm")),
         "Comprimento de referência (mm)":report.get("extrusion_length_mm_assumed",roof.get("length_mm")),
-        "Passo (mm)":geom.get("pitch_mm"),
-        "Módulos":geom.get("periods"),
+        "Passo (mm)":geom.get("pitch_mm",tp40.get("pitch_mm")),
+        "Módulos":geom.get("periods",tp40.get("n_waves")),
         "Microdobra - largura (mm)":geom.get("groove_width_mm"),
         "Microdobra - profundidade (mm)":geom.get("groove_depth_mm"),
         "Área transversal (mm²)":report.get("area_mm2",roof.get("core_area_mm2")),

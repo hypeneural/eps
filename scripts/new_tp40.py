@@ -14,6 +14,8 @@ def main():
     p.add_argument("--output",type=Path,default=None)
     p.add_argument("--length",type=float,default=1000)
     p.add_argument("--thickness",type=float,default=30)
+    p.add_argument("--blender",default=None,help="Optional Blender executable or 'auto'")
+    p.add_argument("--samples",type=int,default=64,help="Cycles samples when Blender is enabled")
     args=p.parse_args()
     ref=load_yaml(ROOT/"catalogs"/"roof_profiles"/(args.variant+".yaml"))
     spec=load_yaml(ROOT/"projects"/"exemplos"/"007_tp40_nucleo_eps.yaml")
@@ -28,7 +30,7 @@ def main():
     job=build_job(spec)
     job.metadata["profile_source"] = {"id": ref["id"], "url": ref["source"], "page": ref.get("source_page"), "status": "reference_only", "limitations": ref["limitations"]}
     output=args.output or ROOT/"outputs"/args.variant
-    write_outputs(job,spec,output)
+    write_outputs(job,spec,output,blender=args.blender,samples=args.samples)
     print(output)
     return int(job.has_errors)
 if __name__=="__main__":

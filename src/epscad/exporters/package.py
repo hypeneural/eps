@@ -37,15 +37,42 @@ GENERATED_FILENAMES = {
     "26_render_eps.png",
     "27_render_assembly.png",
     "28_eps_normal.png",
+    "29_section_review.png",
+    "30_eps_perspective_cycles.png",
+    "31_section_front_cycles.png",
+    "33_assembly_cycles.png",
+    "34_exploded_cycles.png",
+    "35_texture_closeup_cycles.png",
 }
 
+CATALOG_CYCLES_VIEWS = (
+    ("cycles_perspective", "24_eps_core.glb", "30_eps_perspective_cycles.png", "perspective"),
+    ("cycles_section_front", "23_assembly_reference.glb", "31_section_front_cycles.png", "section_front"),
+    ("cycles_assembly", "23_assembly_reference.glb", "33_assembly_cycles.png", "assembly"),
+    ("cycles_exploded", "23_assembly_reference.glb", "34_exploded_cycles.png", "exploded"),
+    ("cycles_texture", "24_eps_core.glb", "35_texture_closeup_cycles.png", "texture_closeup"),
+)
 
-def write_outputs(job: CutJobResult, spec: dict, output_dir: str | Path) -> dict[str, str]:
+
+def _find_blender(spec: str | None) -> str | None:
+    if not spec:
+        return None
+    if spec != "auto":
+        return spec
+    import shutil, sys
+    found = shutil.which("blender")
+    if not found and sys.platform == "win32":
+        roots = sorted(Path("C:/Program Files/Blender Foundation").glob("Blender */blender.exe"), reverse=True)
+        found = str(roots[0]) if roots else None
+    return found
+
+
+def write_outputs(job: CutJobResult, spec: dict, output_dir: str | Path, *, blender: str | None = None, samples: int = 64) -> dict[str, str]:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     _clear_known_outputs(out)
     with tempfile.TemporaryDirectory(prefix='.eps-staging-', dir=out) as tmp:
-        files = _write_staged(job, spec, Path(tmp))
+        files = _write_staged(job, spec, Path(tmp), blender=blender, samples=samples)
         from epscad.exporters.integrity import verify_zip
         verify_zip(tmp)
         for key, value in files.items():
@@ -54,7 +81,7 @@ def write_outputs(job: CutJobResult, spec: dict, output_dir: str | Path) -> dict
         return {key: str(out / Path(value).name) for key, value in files.items()}
 
 
-def _write_staged(job, spec, out):
+def _write_staged(job, spec, out, *, blender: str | None = None, samples: int = 64):
     files: dict[str, str] = {}
     project_path = out / "05_project.locked.yaml"
     project_path.write_text(yaml.safe_dump(spec, sort_keys=False, allow_unicode=False), encoding="utf-8")
@@ -75,6 +102,48 @@ def _write_staged(job, spec, out):
     if job.roof_geometry is not None and not job.has_errors:
         from epscad.exporters.roof_3d import write_roof_assets
         files.update(write_roof_assets(job.roof_geometry, out, job.production_status))
+        tp40 = job.metadata.get("tp40") or {}
+        if tp40:
+            from epscad.visual.review_drawing import write_section
+            roof = job.roof_geometry
+            min_y = min(y for _, y in roof.core.exterior.coords)
+            pts = [(round(seg.start.x, 4), round(seg.start.y - min_y, 4)) for p in job.paths for seg in p.segments]
+            if job.paths and job.paths[-1].segments:
+                end = job.paths[-1].segments[-1].end
+                pts.append((round(end.x, 4), round(end.y - min_y, 4)))
+            # Shift roof polygons to y>=0 for uniform review drawing
+            from shapely.affinity import translate
+            from types import SimpleNamespace
+            shifted_roof = SimpleNamespace(
+                core=translate(roof.core, yoff=-min_y),
+                metal=translate(roof.metal, yoff=-min_y),
+            )
+            sec_report = {
+                "width_mm": tp40["panel_width_mm"],
+                "height_mm": tp40["core_total_height_mm"],
+                "min_thickness_mm": tp40["min_thickness_mm"],
+                "area_mm2": round(roof.core.area, 2),
+                "extrusion_length_mm_assumed": roof.length_mm,
+                "metal_gauge_mm_assumed": (job.metadata.get("roof_3d") or {}).get("metal_thickness_mm", 0.43),
+                "geometry": tp40,
+                "profile_points_mm": pts,
+                "drawing_title": f"{job.project_id.upper()} | SECAO NOMINAL COMERCIAL - REVISAO, NAO CORTE",
+                "drawing_footer": "Referencia comercial simplificada em escala XY uniforme. Microdobras, bordas e corte exigem medicao fisica.",
+            }
+            sec_path = out / "29_section_review.png"
+            write_section(shifted_roof, sec_report, sec_path)
+            files["section_review"] = str(sec_path)
+        blender_exe = _find_blender(blender)
+        if blender_exe:
+            import subprocess, sys
+            render_script = Path(__file__).resolve().parents[3] / "scripts" / "render_quality.py"
+            for key, model_file, out_name, view in CATALOG_CYCLES_VIEWS:
+                out_png = out / out_name
+                subprocess.run(
+                    [sys.executable, str(render_script), "--input", str(out / model_file), "--output", str(out_png), "--blender", blender_exe, "--samples", str(samples), "--view", view],
+                    check=True,
+                )
+                files[key] = str(out_png)
 
     if spec.get("outputs", {}).get("dxf", False) and job.production_status in DXF_STATUSES and not job.has_errors and job.metadata.get("tp40", {}).get("cut_mode") != "core_outline":
         dxf_path = out / "03_cutpaths_r12.dxf"

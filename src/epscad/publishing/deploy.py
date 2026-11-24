@@ -81,7 +81,7 @@ def upload(ftp,name,data):
     finally:
         try:
             ftp.delete(temp)
-        except error_perm:
+        except (error_perm, OSError):
             pass
 
 def remove(ftp,name):
@@ -113,11 +113,52 @@ def deploy(root,*,initialize=False,allow_production=False):
     remote=os.environ["EPS_FTP_REMOTE_ROOT"]
     if not remote.strip() or not password:
         raise ValueError("Explicit dedicated remote root and password required")
-    with FTP_TLS(context=ssl.create_default_context(),timeout=40) as ftp:
-        ftp.connect(host,int(os.getenv("EPS_FTP_PORT","21")))
-        ftp.login(user,password)
-        ftp.prot_p()
-        ftp.cwd(remote)
+    def close_session(conn):
+        for fn in (getattr(conn,"quit",None),getattr(conn,"close",None)):
+            if callable(fn):
+                try:
+                    fn()
+                    return
+                except (error_perm,OSError):
+                    pass
+        exit_fn=getattr(conn,"__exit__",None)
+        if callable(exit_fn):
+            try:
+                exit_fn(None,None,None)
+            except (error_perm,OSError):
+                pass
+
+    def open_session():
+        conn=FTP_TLS(context=ssl.create_default_context(),timeout=40)
+        enter_fn=getattr(conn,"__enter__",None)
+        if callable(enter_fn):
+            conn=enter_fn()
+        conn.connect(host,int(os.getenv("EPS_FTP_PORT","21")))
+        conn.login(user,password)
+        conn.prot_p()
+        conn.cwd(remote)
+        return conn
+
+    def sweep_temp(conn,folders):
+        root_dir=conn.pwd()
+        for folder in sorted(folders):
+            try:
+                if folder!=".":
+                    conn.cwd(folder)
+                for item in remote_names(conn):
+                    if item.startswith(".eps-upload-"):
+                        try:
+                            conn.delete(item)
+                        except error_perm:
+                            pass
+            except error_perm:
+                pass
+            finally:
+                conn.cwd(root_dir)
+
+    ftp=open_session()
+    reconnects=0
+    try:
         if STATE in remote_names(ftp):
             previous=validate_state(json.loads(read_remote(ftp,STATE,MAX_STATE)))
         elif initialize:
@@ -137,16 +178,29 @@ def deploy(root,*,initialize=False,allow_production=False):
             if machine_file(name):
                 remove(ftp,name)
         for name in sorted(current,key=lambda n:(n=="index.html",n=="catalog.json",n)):
-            # Never trust the previous inventory alone. Skip only after readback.
-            if previous.get(name)==current[name]:
+            for attempt in range(2):
                 try:
-                    if digest(read_remote(ftp,name))==current[name]:
-                        continue
-                except error_perm:
-                    pass
-            upload(ftp,name,(root/name).read_bytes())
+                    # Never trust the previous inventory alone. Skip only after readback.
+                    if previous.get(name)==current[name]:
+                        try:
+                            if digest(read_remote(ftp,name))==current[name]:
+                                break
+                        except error_perm:
+                            pass
+                    upload(ftp,name,(root/name).read_bytes())
+                    break
+                except (OSError,EOFError):
+                    if attempt==1 or reconnects>=6:
+                        raise
+                    reconnects+=1
+                    close_session(ftp)
+                    ftp=open_session()
         for name in stale:
             if not machine_file(name):
                 remove(ftp,name)
+        managed_dirs={str(PurePosixPath(n).parent) for n in set(previous)|set(current)}|{"."}
+        sweep_temp(ftp,managed_dirs)
         upload(ftp,STATE,(root/STATE).read_bytes())
+    finally:
+        close_session(ftp)
     return len(current)
