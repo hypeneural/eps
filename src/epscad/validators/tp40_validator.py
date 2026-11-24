@@ -13,6 +13,12 @@ def validate_tp40(spec: dict[str, Any]) -> list[ValidationMessage]:
         return []
     params = cut.get("template_params", {}) or {}
     if params.get("profile_confirmed") is True:
+        source = spec.get("project", {}).get("source", {})
+        status = spec.get("project", {}).get("status")
+        if status in DXF_STATUSES and not (source.get("scale_confirmed") is True and source.get("dimensions_confirmed") is True):
+            return [ValidationMessage("error", "tp40_dimensions_not_confirmed", "Confirm scale and dimensions before DXF", "project.source")]
+        if status in DXF_STATUSES and params.get("cut_mode") == "core_outline":
+            return [ValidationMessage("error", "tp40_outline_review_only", "Closed outline is visualization only", "cut.template_params.cut_mode")]
         return []
     status = str(spec.get("project", {}).get("status", "draft"))
     blocking = status in DXF_STATUSES or is_production_like(spec)

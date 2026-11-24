@@ -31,3 +31,9 @@
 - `CutJobResult.reference_segments` e `view_bbox` adicionados para preview/PDF; `bbox` continua sendo so a geometria de corte.
 - Manifest ganha `template` e `tp40`; PDF ganha secao "Perfil TP40" e alerta "MEDIDAS TP40 NOMINAIS" enquanto nao confirmado.
 - Producao continua bloqueada ate o inventario real da SCARA (ver `docs/12_AUDITORIA_E_PRONTIDAO.md`).
+
+## Pacote 3D TP40
+- Poligonos nominais fechados para EPS, contraforma e chapa negativa simplificada; percurso do fio separado.
+- STL em mm, GLB em metros, textura sintetica EPS, preview CPU. Sem malha 3D como arquivo CAM.
+- Catalogos nao homologados; microdobras/fase/bordas precisam de confirmacao.
+- DXF do contorno fechado de conferencia bloqueado.

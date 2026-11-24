@@ -23,6 +23,9 @@ def main() -> int:
 
     spec = load_yaml(args.project)
     job = build_job(spec)
+    import re
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}", job.project_id):
+        parser.error("Invalid project id")
     output_dir = Path(args.output) if args.output else ROOT / "outputs" / job.project_id
     files = write_outputs(job, spec, output_dir)
     print(json.dumps({"project": job.project_id, "has_errors": job.has_errors, "output": str(output_dir), "files": files}, indent=2, ensure_ascii=False))

@@ -76,3 +76,13 @@ python .\scripts\generate_project.py .\projects\exemplos\001_linha_500mm.yaml
 python .\scripts\validate_dxf.py .\outputs\001_linha_500mm\03_cutpaths_r12.dxf
 python -m unittest discover -s tests -p "test_*.py"
 ```
+
+## TP40: pacote 3D e corte remoto
+```powershell
+python -m pip install -r requirements.txt
+python scripts/new_tp40.py tp40_980_sks --length 1000 --thickness 30
+python scripts/new_tp40.py tp40_1020_isoeste --length 1000 --thickness 30
+```
+Abertura em outputs/<variante>/26_render_eps.png e 27_render_assembly.png.
+GLB em metros, STL em mm. Nenhum 3D vai para o LazyCam.
+Catalogos sao referencias e nunca liberam DXF automaticamente. Veja docs/13_TP40_3D_REMOTE.md.
