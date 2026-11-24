@@ -23,3 +23,6 @@ Deploy local dry-run primeiro. `--execute` somente com autorização explícita 
 Leia docs/21_PORTAL_V3_AUDITORIA.md. Reutilize pacote e registro local. Gere snapshot novo, teste busca por medidas, download por hash e catálogo pequeno/grande. Use viewer local com SHA verificado, sem CDN. PNG técnico é conferência. Não use --initialize em site já publicado. Não liberar DXF para melhorar aparência. Verifique HTTPS após deploy autorizado.
 
 Para produção já homologada, use scripts/check_release_candidate.py apenas para obter os três hashes; aprovação humana explícita no registro. Não invente confirmação nem marque approved:true automaticamente. Veja contrato V3.
+
+## UX V4
+Consulte docs/24_PORTAL_V4_UX.md. Teste foco modal, restauração de busca no mesmo separador, downloads individuais, retorno do 3D, contraste e reflow. Não misturar melhorias UX com liberação industrial. Sem deploy automático.

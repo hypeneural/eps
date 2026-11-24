@@ -62,11 +62,18 @@ def main():
                 assert page.locator("#hero-image").evaluate("(i)=>i.complete && i.naturalWidth>0")
                 page.locator("#hero-link").click()
                 assert page.locator("#lightbox").is_visible()
+                assert page.locator("main").get_attribute("aria-hidden")=="true"
+                assert page.locator("#lightbox-close").evaluate("(e)=>document.activeElement===e")
+                for _ in range(5):
+                    page.keyboard.press("Tab")
+                    assert page.locator("#lightbox").evaluate("(e)=>e.contains(document.activeElement)")
                 if len(item["images"])>1:
                     page.locator("#lightbox-next").click()
                     assert page.locator("#image-count").inner_text().startswith("2 /")
                 page.keyboard.press("Escape")
                 assert not page.locator("#lightbox").is_visible()
+                assert page.locator("main").get_attribute("aria-hidden") is None
+                assert page.locator("#hero-link").evaluate("(e)=>document.activeElement===e")
                 page.wait_for_function("() => { const i = document.querySelector('#hero-image'); return i && i.complete && i.naturalWidth > 0; }", timeout=5000)
                 page.screenshot(path=a.screenshots/f"detail-{w}x{h}.png",full_page=True)
                 with page.expect_download() as download:
@@ -79,6 +86,12 @@ def main():
                     assert page.locator("a[href$='.dxf']").count()==0
                 assert not any(x.endswith(".glb") or "model-viewer.min.js" in x for x in requests)
                 assert not errors, errors
+                page.locator(".back a").click()
+                page.locator("#search").fill(item["id"])
+                page.locator(".model-card .details").first.click()
+                page.locator(".back a").click()
+                assert page.locator("#search").input_value()==item["id"]
+                assert page.locator(".model-card").first.is_visible()
                 context.close()
             context=browser.new_context(java_script_enabled=False,viewport={"width":800,"height":600},accept_downloads=True)
             page=context.new_page()
