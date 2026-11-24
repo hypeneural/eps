@@ -5,7 +5,7 @@ Repositorio: https://github.com/hypeneural/eps (sem merge automatico na `main`)
 Branch CAD (PR #1): `feat/tp40-3d-industrial-package` — commit `bf93a2d652acfe4ea4f5162f7d9085b619202892` (**4/4 CI verde**)  
 Branch Portal (PR #2): `feat/isonunes-production-gallery` — base `5ab07a94e3d77ba785dafab79d8f85f35bf3f8a8` + refinamentos V3 e este relatorio  
 Snapshot V3 local validado: `outputs/site_v3` (`34` arquivos verificados; snapshot `outputs/site_r01` preservado intacto)  
-Portal ao vivo atual (R01): https://eps.etijucas.com.br (aguardando autorizacao explicita para atualizar para V3 via FTPS incremental sem `--initialize`)
+Portal ao vivo (V3 publicada e validada): https://eps.etijucas.com.br (`Uploaded and read back: 34`; `check_gallery_live.py` PASS byte-a-byte em HTTPS)
 
 > **Escopo de seguranca:** nenhuma credencial, senha, arquivo privado da fabrica (`private_evidence/`), `portal_local/`, `outputs/`, modelo sintetico ou DXF comercial foi publicado. `machine_profiles/scara_hotwire_eps.yaml` permanece travado (`profile_locked: false`), TP40 permanece em `draft` (`Corte nao liberado`) e G-code direto permanece desabilitado.
 
@@ -99,12 +99,24 @@ Analise forense local sobre `private_evidence/MACROS_CNC_V.zip` consolidada em `
 
 ---
 
-## 8. Publicacao Incremental, Recuperacao e Situacao do Servidor `eps.etijucas.com.br`
+## 8. Publicacao Incremental V3, Recuperacao e Verificacao Ao Vivo (`https://eps.etijucas.com.br`)
 
-- `python scripts/deploy_gallery.py --site outputs/site_v3` -> **`DRY RUN: 34 verified files; no connection`**.
-- Publicacao incremental, skip por readback SHA-256, revogacao ordenada e recuperacao apos interrupcao validadas em `tests/test_publishing.py`.
-- O snapshot anterior `outputs/site_r01` permanece preservado localmente; o servidor ao vivo `https://eps.etijucas.com.br` segue operando com o R01 (HTTPS valido, `.htaccess`, `/assets/` e `/modelos/` em `403`, `X-Content-Type-Options: nosniff`).
-- **Nota sobre cabecalhos Plesk/nginx:** na avaliacao ao vivo sem alterar configuracoes do servidor, `Referrer-Policy` e `X-Frame-Options` nao foram retransmitidos pelo proxy nginx na frente do Plesk; apos autorizacao explicita do usuario para publicar `outputs/site_v3` (`deploy_gallery.py --site outputs/site_v3 --execute`, **sem `--initialize`**), `check_gallery_live.py` e a conferencia de cabecalhos/arquivos temporarios serao executados sobre a V3 no ar.
+- **Dry-run local:** `python scripts/deploy_gallery.py --site outputs/site_v3` -> **`DRY RUN: 34 verified files; no connection`**.
+- **Publicacao incremental e recuperacao simuladas:** skip por readback SHA-256, revogacao ordenada e recuperacao apos queda validadas em `tests/test_publishing.py`.
+- **Deploy incremental V3 autorizado (sem `--initialize`):**
+  - `python scripts/deploy_gallery.py --site outputs/site_v3 --execute` -> **`Uploaded and read back: 34`** (exit `0`; `outputs/site_r01` preservado localmente).
+  - `python scripts/check_gallery_live.py --site outputs/site_v3 --url https://eps.etijucas.com.br` -> **`HTTPS bytes and revision checks passed: https://eps.etijucas.com.br`** (exit `0`).
+- **Cabecalhos, bloqueios e MIME verificados ao vivo na V3 (`https://eps.etijucas.com.br`):**
+  - Bloqueios **`HTTP 403`**: `/.htaccess`, `/assets/`, `/modelos/`, `/.eps-upload-probe123` e `/modelos/tp40-base-lisa-r01/.eps-upload-probe123`.
+  - Cabecalhos de seguranca ativos em todas as respostas: `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow`.
+  - Politica de cache/download ativa: `Cache-Control: no-store` em HTML e ZIP; `Content-Disposition: attachment` em STL e ZIP; `Content-Type: model/gltf-binary` em `.glb`.
+- **Auditoria em navegador real ao vivo contra `https://eps.etijucas.com.br`:**
+  - Home horizontal V3 (`1366x768`), Mobile (`390x844`), busca inteligente (`980x67`, `31 mm`, `31,0`, rejeicao estrita de `98`/`31,5`), pagina de detalhe (hero nitido, `0` requisicoes prematuras) e visualizador 3D local (`https://eps.etijucas.com.br/assets/model-viewer.min.js`, **`0` requisicoes externas/CDN**) aprovados e inspecionados visualmente.
+  - Todos os **5 downloads reais ao vivo** baixados pelo navegador conferiram SHA-256 bit-a-bit com `outputs/site_v3`: `tp40-base-lisa-r01-revisao.zip` (`1.294.479 B`, `d5c8d29fbd96e9a5...`), `desenho-tecnico.png` (`57.621 B`, `c6fab103fd3c6e19...`), `modelo.glb` (`444.196 B`, `4e1c64fe38b0e98e...`), `montagem.glb` (`450.768 B`, `6ebeba6c6fed3aa8...`) e `peca-mm.stl` (`8.484 B`, `bcd6acd5e12d9f86...`).
+- **Seguranca industrial mantida em producao:** `TP40 Base lisa (R01)` segue corretamente em `Em revisao` (`Corte nao liberado`), com `machine_profiles/scara_hotwire_eps.yaml` travado (`profile_locked: false`), sem DXF comercial nem G-code ate homologacao fisica real na fabrica.
+
+![V3 Ao Vivo Home 1366x768](img/portal_v3/16_live_v3_home_1366x768.jpg)
+![V3 Ao Vivo Detalhe 1366x768](img/portal_v3/17_live_v3_detail_1366x768.jpg)
 
 ---
 
