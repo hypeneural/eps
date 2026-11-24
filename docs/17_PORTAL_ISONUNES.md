@@ -28,3 +28,10 @@ python scripts/deploy_gallery.py --site outputs/site_r01 --initialize --execute
 Apenas production_released com pacote íntegro, revalidação do projeto e leitura DXF, e release={"approved":true,"dxf_sha256":"<hash autorizado>"} no registro. PDF opcional exige public_pdf_authorized:true. Nenhum DXF de calibração, draft, G-code, arquivo original ZIP, XML, PST ou macro é publicado. ZIP público recomposto de allowlist. --allow-production é autorização adicional para enviar arquivos de corte ao servidor; não substitui homologação física. Revogar removendo modelo do registro ou substituindo revisão, reconstruir e publicar sem apagar arquivos alheios. Cópias já baixadas não podem ser revogadas. Site atual não mantém histórico visual das revisões retiradas; futuras versões poderão adicionar histórico não executável. Se desenhos forem confidenciais, não publicar sem controle de rede/acesso.
 ## Segurança operacional
 Preferir computador de consulta separado do controlador CNC Windows 7. Não instalar Python ou Blender na fábrica, não abrir navegador durante corte. A galeria não opera a CNC. O operador baixa DXF autorizado e usa LazyCam/Mach3 conforme manual.
+
+## Cadastro simples no Antigravity
+```powershell
+python scripts/register_gallery_model.py add --id tp40-base-lisa --revision r01 --name "TP40 Base lisa" --category Telhas --source outputs/tp40_review --public-authorized
+python scripts/build_gallery.py --registry portal_local/registry.json --output outputs/site_r01
+```
+A ferramenta de cadastro não habilita produção; exige publicação pública autorizada e revisão crescente. Para retirar: python scripts/register_gallery_model.py remove --id tp40-base-lisa; reconstruir e fazer deploy explicitamente. Os ZIPs são determinísticos para evitar mudança de hash em rebuild idêntico. Logo baixada localmente é detectada automaticamente.

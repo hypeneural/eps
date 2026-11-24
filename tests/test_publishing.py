@@ -82,3 +82,12 @@ class PublishingTests(unittest.TestCase):
         items=build_site(self.registry(records),out)
         self.assertIsNone(items[0]["machine"])
         self.assertFalse(any(out.rglob("*.dxf")))
+
+    def test_same_review_rebuild_is_stable(self):
+        a=self.base/"stable-a"; b=self.base/"stable-b"
+        registry=self.registry([self.entry])
+        first=build_site(registry,a)[0]
+        second=build_site(registry,b)[0]
+        path=Path("modelos")/first["slug"]/first["bundle"]
+        self.assertEqual((a/path).read_bytes(),(b/path).read_bytes())
+        self.assertEqual(first["bundle"],second["bundle"])

@@ -102,6 +102,13 @@ def jpeg(src,dest,size,quality):
         canvas.paste(im,mask=im.getchannel("A"))
         canvas.save(dest,"JPEG",quality=quality,optimize=True,progressive=False)
 
+def zip_member(z,name,data):
+    # Fixed metadata: re-building the same revision yields the same ZIP hash.
+    info=zipfile.ZipInfo(name,date_time=(2000,1,1,0,0,0))
+    info.compress_type=zipfile.ZIP_DEFLATED
+    info.external_attr=0o644<<16
+    z.writestr(info,data)
+
 def write_model(entry,base,stage,env):
     model_id=entry["id"]
     revision=entry["revision"]
@@ -176,9 +183,9 @@ def write_model(entry,base,stage,env):
     payload=sorted(p for p in folder.iterdir() if p.is_file())
     with zipfile.ZipFile(folder/bundle,"w",zipfile.ZIP_DEFLATED) as z:
         for p in payload:
-            z.write(p,p.name)
-        z.writestr("LEIA-ME.txt",("PRODUÇÃO: conferir revisão, escala e dry-run." if approved else "REVISÃO: não é arquivo de corte.")+"\n")
-        z.writestr("SHA256SUMS.txt","".join(digest(p.read_bytes())+"  "+p.name+"\n" for p in payload))
+            zip_member(z,p.name,p.read_bytes())
+        zip_member(z,"LEIA-ME.txt",("PRODUÇÃO: conferir revisão, escala e dry-run." if approved else "REVISÃO: não é arquivo de corte.")+"\n")
+        zip_member(z,"SHA256SUMS.txt","".join(digest(p.read_bytes())+"  "+p.name+"\n" for p in payload))
     with zipfile.ZipFile(folder/bundle) as z:
         if z.testzip() is not None:
             raise ValueError("Public bundle CRC failure")
@@ -196,6 +203,8 @@ def build_site(registry,output,*,logo=None):
     if not isinstance(records,list) or len(records)>500:
         raise ValueError("Expected up to 500 model records")
     env=Environment(loader=FileSystemLoader(PORTAL/"templates"),autoescape=select_autoescape(("html",)))
+    if logo is None and (ROOT/"portal_local/logo-isonunes.png").is_file():
+        logo=ROOT/"portal_local/logo-isonunes.png"
     output.parent.mkdir(parents=True,exist_ok=True)
     with tempfile.TemporaryDirectory(dir=output.parent,prefix=".portal-") as tmp:
         stage=Path(tmp)/"site"
