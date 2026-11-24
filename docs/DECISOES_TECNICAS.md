@@ -53,3 +53,6 @@
 - `src/epscad/visual/review_drawing.py` passou a incluir detalhe ampliado do modulo (196 mm) destacando a microdobra central (48 x 2 mm) e tabela resumo das cotas nominais em `29_section_review.png`.
 - `.agents/agents/eps-engineer/agent.md` vinculado explicitamente as 5 skills locais.
 - Testes de regressao adicionados para invariancia do perfil sob variacao de espessura minima, preservacao das 5 microdobras e contrato CLI das 6 vistas Cycles (`tests/test_render_quality.py`, `tests/test_roof_review.py`).
+
+## Arquitetura do agente (24/11/2026)
+AGENTS.md curto, skills sob demanda, agentes separados e preflight no CI; checkpoint local ignorado. Workflows legados não adicionados; /run-workflow para auditoria ampla com aprovação. Ver docs/18_GUIA_AGENTE.md e docs/19_WORKFLOWS_AGENTE.md.

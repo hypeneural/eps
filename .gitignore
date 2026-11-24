@@ -22,3 +22,6 @@ local_catalogs/
 .env.*
 !.env.example
 portal_local/
+
+# Local agent checkpoints
+.eps-agent/

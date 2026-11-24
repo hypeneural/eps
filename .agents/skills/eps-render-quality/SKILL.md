@@ -1,6 +1,7 @@
 ---
 name: eps-render-quality
-description: Renderiza EPS branco com textura de perolas, chapa metalica, GLB, Blender Cycles e preview CPU.
+description: Renderiza e revisa GLB/STL, textura de pérolas EPS e chapa de referência com Blender Cycles ou preview CPU; use para melhorar imagens ou vistas.
 ---
-# Render
-Use GLB da mesma geometria, nunca imagem generativa como CAD. Execute `scripts/render_quality.py --help`. Com Blender 4.2+ use `--blender`, `--input` (GLB EPS ou conjunto) e `--view` (`perspective`, `section_front`, `microgroove_detail`, `assembly`, `exploded`, `texture_closeup`). PNG separado do ZIP de corte verificado. Usa GPU Cycles (OptiX/CUDA) com fallback automatico para CPU. Abra todas as imagens e confira nervuras, microdobras, topo plano, luz, textura de perolas, chapa negativa e escala. Preview CPU e fallback, nao fotorealismo.
+
+# Procedimento
+Leia docs/14_ANTIGRAVITY_LOCAL.md e docs/17_HOMOLOGACAO_LOCAL_RELATORIO.md. Reutilize GLB e renders verificados do mesmo pacote. Se faltarem vistas, prepare_tp40.py --blender auto gera seis vistas integradas ao ZIP; render_quality.py --help permite render isolado fora do pacote já verificado. Vistas: perspective, section_front, microgroove_detail, assembly, exploded, texture_closeup. Use Blender 4.2+ com GPU quando disponível; CPU é fallback. Nunca substitua CAD por imagem gerada por IA. Inspecione enquadramento, topo, microdobras, textura e chapa; contraste e cyclorama são questões visuais. Não sobrescreva arquivo com hash; se precisar modificar pacote, regenere-o em nova pasta. Registre backend efetivo, vistas, inspeção e limitações.
