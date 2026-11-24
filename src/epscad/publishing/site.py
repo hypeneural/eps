@@ -91,7 +91,10 @@ def public_specs(report):
         "Extensão X do percurso (mm)":(report.get("bbox_mm") or {}).get("width"),
         "Extensão Y do percurso (mm)":(report.get("bbox_mm") or {}).get("height"),
     }
-    return {k:round(v,4) for k,v in raw.items() if isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(v) and v>=0}
+    def _clean(v):
+        r=round(v,4)
+        return int(r) if r==int(r) else r
+    return {k:_clean(v) for k,v in raw.items() if isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(v) and v>=0}
 
 def jpeg(src,dest,size,quality):
     with Image.open(src) as im:
@@ -196,7 +199,7 @@ def write_model(entry,base,stage,env):
     (folder/"index.html").write_text(env.get_template("model.html").render(m=item),encoding="utf-8")
     return item
 
-def build_site(registry,output,*,logo=None):
+def build_site(registry,output,*,logo=None,viewer_dir=None):
     registry=Path(registry).resolve()
     output=Path(output).resolve()
     if output.exists():
@@ -222,6 +225,14 @@ def build_site(registry,output,*,logo=None):
             shutil.copyfile(PORTAL/"assets"/"wordmark.svg",stage/"assets"/"logo.svg")
         logo_name="logo.png" if logo else "logo.svg"
         env.globals["logo_name"]=logo_name
+        vdir=Path(viewer_dir) if viewer_dir is not None else (ROOT/"portal_local")
+        local_mv=vdir/"model-viewer.min.js"
+        local_mv_lic=vdir/"MODEL-VIEWER-LICENSE.txt"
+        has_local_viewer=local_mv.is_file() and local_mv_lic.is_file()
+        if has_local_viewer:
+            shutil.copyfile(local_mv,stage/"assets/model-viewer.min.js")
+            shutil.copyfile(local_mv_lic,stage/"assets/MODEL-VIEWER-LICENSE.txt")
+        env.globals["local_viewer"]=has_local_viewer
         from epscad.publishing.brand import write_brand
         write_brand(stage/"assets"/"brand.css",stage/"assets"/"logo.png" if logo else None)
         items=[]

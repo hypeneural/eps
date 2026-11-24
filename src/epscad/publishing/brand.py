@@ -14,7 +14,8 @@ def palette(logo=None):
             im=im.convert("RGBA")
             im.thumbnail((160,160))
             counts={}
-            for r,g,b,a in im.getdata():
+            pixels = im.get_flattened_data() if hasattr(im, "get_flattened_data") else im.getdata()
+            for r,g,b,a in pixels:
                 h,s,v=colorsys.rgb_to_hsv(r/255,g/255,b/255)
                 if a>=200 and s>=.35 and .23<=v<=1:
                     key=tuple(min(255,(c//24)*24+12) for c in (r,g,b))

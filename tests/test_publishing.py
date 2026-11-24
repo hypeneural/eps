@@ -111,3 +111,29 @@ class PublishingTests(unittest.TestCase):
         self.assertNotIn("model-viewer.min.js",page)
         self.assertNotIn("Baixar DXF de corte",page)
         self.assertIn("assets/brand.css",local_inventory(out))
+
+    def test_clean_integer_specs_and_local_viewer_bundle(self):
+        empty_vendor=self.base/"no-vendor"
+        empty_vendor.mkdir()
+        out=self.base/"clean-specs"
+        items=build_site(self.registry([self.entry]),out,viewer_dir=empty_vendor)
+        self.assertEqual(items[0]["dimensions"],"980 × 67")
+        self.assertIsInstance(items[0]["specs"]["Largura (mm)"],int)
+        page=(out/"modelos"/items[0]["slug"]/"index.html").read_text(encoding="utf-8")
+        self.assertIn('id="lightbox-full"',page)
+        self.assertNotIn("data-local-viewer",page)
+        self.assertNotIn("model-viewer.min.js",page)
+        self.assertFalse((out/"assets/model-viewer.min.js").exists())
+
+        vendor=self.base/"with-vendor"
+        vendor.mkdir()
+        (vendor/"model-viewer.min.js").write_text("/* vendor viewer stub */\n",encoding="utf-8")
+        (vendor/"MODEL-VIEWER-LICENSE.txt").write_text("Apache License 2.0\n",encoding="utf-8")
+        out_local=self.base/"local-viewer-site"
+        items_local=build_site(self.registry([self.entry]),out_local,viewer_dir=vendor)
+        page_local=(out_local/"modelos"/items_local[0]["slug"]/"index.html").read_text(encoding="utf-8")
+        self.assertIn('data-local-viewer="1"',page_local)
+        self.assertNotIn("model-viewer.min.js",page_local)
+        inv=local_inventory(out_local)
+        self.assertIn("assets/model-viewer.min.js",inv)
+        self.assertIn("assets/MODEL-VIEWER-LICENSE.txt",inv)
