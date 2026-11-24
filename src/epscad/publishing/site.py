@@ -121,6 +121,16 @@ def write_model(entry,base,stage,env):
     approved=bool(status=="production_released" and report.get("package_purpose")=="production"
                   and dxf in verified and release.get("approved") is True
                   and release.get("dxf_sha256")==digest(safe_file(source,dxf).read_bytes()))
+    if approved:
+        from epscad.loader import load_yaml
+        from epscad.build import build_job
+        from epscad.exporters.roundtrip import verify_roundtrip
+        if "05_project.locked.yaml" not in verified:
+            raise ValueError("Released project contract missing")
+        spec=load_yaml(safe_file(source,"05_project.locked.yaml"))
+        job=build_job(spec)
+        if job.has_errors or job.production_status!="production_released" or not verify_roundtrip(job,safe_file(source,dxf)):
+            raise ValueError("Released project fails current production gates or DXF readback")
     if status=="production_released" and not approved:
         raise ValueError("Production package requires explicit revision DXF hash approval")
     slug=model_id+"-"+revision
@@ -145,7 +155,7 @@ def write_model(entry,base,stage,env):
     ):
         if original in verified:
             # PDF may disclose machine parameters; only explicitly approved release.
-            if original.endswith(".pdf") and not approved:
+            if original.endswith(".pdf") and not (approved and entry.get("public_pdf_authorized") is True):
                 continue
             shutil.copyfile(safe_file(source,original),folder/target)
             downloads.append({"file":target,"label":label})
@@ -169,7 +179,11 @@ def write_model(entry,base,stage,env):
             z.write(p,p.name)
         z.writestr("LEIA-ME.txt",("PRODUÇÃO: conferir revisão, escala e dry-run." if approved else "REVISÃO: não é arquivo de corte.")+"\n")
         z.writestr("SHA256SUMS.txt","".join(digest(p.read_bytes())+"  "+p.name+"\n" for p in payload))
+    with zipfile.ZipFile(folder/bundle) as z:
+        if z.testzip() is not None:
+            raise ValueError("Public bundle CRC failure")
     item["bundle"]=bundle
+    item["bundle_bytes"]=(folder/bundle).stat().st_size
     (folder/"index.html").write_text(env.get_template("model.html").render(m=item),encoding="utf-8")
     return item
 

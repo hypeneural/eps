@@ -102,3 +102,6 @@ Veja docs/15_HISTORICAL_EVIDENCE.md e `python scripts/review_historical_roof.py 
 
 ## Desenvolvimento separado da fabrica: TP40 base lisa
 `powershell -NoProfile -File scripts/prepare_development.ps1` no PC moderno. Sem necessidade de acessar o PC da CNC. Perfil nominal com microdobra disponivel no catalogo; `python scripts/prepare_tp40.py --help`. Evidencia original opcional em private_evidence/. Veja docs/16_DEVELOPMENT_HANDOFF.md. ZIP de revisao sem DXF/TAP.
+
+## Galeria Iso Nunes
+`python scripts/gallery_demo.py --output outputs/portal_demo` gera TP40 nominal, página estática, miniaturas e GLB. Veja docs/17_PORTAL_ISONUNES.md para logo, registro local e FTPS. Sem banco ou PHP obrigatório. Nenhum corte comercial liberado automaticamente.

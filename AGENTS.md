@@ -27,3 +27,6 @@ Nao enviar ZIPs originais, XML, PST, macros ou desenhos industriais de terceiros
 
 ## Handoff de desenvolvimento
 O Antigravity roda em outro PC, nao no Windows 7 da fabrica. Leia docs/16_DEVELOPMENT_HANDOFF.md e use scripts/prepare_development.ps1 no PC moderno. Para TP40 base lisa com microdobra use scripts/prepare_tp40.py: referencia normalizada disponivel sem ZIP. Se houver evidencias locais, comparar via --evidence; nao publicar originais. Nao confundir ZIP de revisao com pacote de calibracao. Inspecionar os renders reais e reportar bloqueios.
+
+## Portal Iso Nunes
+Leia docs/17_PORTAL_ISONUNES.md e skill eps-publish-model. Geração local e publicação são etapas separadas. Site estático sem login é público; nunca publicar dados privados ou credenciais. DXF somente produção homologada e hash aprovado, sem arquivos de teste. Não instalar nada no PC CNC.
