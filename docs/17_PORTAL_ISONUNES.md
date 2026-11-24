@@ -38,3 +38,12 @@ A ferramenta de cadastro não habilita produção; exige publicação pública a
 
 ## UX v2
 Tema usa a imagem oficial local (fetch_portal_logo.py) e extrai cor dominante saturada, escurecida para contraste mínimo 5:1 sobre branco; verde de corte e âmbar de revisão permanecem semânticos. Textura EPS SVG e ícones SVG locais, sem fontes remotas. Busca por tokens em todos os dados públicos, categorias, somente liberados, lista persistida localmente; sem JS, links continuam disponíveis. Galeria com miniaturas individuais, setas, ampliação, teclado e Escape. Desenho técnico e frontal independentes; seis vistas Cycles + desenho quando presentes nos hashes. GLB núcleo/montagem opcional; fechar remove o elemento WebGL. Não confundir previews compactados de docs com pacote verificado. O relatório CAD 4739fc4 foi integrado sem alterar motor.
+
+## Homologação visual e HTTPS
+- Demo local com seis vistas reais: python scripts/gallery_demo.py --output outputs/portal_cycles --blender auto
+- Preferir registrar o pacote já gerado pelo Antigravity (tp40_review) e evitar renderização duplicada. Só arquivos presentes nos hashes e ZIP entram no portal.
+- Teste opcional: python -m pip install "playwright>=1.49,<2"; python -m playwright install chromium; python scripts/check_gallery_browser.py --site outputs/portal_cycles/site --screenshots outputs/portal_shots
+- Workflow Portal browser gera screenshots em seis resoluções e testa filtros, lista, galeria, download, ausência de DXF em revisão e ausência de GLB/CDN antes do clique, além de JS desligado. CI não comprova Windows 7 real ou GPU.
+- Após deploy autorizado e TLS válido: python scripts/check_gallery_live.py --site outputs/site_r01 --url https://eps.etijucas.com.br
+- Para revogação, adicionar --previous-site outputs/site_anterior. Verifica bytes HTTP de todos os arquivos públicos, cabeçalho de DXF e bloqueio do .htaccess, mas não substitui teste do operador, do servidor e de todos os navegadores.
+- Não liberar DXF comercial só para homologar o portal; status draft permanece. Trocar credencial compartilhada anteriormente. Não publicar a partir de CI.
