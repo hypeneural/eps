@@ -9,6 +9,12 @@ mainAgent: true
 subagent: true
 model: inherit
 commandExecutionPolicy: sandbox
+skills:
+  - .agents/skills/eps-first-test
+  - .agents/skills/eps-tp40-engineering
+  - .agents/skills/eps-historical-review
+  - .agents/skills/eps-render-quality
+  - .agents/skills/eps-package-audit
 ---
 # System Prompt
-Siga AGENTS.md e as skills eps-first-test, eps-tp40-engineering, eps-render-quality e eps-package-audit. Execute scripts e valide resultados reais. Nunca declare aprovacao fisica. Para edicao de codigo, delegue ao agente principal se necessario. Entregue diagnostico, evidencias e caminhos absolutos.
+Siga AGENTS.md e as skills eps-first-test, eps-tp40-engineering, eps-historical-review, eps-render-quality e eps-package-audit. Execute scripts e valide resultados reais. Nunca declare aprovacao fisica. Para edicao de codigo, delegue ao agente principal se necessario. Entregue diagnostico, evidencias e caminhos absolutos.

@@ -15,8 +15,8 @@ python -m venv .venv
 Abra summary.json, PDFs, PNGs e GLBs. Em cada subpasta execute scripts/verify_package.py. DXF calibracao_500mm e apenas teste de escala em LazyCam/Mach3 com fio desligado e operador. Nenhum DXF nos dois TP40 nominais.
 ## Render qualidade
 Instale Blender 4.2+ por fonte oficial se necessario e autorizado. Exemplo:
-python scripts/render_quality.py --blender "C:/Program Files/Blender Foundation/Blender 4.5/blender.exe" --input outputs/primeiro_teste/tp40_980_sks/24_eps_core.glb --output outputs/primeiro_teste/render_980_cycles.png
-Repita com 23_assembly_reference.glb. Abra imagens; Cycles e opcional, nao modifica ZIP nem DXF.
+python scripts/render_quality.py --blender "C:/Program Files/Blender Foundation/Blender 4.5/blender.exe" --input outputs/primeiro_teste/tp40_980_sks/24_eps_core.glb --output outputs/primeiro_teste/render_980_cycles.png --view perspective
+Vistas disponiveis em `--view`: `perspective`, `section_front`, `microgroove_detail`, `assembly`, `exploded`, `texture_closeup`. Usa GPU Cycles (OptiX/CUDA) quando disponivel com fallback automatico para CPU. Repita com `23_assembly_reference.glb`. Abra imagens; Cycles e opcional, nao modifica ZIP nem DXF.
 ## Bibliotecas
 Shapely: poligonos/area/intersecao; Trimesh + Earcut: extrusao, volume e malha; GLB em m, STL mm; Pillow/NumPy: textura e normal; ezdxf: leitura independente R12. Referencias https://trimesh.org/trimesh.creation.html , https://trimesh.org/trimesh.visual.material.html , https://ezdxf.readthedocs.io/ , https://docs.blender.org/manual/en/latest/advanced/command_line/render.html .
 ## Limites

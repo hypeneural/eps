@@ -46,3 +46,10 @@
 
 - Corpo de prova sintetico separado para teste de importacao: 400 x 40 mm, 9 LINE, nenhum parametro fisico assumido.
 - Perfil por pontos invalido nao gera quadrado silencioso; gates de producao exigem confirmacao explicita e capacidades numericas.
+
+## Homologacao local PC de desenvolvimento (2026-11-24)
+- `scripts/render_quality.py` e `scripts/blender/render_eps.py` expandidos com `--view` para 6 vistas studio Cycles (`perspective`, `section_front`, `microgroove_detail`, `assembly`, `exploded`, `texture_closeup`), material procedural de EPS branco com perolas fundidas arredondadas (`1 - d^2` + seams suaves), chapa Galvalume metalica spangle, color management `AgX` e deteccao automatica OptiX/CUDA com fallback CPU.
+- `scripts/prepare_tp40.py` gera automaticamente as 6 vistas Cycles (`30..35_*_cycles.png`) quando Blender e localizado (`--blender auto`) e preserva a separacao estrita sem DXF/TAP.
+- `src/epscad/visual/review_drawing.py` passou a incluir detalhe ampliado do modulo (196 mm) destacando a microdobra central (48 x 2 mm) e tabela resumo das cotas nominais em `29_section_review.png`.
+- `.agents/agents/eps-engineer/agent.md` vinculado explicitamente as 5 skills locais.
+- Testes de regressao adicionados para invariancia do perfil sob variacao de espessura minima, preservacao das 5 microdobras e contrato CLI das 6 vistas Cycles (`tests/test_render_quality.py`, `tests/test_roof_review.py`).

@@ -24,8 +24,21 @@ class RoofReviewTests(unittest.TestCase):
         self.assertIn((58,34),r["profile_points_mm"])
         self.assertEqual(roof.core.intersection(roof.metal).area,0)
         self.assertFalse(r["machine_export_allowed"])
-        changed,_=build_reference(dict(self.geometry(),min_thickness_mm=40))
-        self.assertAlmostEqual(changed.core.area-roof.core.area,980*9)
+        changed, rc = build_reference(dict(self.geometry(), min_thickness_mm=40))
+        self.assertAlmostEqual(changed.core.area - roof.core.area, 980 * 9)
+        self.assertEqual(rc["profile_points_mm"], r["profile_points_mm"])
+        self.assertEqual(rc["width_mm"], r["width_mm"])
+        self.assertEqual(rc["height_mm"], r["height_mm"] + 9)
+        self.assertAlmostEqual(rc["interface_length_mm"], r["interface_length_mm"], places=6)
+        self.assertEqual(changed.core.intersection(changed.metal).area, 0)
+        # All 5 central 48 x 2 mm microgrooves preserved regardless of thickness
+        grooves = [
+            (a[0], b[0])
+            for a, b in zip(rc["profile_points_mm"], rc["profile_points_mm"][1:])
+            if a[1] == 34.0 and b[1] == 34.0
+        ]
+        self.assertEqual(len(grooves), 5)
+        self.assertTrue(all(abs((x1 - x0) - 48.0) < 1e-6 for x0, x1 in grooves))
     def test_evidence_dedup(self):
         roof,r=build_reference(self.geometry())
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,6 +1,7 @@
 # Windows development PC only; never run on factory controller.
 param([string]$Python = "python", [string]$Evidence = "", [string]$Blender = "auto")
 $ErrorActionPreference = "Stop"
+$env:PIP_DISABLE_PIP_VERSION_CHECK = "1"
 Set-Location (Split-Path -Parent $PSScriptRoot)
 function Invoke-Checked {
     param([string]$Exe, [string[]]$Arguments)
