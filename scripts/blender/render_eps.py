@@ -1,4 +1,5 @@
 """Blender 4.2+ headless studio scene; input GLB is unchanged."""
+import math
 import sys
 from pathlib import Path
 
@@ -92,7 +93,7 @@ def build_eps_material(mat):
     links.new(vor_f1.outputs["Color"], bead_bw.inputs["Color"])
     bead_ramp = nodes.new("ShaderNodeValToRGB")
     bead_ramp.color_ramp.elements[0].position = 0.0
-    bead_ramp.color_ramp.elements[0].color = (0.82, 0.83, 0.835, 1.0)
+    bead_ramp.color_ramp.elements[0].color = (0.81, 0.82, 0.825, 1.0)
     bead_ramp.color_ramp.elements[1].position = 1.0
     bead_ramp.color_ramp.elements[1].color = (0.95, 0.955, 0.95, 1.0)
     links.new(bead_bw.outputs["Val"], bead_ramp.inputs["Fac"])
@@ -101,14 +102,14 @@ def build_eps_material(mat):
     seam_col = nodes.new("ShaderNodeMapRange")
     seam_col.interpolation_type = "SMOOTHSTEP"
     seam_col.inputs["From Min"].default_value = 0.006
-    seam_col.inputs["From Max"].default_value = 0.085
+    seam_col.inputs["From Max"].default_value = 0.088
     seam_col.inputs["To Min"].default_value = 0.0
     seam_col.inputs["To Max"].default_value = 1.0
     links.new(vor_edge.outputs["Distance"], seam_col.inputs["Value"])
 
     mix_col = nodes.new("ShaderNodeMix")
     mix_col.data_type = "RGBA"
-    mix_col.inputs["A"].default_value = (0.60, 0.62, 0.64, 1.0)
+    mix_col.inputs["A"].default_value = (0.58, 0.60, 0.62, 1.0)
     links.new(seam_col.outputs["Result"], mix_col.inputs["Factor"])
     links.new(bead_ramp.outputs["Color"], mix_col.inputs["B"])
     links.new(mix_col.outputs["Result"], bsdf.inputs["Base Color"])
@@ -136,7 +137,6 @@ def build_eps_material(mat):
     seam_h.inputs["To Max"].default_value = 1.0
     links.new(vor_edge.outputs["Distance"], seam_h.inputs["Value"])
 
-    # Combine pillow dome (0.38) + rounded seam shoulder (0.52) + fine matte grain (0.10)
     dome_w = nodes.new("ShaderNodeMath")
     dome_w.operation = "MULTIPLY"
     dome_w.inputs[1].default_value = 0.38
@@ -163,12 +163,11 @@ def build_eps_material(mat):
     links.new(grain_w.outputs["Value"], height_total.inputs[1])
 
     bump = nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.42
-    bump.inputs["Distance"].default_value = 0.0009
+    bump.inputs["Strength"].default_value = 0.44
+    bump.inputs["Distance"].default_value = 0.00095
     links.new(height_total.outputs["Value"], bump.inputs["Height"])
     links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
 
-    # Chalky matte EPS roughness with subtle micro-variation
     rough_map = nodes.new("ShaderNodeMapRange")
     rough_map.inputs["To Min"].default_value = 0.76
     rough_map.inputs["To Max"].default_value = 0.90
@@ -254,33 +253,80 @@ def add_area_light(scene, name, location, target, energy, size, color=(1.0, 1.0,
     return obj
 
 
-def build_studio_backdrop(scene, lo, hi):
-    """Seamless large studio floor + soft curved back sweep (no harsh horizon line)."""
+def _make_backdrop_material(color=(0.24, 0.27, 0.31, 1.0), roughness=0.90):
+    gmat = bpy.data.materials.new("StudioBackdrop")
+    gmat.use_nodes = True
+    gbsdf = next(n for n in gmat.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+    gbsdf.inputs["Base Color"].default_value = color
+    gbsdf.inputs["Roughness"].default_value = roughness
+    set_input(gbsdf, "Specular IOR Level", 0.14)
+    return gmat
+
+
+def build_cyclorama(scene, lo, hi):
+    """Seamless curved L-sweep studio cyclorama (eliminates harsh horizon line)."""
     size = hi - lo
     center = (lo + hi) / 2.0
     span = max(size.x, size.y, size.z)
 
-    bpy.ops.mesh.primitive_plane_add(
-        size=span * 60.0,
-        location=(center.x, center.y, lo.z - 0.0006),
-    )
-    ground = bpy.context.object
-    gmat = bpy.data.materials.new("StudioGround")
-    gmat.use_nodes = True
-    nodes = gmat.node_tree.nodes
-    links = gmat.node_tree.links
-    gbsdf = next(n for n in nodes if n.type == "BSDF_PRINCIPLED")
-    gbsdf.inputs["Base Color"].default_value = (0.20, 0.23, 0.27, 1.0)
-    gbsdf.inputs["Roughness"].default_value = 0.88
-    set_input(gbsdf, "Specular IOR Level", 0.16)
-    ground.data.materials.append(gmat)
+    z_floor = lo.z - 0.0006
+    half_w = span * 16.0
+    y_front = center.y - span * 8.0
+    y_curve_start = hi.y + span * 1.15
+    radius = span * 2.2
+    z_top = z_floor + radius + span * 6.0
+    segments = 32
 
-    # Match world ambient to the lit studio sweep so the distant edge dissolves smoothly
+    profile = [(y_front, z_floor), (y_curve_start, z_floor)]
+    for i in range(1, segments + 1):
+        theta = (math.pi / 2.0) * (i / segments)
+        py = y_curve_start + radius * math.sin(theta)
+        pz = z_floor + radius * (1.0 - math.cos(theta))
+        profile.append((py, pz))
+    y_wall = y_curve_start + radius
+    profile.append((y_wall, z_top))
+
+    verts = []
+    faces = []
+    for py, pz in profile:
+        verts.append((center.x - half_w, py, pz))
+        verts.append((center.x + half_w, py, pz))
+    for i in range(len(profile) - 1):
+        a, b, c, d = 2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2
+        faces.append((a, b, c, d))
+
+    mesh = bpy.data.meshes.new("StudioCycloramaMesh")
+    mesh.from_pydata(verts, [], faces)
+    mesh.update()
+    for poly in mesh.polygons:
+        poly.use_smooth = True
+    obj = bpy.data.objects.new("StudioCyclorama", mesh)
+    scene.collection.objects.link(obj)
+    obj.data.materials.append(_make_backdrop_material((0.26, 0.29, 0.34, 1.0), roughness=0.92))
+    return obj
+
+
+def build_studio_backdrop(scene, lo, hi, view):
+    """Use seamless cyclorama on 3D hero views and clean studio floor elsewhere."""
+    size = hi - lo
+    center = (lo + hi) / 2.0
+    span = max(size.x, size.y, size.z)
+
+    if view in ("perspective", "assembly", "exploded"):
+        build_cyclorama(scene, lo, hi)
+    else:
+        bpy.ops.mesh.primitive_plane_add(
+            size=span * 40.0,
+            location=(center.x, center.y, lo.z - 0.0006),
+        )
+        ground = bpy.context.object
+        ground.data.materials.append(_make_backdrop_material((0.20, 0.23, 0.27, 1.0), roughness=0.88))
+
     scene.world = bpy.data.worlds.new("StudioWorld")
     scene.world.use_nodes = True
     bg = scene.world.node_tree.nodes["Background"]
-    bg.inputs[0].default_value = (0.23, 0.26, 0.31, 1.0)
-    bg.inputs[1].default_value = 0.55
+    bg.inputs[0].default_value = (0.24, 0.27, 0.32, 1.0)
+    bg.inputs[1].default_value = 0.50
 
 
 def setup_studio(scene, lo, hi, view):
@@ -288,7 +334,7 @@ def setup_studio(scene, lo, hi, view):
     center = (lo + hi) / 2.0
     span = max(size.x, size.y, size.z)
 
-    build_studio_backdrop(scene, lo, hi)
+    build_studio_backdrop(scene, lo, hi, view)
 
     if view == "texture_closeup":
         focus = Vector((lo.x + 0.28 * size.x, lo.y + 0.04, hi.z - 0.010))
@@ -297,10 +343,11 @@ def setup_studio(scene, lo, hi, view):
         add_area_light(scene, "Rim", focus + Vector((0.15, 0.45, 0.32)), focus, 11.0, 0.30, (1.0, 1.0, 1.0))
     elif view == "microgroove_detail":
         focus = Vector((lo.x + 0.484 * size.x, lo.y + 0.04, lo.z + 0.032))
-        add_area_light(scene, "Key", focus + Vector((-0.55, -0.45, 0.35)), focus, 13.0, 0.25, (1.0, 0.98, 0.95))
-        add_area_light(scene, "Fill", focus + Vector((0.60, -0.40, 0.22)), focus, 6.0, 0.45, (0.88, 0.94, 1.0))
-        # Soft low front bounce lights up the negative Galvalume sheet underneath the microgroove
-        add_area_light(scene, "MetalBounce", focus + Vector((-0.05, -0.45, -0.02)), focus + Vector((0.0, 0.05, 0.0)), 14.0, 0.30, (0.95, 0.98, 1.0))
+        # Grazing low-side key accentuates fused white EPS beads right around the 48 x 2 mm step
+        add_area_light(scene, "Key", focus + Vector((-0.68, -0.20, 0.22)), focus, 10.5, 0.16, (1.0, 0.975, 0.94))
+        add_area_light(scene, "Fill", focus + Vector((0.65, -0.42, 0.28)), focus, 3.8, 0.45, (0.88, 0.94, 1.0))
+        # Soft low bounce illuminates the Galvalume metallic negative beneath the microgroove
+        add_area_light(scene, "MetalBounce", focus + Vector((-0.04, -0.48, -0.04)), focus + Vector((0.0, 0.08, -0.005)), 12.0, 0.28, (0.95, 0.98, 1.0))
     elif view == "section_front":
         target = Vector((center.x, lo.y, center.z))
         add_area_light(scene, "Key", target + Vector((-1.35 * span, -1.05 * span, 0.65 * span)), target, 140.0 * span * span, 0.75 * span, (1.0, 0.985, 0.96))
@@ -336,7 +383,6 @@ def setup_camera(scene, lo, hi, view):
         cam.location = target + Vector((-0.88 * span, -2.05 * span, 0.56 * span))
         point_at(cam, target)
     elif view == "assembly":
-        # Lower angle looking into the trapezoidal channels so the flush Galvalume sheet gleams clearly
         cam_data.type = "PERSP"
         cam_data.lens = 52.0
         target = Vector((center.x, center.y - 0.04 * size.y, center.z - 0.004))
@@ -358,7 +404,6 @@ def setup_camera(scene, lo, hi, view):
     elif view == "microgroove_detail":
         cam_data.type = "PERSP"
         cam_data.lens = 85.0
-        # Centered on module #3 crest & 48 x 2 mm microgroove; slightly lower to show metallic underside
         target = Vector((lo.x + 0.484 * size.x, lo.y + 0.045, lo.z + 0.032))
         cam.location = target + Vector((-0.070, -0.285, 0.014))
         point_at(cam, target)
@@ -429,7 +474,7 @@ def main():
         scene.view_settings.look = "AgX - Medium High Contrast"
     except Exception:
         scene.view_settings.view_transform = "Filmic"
-    scene.view_settings.exposure = 0.0
+    scene.view_settings.exposure = -0.35 if view == "microgroove_detail" else 0.0
 
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(Path(output))
