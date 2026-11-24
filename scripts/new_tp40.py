@@ -11,6 +11,7 @@ from epscad.exporters import write_outputs
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("variant",choices=["tp40_980_sks","tp40_1020_isoeste"])
+    p.add_argument("--output",type=Path,default=None)
     p.add_argument("--length",type=float,default=1000)
     p.add_argument("--thickness",type=float,default=30)
     args=p.parse_args()
@@ -25,7 +26,8 @@ def main():
     spec["process"]["hotwire"].update(wire_count="confirmar",effective_kerf_mm="confirmar",min_segment_mm="confirmar",min_radius_mm="confirmar")
     spec["process"]["feed"].update(xy_mm_min="confirmar",slow_curve_mm_min="confirmar")
     job=build_job(spec)
-    output=ROOT/"outputs"/args.variant
+    job.metadata["profile_source"] = {"id": ref["id"], "url": ref["source"], "page": ref.get("source_page"), "status": "reference_only", "limitations": ref["limitations"]}
+    output=args.output or ROOT/"outputs"/args.variant
     write_outputs(job,spec,output)
     print(output)
     return int(job.has_errors)

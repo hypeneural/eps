@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shutil
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -43,6 +43,17 @@ def write_outputs(job: CutJobResult, spec: dict, output_dir: str | Path) -> dict
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     _clear_known_outputs(out)
+    with tempfile.TemporaryDirectory(prefix='.eps-staging-', dir=out) as tmp:
+        files = _write_staged(job, spec, Path(tmp))
+        from epscad.exporters.integrity import verify_zip
+        verify_zip(tmp)
+        for key, value in files.items():
+            source = Path(value)
+            source.replace(out / source.name)
+        return {key: str(out / Path(value).name) for key, value in files.items()}
+
+
+def _write_staged(job, spec, out):
     files: dict[str, str] = {}
     project_path = out / "05_project.locked.yaml"
     project_path.write_text(yaml.safe_dump(spec, sort_keys=False, allow_unicode=False), encoding="utf-8")
@@ -68,7 +79,8 @@ def write_outputs(job: CutJobResult, spec: dict, output_dir: str | Path) -> dict
         dxf_path = out / "03_cutpaths_r12.dxf"
         write_dxf_r12(job, dxf_path)
         from epscad.exporters.dxf_validator import validate_dxf
-        if not validate_dxf(dxf_path).ok:
+        from epscad.exporters.roundtrip import verify_roundtrip
+        if not validate_dxf(dxf_path).ok or not verify_roundtrip(job, dxf_path):
             dxf_path.unlink(missing_ok=True)
             raise ValueError("Exported DXF failed validation")
         files["dxf_r12"] = str(dxf_path)
@@ -133,6 +145,8 @@ def _manifest(job: CutJobResult, files: dict[str, str]) -> dict:
         "package_purpose": "production" if job.production_status == "production_released" and not job.has_errors else "review_or_test_only",
         "model_units": {"stl": "mm", "glb": "m"},
         "roof_3d": job.metadata.get("roof_3d"),
+        "project_id": job.project_id,
+        "profile_source": job.metadata.get("profile_source"),
         "has_errors": job.has_errors,
         "files": {key: Path(value).name for key, value in files.items()},
     }

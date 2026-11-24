@@ -1,28 +1,13 @@
-from __future__ import annotations
-
 import argparse
 import sys
-import zipfile
 from pathlib import Path
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Create or refresh machine package ZIP from an output directory.")
-    parser.add_argument("output_dir")
-    args = parser.parse_args()
-
-    out = Path(args.output_dir)
-    if not out.exists():
-        print(f"output directory not found: {out}", file=sys.stderr)
-        return 1
-    zip_path = out / "12_package_for_machine.zip"
-    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(out.iterdir()):
-            if path.is_file() and path.name != zip_path.name:
-                archive.write(path, arcname=path.name)
-    print(zip_path)
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"src"))
+from epscad.exporters.integrity import rebuild_zip
+def main():
+    p=argparse.ArgumentParser(description="Rebuild ZIP from verified manifest allowlist.")
+    p.add_argument("directory",type=Path)
+    a=p.parse_args()
+    print("Verified:",len(rebuild_zip(a.directory)),"files")
     return 0
-
-
-if __name__ == "__main__":
+if __name__=="__main__":
     raise SystemExit(main())
