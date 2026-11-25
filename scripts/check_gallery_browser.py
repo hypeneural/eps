@@ -36,6 +36,7 @@ def main():
                 fits(page)
                 assert page.locator(".model-card").count()==len(items)
                 assert page.locator(".model-card").first.is_visible()
+                assert page.locator(".model-card .whatsapp-card-link").first.get_attribute("href")==item["whatsapp_url"]
                 page.screenshot(path=a.screenshots/f"gallery-{w}x{h}.png")
                 page.locator("#search").fill("not-a-real-model-999")
                 assert page.locator("#empty").is_visible()
