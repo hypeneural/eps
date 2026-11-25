@@ -85,4 +85,4 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 [Design, WhatsApp e validação de downloads](docs/33_PORTAL_V6_COMPARTILHAMENTO.md) · [Relatório V6 Premium e validação ao vivo](docs/34_PORTAL_V6_PREMIUM_RELATORIO.md).
 
 ### V7 — interface compacta e aceite industrial
-[Critério de entrega Mach3](docs/35_PORTAL_V7_ENTREGA_MACH3.md). O comando `python scripts/check_mach3_delivery.py --site <snapshot> --https` distingue publicação visual de entrega dos nove TAPs reais.
+[Critério de entrega Mach3](docs/35_PORTAL_V7_ENTREGA_MACH3.md) · [Relatório operacional V7 e aceite ao vivo](docs/36_PORTAL_V7_OPERACIONAL_RELATORIO.md). O comando `python scripts/check_mach3_delivery.py --site <snapshot> --https` distingue publicação visual de entrega dos nove TAPs reais.

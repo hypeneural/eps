@@ -353,3 +353,8 @@ class PublishingTests(unittest.TestCase):
         self.assertIn("TP40 Base lisa — Referência",decoded)
         self.assertIn("/modelos/tp40-base-lisa-r01/publico.html",decoded)
         self.assertNotIn("/index.html",decoded)
+        self.assertIn('title="Imagens"',pub)
+        self.assertIn('title="Medidas"',pub)
+        app_js=(out/"assets/app.js").read_text(encoding="utf-8")
+        self.assertIn("bounds','tight'",app_js)
+        self.assertIn("updateFraming",app_js)

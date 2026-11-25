@@ -107,7 +107,7 @@ def public_specs(report):
         return int(r) if r==int(r) else r
     return {k:_clean(v) for k,v in raw.items() if isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(v) and v>=0}
 
-def jpeg(src,dest,size,quality):
+def jpeg(src,dest,size,quality,subsampling=2):
     with Image.open(src) as im:
         if im.width*im.height>30_000_000:
             raise ValueError("Oversized image")
@@ -115,7 +115,7 @@ def jpeg(src,dest,size,quality):
         im.thumbnail(size,Image.Resampling.LANCZOS)
         canvas=Image.new("RGB",im.size,"white")
         canvas.paste(im,mask=im.getchannel("A"))
-        canvas.save(dest,"JPEG",quality=quality,optimize=True,progressive=False)
+        canvas.save(dest,"JPEG",quality=quality,optimize=True,progressive=False,subsampling=subsampling)
 
 def zip_member(z,name,data):
     # Fixed metadata: re-building the same revision yields the same ZIP hash.
@@ -160,7 +160,10 @@ def write_model(entry,base,stage,env):
     for key,label,candidates in IMAGE_GROUPS:
         selected=next((f for f in candidates if f in verified),None)
         if selected:
-            jpeg(safe_file(source,selected),folder/(key+".jpg"),(1400,1000),86)
+            if key=="secao":
+                jpeg(safe_file(source,selected),folder/(key+".jpg"),(1800,1200),92,subsampling=0)
+            else:
+                jpeg(safe_file(source,selected),folder/(key+".jpg"),(1400,1000),86)
             jpeg(safe_file(source,selected),folder/(key+"-thumb.jpg"),(240,160),72)
             images.append({"file":key+".jpg","thumb":key+"-thumb.jpg","label":label})
             if len(images)==1:
