@@ -8,6 +8,15 @@ sys.path.insert(0,str(ROOT/"src"))
 from epscad.publishing.historical_catalog import inventory, project_history
 
 class HistoricalCatalogTests(unittest.TestCase):
+    def test_arc_samples_keep_endpoints(self):
+        data=b"N5 G21\r\nN10 G1 X0 Y0\r\nN15 X10\r\nN20 G3 X0 Y0 I-5 J0\r\nN25 M5M30\r\n"
+        h=hashlib.sha256(data).hexdigest()
+        parsed, visual=project_history(data,"history","Arc",h)
+        self.assertEqual(parsed["metrics"]["arc_count"],1)
+        self.assertGreater(len(visual["segments"]),2)
+        self.assertEqual(visual["segments"][-1]["end"],(0.0,0.0))
+        self.assertFalse(visual["production_approved"])
+
     def test_dedup_and_modal_trajectory(self):
         data=b"N5 G21\r\nN10 G1 X0 Y0\r\nN15 X10\r\nN20 Y5\r\nN25 X0\r\nN30 M5M30\r\n"
         with tempfile.TemporaryDirectory() as d:

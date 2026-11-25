@@ -56,6 +56,8 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
                 if item.get(key):
                     history_paths.append(item[key])
         must_401.extend(history_paths)
+    three_paths = ["assets/"+n for n in ("three.module.min.js","three.core.min.js","OrbitControls.js","THREE-LICENSE.txt","cut-three.js")] if manifest.get("three_available") else []
+    must_401.extend(three_paths)
     for rel in must_401:
         target = f"{base}/{quote(rel, safe='/')}"
         try:
@@ -135,6 +137,9 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
             "content_type": "application/octet-stream",
         })
 
+    for rel in three_paths:
+        with fetch(f"{base}/{quote(rel, safe='/')}", auth_header) as tr:
+            assert tr.status == 200 and hashlib.sha256(tr.read()).hexdigest() == inv[rel], rel
     for rel in history_paths:
         with fetch(f"{base}/{quote(rel, safe='/')}", auth_header) as hr:
             body = hr.read()

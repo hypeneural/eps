@@ -78,6 +78,7 @@
     var total = data.distance_mm;
     var b = data.bbox;
     var regions = data.regions && data.regions.demonstrable ? data.regions : null;
+    var three = null, loadingThree = false;
     var dist = 0, playing = false, raf = 0, last = 0, w = 0, h = 0;
     var epsBlockPat = makeEpsPattern(0.24);
     var epsLowerPat = makeEpsPattern(0.84);
@@ -460,6 +461,7 @@
           " · " + (front ? "vista frontal XY" : "perspectiva"));
       ctx.fillText(summary, 12, h - 8);
 
+      if(three)three.update(pos,{machine:showMachine,dual:dual,stock:stock,path:showPath,result:dist>=total&&!stock&&!showPath&&showRegions});
       /* Update live DOM telemetry */
       var pct = Math.round((dist / total) * 100);
       $("cut-percent").textContent = pct + "%";
@@ -482,6 +484,7 @@
       canvas.width = Math.max(1, Math.round(w * dpr));
       canvas.height = Math.max(1, Math.round(h * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if(three)three.resize();
       paint();
     }
 
@@ -536,17 +539,20 @@
       else root.requestFullscreen().catch(function () {});
     }
 
+    function closeThree(message){if(three){three.dispose();three=null;} $("cut-three-host").hidden=true;canvas.classList.remove("cut-canvas-hidden");var toggle=$("cut-three-toggle");if(toggle){toggle.setAttribute("aria-pressed","false");toggle.textContent="Explorar em 3D";}var status=$("cut-three-status");status.hidden=!message;status.textContent=message||"";resize();}
+    if($("cut-three-toggle"))$("cut-three-toggle").addEventListener("click",function(){if(three){closeThree();return;}if(loadingThree)return;loadingThree=true;var btn=this;btn.disabled=true;btn.textContent="Carregando 3D…";import("../assets/cut-three.js").then(function(mod){$("cut-three-host").hidden=false;canvas.classList.add("cut-canvas-hidden");three=mod.createCutThree($("cut-three-host"),data,function(){closeThree("Modo 3D indisponível. Visualização leve restaurada.");});btn.textContent="Voltar ao modo leve";btn.setAttribute("aria-pressed","true");$("cut-three-status").hidden=false;$("cut-three-status").textContent="Arraste para girar · roda do mouse para zoom · representação esquemática";resize();}).catch(function(){closeThree("Este navegador não carregou o modo 3D. Use a visualização leve.");}).finally(function(){loadingThree=false;btn.disabled=false;});});
     function preset(front, machine, result) {
       $("cut-view").value=front?"front":"iso"; $("cut-machine").checked=machine;
       $("cut-dual").checked=!front; $("cut-stock").checked=!result;
       $("cut-path").checked=!result; $("cut-zoom").value=1; $("cut-angle").value=.62;
+      if(three)three.fit(front);
       if(result)seek(total); else paint();
     }
     $("cut-overview").addEventListener("click",function(){preset(false,true,false);});
     $("cut-profile").addEventListener("click",function(){preset(true,false,false);});
     $("cut-result").disabled=!regions;
     $("cut-result").addEventListener("click",function(){if(regions){$("cut-regions").checked=true;preset(false,false,true);}});
-    $("cut-fit").addEventListener("click",function(){$("cut-zoom").value=1;$("cut-angle").value=.62;paint();});
+    $("cut-fit").addEventListener("click",function(){$("cut-zoom").value=1;$("cut-angle").value=.62;if(three)three.fit();paint();});
     var drag=null;
     canvas.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse" && $("cut-view").value!=="front"){drag={x:e.clientX,a:Number($("cut-angle").value)};canvas.setPointerCapture(e.pointerId);}});
     canvas.addEventListener("pointermove",function(e){if(drag){$("cut-angle").value=Math.max(-1,Math.min(1,drag.a+(e.clientX-drag.x)/160));paint();}});

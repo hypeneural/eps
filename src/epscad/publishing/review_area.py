@@ -135,6 +135,21 @@ def build_review_area(
         assets_dir.mkdir()
         for asset in ("style.css", "eps-pattern.svg", "cut-animation.js", "cut-animation.css"):
             shutil.copyfile(PORTAL / "assets" / asset, assets_dir / asset)
+        three_dir = ROOT / "portal_local" / "cut-three"
+        three_available = False
+        if (three_dir/"vendor.json").is_file():
+            vendor = json.loads((three_dir/"vendor.json").read_text(encoding="utf-8"))
+            expected = {"three.module.min.js", "three.core.min.js", "OrbitControls.js", "THREE-LICENSE.txt"}
+            if vendor.get("version") != "0.180.0" or set(vendor.get("files", {})) != expected:
+                raise ValueError("Invalid Three.js vendor manifest")
+            for name, h in vendor["files"].items():
+                source = three_dir/name
+                if source.is_symlink() or digest(source.read_bytes()) != h:
+                    raise ValueError("Three.js vendor integrity mismatch")
+                shutil.copyfile(source, assets_dir/name)
+            shutil.copyfile(PORTAL/"assets"/"cut-three.js", assets_dir/"cut-three.js")
+            three_available = True
+        env.globals["three_available"] = three_available
         if logo:
             with Image.open(logo) as im:
                 im = im.convert("RGBA")
@@ -236,6 +251,7 @@ def build_review_area(
             "bundle_sha256": bundle_sha256,
             "settings_observed": report["settings_observed"],
             "models": entries,
+            "three_available": three_available,
             "historical": ({k: history[k] for k in ("source_files", "unique_files", "duplicates", "animations")} if history else None),
         }
         (stage / "review-manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")

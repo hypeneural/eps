@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../assets/style.css">
   <link rel="stylesheet" href="../assets/brand.css">
   <link rel="stylesheet" href="../assets/cut-animation.css">
+  {% if three_available %}<script type="importmap">{"imports":{"three":"../assets/three.module.min.js"}}</script>{% endif %}
   <script src="../assets/cut-animation.js" defer></script>
 </head>
 <body>
@@ -31,8 +32,9 @@
       <a class="btn primary cut-tap-cta" href="{{ m.filename }}" download>{{ "Baixar TAP histórico" if m.historical else "Baixar TAP de conferência" }}</a>
     </div>
 
-    <section class="cut-shell" id="cut-player" data-source="simulacao.json" data-hash="{{ m.sha256 }}">
+    <section class="cut-shell" id="cut-player" data-source="simulacao.json" data-hash="{{ m.sha256 }}" data-three="{{ 'yes' if three_available else 'no' }}">
       <div class="cut-stage" id="cut-stage">
+        <div id="cut-three-host" hidden aria-label="Vista orbital 3D esquemática"></div>
         <canvas id="cut-canvas" aria-label="Animação esquemática da trajetória dos fios quentes sobre o bloco de EPS" hidden></canvas>
         <img id="cut-fallback" src="simulacao.png" alt="Prévia estática da trajetória nominal de {{ m.display_name }}">
         <div class="cut-overlay">
@@ -50,7 +52,7 @@
       </div>
 
       <div class="cut-controls" id="cut-controls" hidden>
-        <div class="cut-presets" aria-label="Atalhos de visualização"><button type="button" id="cut-overview">Visão da máquina</button><button type="button" id="cut-profile">Perfil de corte</button><button type="button" id="cut-result">Ver resultado nominal</button><button type="button" id="cut-fit">Reenquadrar</button></div><p id="cut-stage-status" class="cut-stage-status" aria-live="off">Pronto para visualizar o corte</p>
+        <div class="cut-presets" aria-label="Atalhos de visualização">{% if three_available %}<button type="button" id="cut-three-toggle" aria-pressed="false">Explorar em 3D</button>{% endif %}<button type="button" id="cut-overview">Visão da máquina</button><button type="button" id="cut-profile">Perfil de corte</button><button type="button" id="cut-result">Ver resultado nominal</button><button type="button" id="cut-fit">Reenquadrar</button></div><p id="cut-three-status" class="muted" role="status" hidden></p><p id="cut-stage-status" class="cut-stage-status" aria-live="off">Pronto para visualizar o corte</p>
         <div class="cut-transport">
           <button type="button" id="cut-reset" aria-label="Reiniciar animação" title="Reiniciar (R)">↺</button>
           <button type="button" id="cut-prev" aria-label="Segmento anterior" title="Segmento anterior (←)">◀</button>
