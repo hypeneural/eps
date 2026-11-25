@@ -25,3 +25,6 @@ Para capa de laje/lajota, leia docs/29_BIBLIOTECA_LAJES_EPS.md e use scripts/pre
 
 ## Recuperação documental e lote Mach3
 Antes de pedir parâmetros já coletados, execute scripts/recover_cnc_v_evidence.py sobre o backup privado; leia docs/30_MACH3_EVIDENCIA_E_LOTE.md. Reutilize evidência documental, sem confundi-la com limites físicos ou autorização. Use prepare_mach3_batch.py --list e, quando houver contrato local e aprovação individual dos hashes, gere todos os candidatos em uma execução. Continue as tarefas não bloqueadas e reporte lacunas por modelo, sem repetir questionários completos.
+
+## Apresentação pública e lote completo
+Leia docs/32_PORTAL_APRESENTACAO_PUBLICA.md. Gere uma página publico.html por revisão com projeção limitada aos dados de apresentação. Reuse galeria e 3D; não exponha downloads, histórico ou informações de máquina nessa página. Não confundir ocultação visual com autenticação. Use --slab-library para incluir as quatro lajotas no lote privado; não apagar handoffs. Para revisão exclusivamente Mach3, require_tap:true evita fallback DXF. Preserve homologação real e hashes.

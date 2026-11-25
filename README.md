@@ -77,3 +77,6 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 
 ### Recuperação automática CNC_V e lote TAP
 [Fluxo de evidência e geração em lote](docs/30_MACH3_EVIDENCIA_E_LOTE.md). Recuperar dados dos backups antes de solicitar valores; uma execução de lote produz os candidatos individuais revisados.
+
+### Apresentação pública por peça e lote de nove modelos
+[Portal de apresentação, compartilhamento e lote](docs/32_PORTAL_APRESENTACAO_PUBLICA.md). O link `publico.html` não apresenta downloads industriais; não representa controle de acesso ao site operacional.

@@ -23,3 +23,18 @@ html{background:#f5f6f7;color:#202a30}.wrap{max-width:1280px}.brand img{max-widt
 @media(max-width:540px){.lightbox-body img{max-width:calc(100% - 100px)}.media-tools a{font-size:12px}.brand-text{overflow-wrap:break-word}.file-link{min-height:48px}}
 /* V4 Mach3 direct TAP status semantics and operator button clarity. */
 .status.homologating{background:#e5eff7;color:#174a73}.status.superseded{background:#eceff1;color:#4a5a63}.tap-primary{min-height:52px;padding:10px 14px;background:#13603d;box-shadow:0 2px 6px rgba(19,96,61,.18)}.btn-sub{display:block;font-size:11px;font-weight:normal;opacity:.92;margin-top:2px;white-space:normal}.history-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}.history-list li{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid #e4eaea;font-size:12px}.history-list .status{margin:0;padding:3px 6px;font-size:11px}.history-list small{width:100%;color:#51656d}
+
+/* Public product presentation — separate navigation and no operational actions. */
+.public-link,.public-card-link{background:#fff;color:#155875;color:var(--brand);border:1px solid #cbd6db;border-radius:7px;min-height:44px;font-weight:bold}
+.public-card-link{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;padding:8px;margin-top:3px}
+.public-link:hover,.public-card-link:hover{background:#f2f4f5;background:var(--brand-soft);text-decoration:none}
+.public-intro{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:18px 0 14px;padding:20px;background:#fff url('eps-pattern.svg');box-shadow:inset 0 0 0 1000px rgba(255,255,255,.87);border:1px solid #dfe4e6;border-radius:12px}
+.public-intro>div{flex:1;min-width:0}.public-intro h1{font-size:32px;overflow-wrap:break-word}.public-intro .muted{margin-bottom:0}
+.public-intro .public-link{width:auto;flex:none;padding:10px 14px}.public-copy-field{width:100%;padding:10px;border:1px solid #b8c9cd;border-radius:6px}
+#public-share-status:empty{display:none}.public-nav{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:4px}
+.public-detail .spec-panel{width:340px}.public-detail .hero-link{min-height:260px}.public-detail .hero{max-height:510px}.public-material p{font-size:14px}.public-material .muted{font-size:13px}
+.public-presentation .foot{padding-top:16px;padding-bottom:24px}
+@media(max-width:950px){.public-detail .spec-panel{width:280px}.public-detail .hero{max-height:360px}.public-detail .hero-link{min-height:210px}}
+@media(max-width:700px){.public-intro{padding:14px;margin:12px 0;gap:6px}.public-intro h1{font-size:25px}.public-intro>div{flex-basis:100%}.public-intro .public-link{width:100%}.public-detail .spec-panel{width:100%;display:contents}.public-detail .main-media{order:0}.public-detail .specs{order:1}.public-detail .public-material{order:2}.public-detail .hero{max-height:320px}.public-nav .nav-link{padding:5px;font-size:12px}}
+@media(max-width:540px){.public-detail .hero-link{min-height:180px}.public-detail .hero{max-height:240px}.public-nav .nav-link .ico{display:none}.public-presentation .brand-text{font-size:12px}.public-presentation .brand img{max-width:95px}.public-nav{flex:none;max-width:105px}.public-nav .nav-link{min-width:0}}
+@media(max-width:360px){.public-presentation .brand-text{display:none}.public-intro h1{font-size:22px}}

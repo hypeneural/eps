@@ -148,6 +148,8 @@ def write_model(entry,base,stage,env):
         if release.get("tap_approved") is True:
             from epscad.publishing.tap_release import approved_tap
             tap_data=approved_tap(source,report,verified,release)
+        if entry.get("require_tap") is True and tap_data is None:
+            raise ValueError("Mach3 model requires approved TAP; DXF fallback is not allowed")
         approved=True
     slug=model_id+"-"+revision
     folder=stage/"modelos"/slug
@@ -203,7 +205,7 @@ def write_model(entry,base,stage,env):
           "status_label":STATUS[effective_status],
           "status_class":STATUS_CLASS[effective_status],
           "machine":machine,"machine_format":"TAP" if tap_data is not None else ("DXF" if machine else None),"images":images,"specs":specs,"downloads":downloads,
-          "history":history,
+          "history":history,"public_page":"publico.html",
           "render_note":("Conceito recortado. Rebaixos assumidos, sem relevo moldado. Conferir encaixe e medidas; não homologado." if report.get("review_family")=="slab_lajota_reference" else "Renderização ilustrativa ou de estúdio. Conferir medidas e revisão."),
           "dimensions":" × ".join(str(specs[k]) for k in ("Largura (mm)","Altura total (mm)") if k in specs)}
     (folder/"especificacoes.json").write_text(json.dumps(item,ensure_ascii=False,indent=2),encoding="utf-8")
@@ -221,6 +223,17 @@ def write_model(entry,base,stage,env):
     item["bundle"]=bundle
     item["bundle_bytes"]=(folder/bundle).stat().st_size
     (folder/"index.html").write_text(env.get_template("model.html").render(m=item),encoding="utf-8")
+    # Presentation receives a deliberately reduced projection, not the operator metadata.
+    public_spec_keys=("Largura (mm)","Altura total (mm)","Espessura mínima (mm)",
+                      "Comprimento de referência (mm)","Passo (mm)","Módulos",
+                      "Microdobra - largura (mm)","Microdobra - profundidade (mm)",
+                      "Área transversal (mm²)","Rebaixo assumido - largura (mm)",
+                      "Rebaixo assumido - altura (mm)")
+    presentation={k:item[k] for k in ("name","category","revision","images","render_note")}
+    presentation["specs"]={k:specs[k] for k in public_spec_keys if k in specs}
+    presentation["dimension_note"]="Medidas nominais de referência. Confirmar encaixe e aplicação." if not approved else "Dimensões da revisão apresentada. Confirmar adequação à aplicação."
+    view_models=[{"file":f["file"],"label":("Peça em EPS" if f["file"]=="modelo.glb" else "Montagem com chapa")} for f in downloads if f["file"] in ("modelo.glb","montagem.glb")]
+    (folder/item["public_page"]).write_text(env.get_template("public_model.html").render(m=presentation,view_models=view_models),encoding="utf-8")
     return item
 
 def build_site(registry,output,*,logo=None,viewer_dir=None):

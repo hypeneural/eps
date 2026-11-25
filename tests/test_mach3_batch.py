@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/"src"),str(ROOT/"scripts")]
-from prepare_mach3_batch import batch
+from prepare_mach3_batch import batch,plan_rows
 from epscad.exporters.mach3_tap import sha,canonical
 
 class BatchTests(unittest.TestCase):
@@ -23,3 +23,13 @@ class BatchTests(unittest.TestCase):
             self.assertEqual(prepare.call_count,1)
             self.assertEqual([x["status"] for x in r["models"]],["trial_generated","blocked"])
             self.assertFalse(r["production_approved"])
+
+    def test_nine_model_inventory_with_missing_projects(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)
+            self.assertEqual(len(plan_rows(p)),5)
+            rows=plan_rows(p,p/"private")
+            self.assertEqual(len(rows),9)
+            self.assertEqual(len({r["id"] for r in rows}),9)
+            self.assertEqual(sum(r["id"].startswith("capa-laje-") for r in rows),4)
+            self.assertTrue(all("error" in r for r in rows))

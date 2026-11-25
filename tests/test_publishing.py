@@ -46,6 +46,23 @@ class PublishingTests(unittest.TestCase):
         (folder/"thumb.jpg").write_bytes(b"changed")
         with self.assertRaises(ValueError):
             local_inventory(out)
+    def test_public_presentation_has_no_operational_downloads(self):
+        out=self.base/"public-presentation"
+        item=build_site(self.registry([self.entry]),out)[0]
+        folder=out/"modelos"/item["slug"]
+        html=(folder/item["public_page"]).read_text(encoding="utf-8")
+        self.assertIn("TP40 &lt;teste&gt;",html)
+        self.assertIn("Especificações técnicas",html)
+        self.assertIn("public-presentation",html)
+        self.assertIn('id="hero-image"',html)
+        self.assertIn('id="load-3d"',html)
+        for forbidden in (' download','Corte não liberado','Arquivos individuais','-revisao.zip','.tap','.dxf','.stl','../../index.html','Extensão X do percurso'):
+            self.assertNotIn(forbidden,html)
+        self.assertIn('href="publico.html" target="_blank" rel="noopener noreferrer"',(folder/"index.html").read_text(encoding="utf-8"))
+        self.assertIn("modelos/"+item["slug"]+"/publico.html",local_inventory(out))
+        with zipfile.ZipFile(folder/item["bundle"]) as z:
+            self.assertNotIn("publico.html",z.namelist())
+
     def test_no_public_permission(self):
         with self.assertRaises(ValueError):
             build_site(self.registry([dict(self.entry,public_authorized=False)]),self.base/"blocked")
@@ -192,6 +209,8 @@ class PublishingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,"hash approval"):
                 build_site(self.registry([entry]),self.base/"release-no-approval")
             entry["release"]={"approved":True,**hashes}
+            with self.assertRaisesRegex(ValueError,"requires approved TAP"):
+                build_site(self.registry([dict(entry,require_tap=True)]),self.base/"no-dxf-fallback")
             out=self.base/"release-fixture-site"
             item=build_site(self.registry([entry]),out)[0]
             self.assertEqual(item["status"],"production_released")

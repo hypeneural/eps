@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import shutil
 import sys
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -42,7 +43,7 @@ def _slab_parsed(plan: dict) -> dict:
 def build_private_library(handoff_dir: Path, historical_dir: Path, evidence_json: Path, output_dir: Path) -> dict:
     handoff_dir, historical_dir, evidence_json, output_dir = map(Path, (handoff_dir, historical_dir, evidence_json, output_dir))
     if output_dir.exists():
-        shutil.rmtree(output_dir)
+        raise FileExistsError("Choose a fresh private library directory")
     output_dir.mkdir(parents=True)
 
     handoff = json.loads((handoff_dir / "RESUMO_5_MODELOS.json").read_text(encoding="utf-8"))
@@ -70,7 +71,6 @@ def build_private_library(handoff_dir: Path, historical_dir: Path, evidence_json
         }
         cam_rows.append({**m, "preview_rel": f"previews_cam/{slug}.png"})
 
-    (output_dir / "approvals.TEMPLATE.json").write_text(json.dumps(approvals_tpl, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # Build the 4 slab CAM plans + simulations
     slab_cat = load_yaml(SLAB_CATALOG)
@@ -85,7 +85,13 @@ def build_private_library(handoff_dir: Path, historical_dir: Path, evidence_json
         png = output_dir / "slab_plans" / f"{vid}_sim.png"
         render_tap_simulation(_slab_parsed(plan), png, title=f"Lajota CAM XY: {vid} (Z={plan['extrusion_length_z_mm']:g} mm)",
                               stock_bbox=(0.0, 0.0, plan["nominal_width_mm"], plan["nominal_height_mm"]))
-        slab_rows.append({**plan, "path_sha256": sha(canonical(pts)), "preview_rel": f"slab_plans/{vid}_sim.png"})
+        slug=vid+"-r01"
+        project=output_dir/"slab_plans"/slug/"projeto_trajetoria.yaml"
+        project.parent.mkdir()
+        project.write_text(yaml.safe_dump(spec,sort_keys=False,allow_unicode=False),encoding="utf-8")
+        approvals_tpl[slug]={"trial_authorized":False,"path_sha256":sha(canonical(pts)),"project_sha256":sha(project.read_bytes())}
+        slab_rows.append({**plan, **approvals_tpl[slug], "preview_rel": f"slab_plans/{vid}_sim.png"})
+    (output_dir/"approvals.TEMPLATE.json").write_text(json.dumps(approvals_tpl,indent=2,ensure_ascii=False),encoding="utf-8")
 
     # Copy all 34 preserved original TAPs + previews (strictly local!)
     hist_rows = []
@@ -178,7 +184,7 @@ tr.highlight{{background:#f0faf4}}
   </div>
   <div class="box"><h3>Apenas o que realmente falta confirmar presencialmente</h3>
     <ol>{''.join(f'<li>{esc(x)}</li>' for x in ev['pending_physical'])}</ol>
-    <p class="mono">Gerar lote apos confirmar:<br>python scripts/prepare_mach3_batch.py --handoff outputs/private_trial_handoff_5models --profile local_scara_snapshot.yaml --contract local_trial_contract.json --approvals approvals.json --output outputs/lote_tap</p>
+    <p class="mono">Gerar lote apos confirmar:<br>python scripts/prepare_mach3_batch.py --handoff outputs/private_trial_handoff_5models --slab-library outputs/private_test_library --profile local_scara_snapshot.yaml --contract local_trial_contract.json --approvals approvals.json --output outputs/lote_tap</p>
   </div>
 </div>
 

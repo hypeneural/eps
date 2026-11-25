@@ -13,11 +13,16 @@ from epscad.loader import load_yaml
 from epscad.exporters.mach3_tap import canonical,sha,ordered_points
 from prepare_mach3_trial import prepare_trial
 
-def plan_rows(handoff):
+def plan_rows(handoff,slab_library=None):
     rows=[]
-    for meta in PORTAL_MODELS:
+    models=list(PORTAL_MODELS)
+    if slab_library is not None:
+        from epscad.cam.slab_planner import SLAB_CATALOG
+        for vid in sorted(load_yaml(SLAB_CATALOG)["variants"]):
+            models.append({"portal_id":vid,"revision":"r01","name":vid,"slab":True})
+    for meta in models:
         slug=meta["portal_id"]+"-"+meta["revision"]
-        project=handoff/slug/"projeto_trajetoria.yaml"
+        project=(Path(slab_library)/"slab_plans"/slug if meta.get("slab") else handoff/slug)/"projeto_trajetoria.yaml"
         row={"id":slug,"name":meta["name"],"project":project}
         try:
             job=build_job(load_yaml(project))
@@ -27,7 +32,7 @@ def plan_rows(handoff):
         rows.append(row)
     return rows
 
-def batch(handoff,profile,contract,approvals,output):
+def batch(handoff,profile,contract,approvals,output,slab_library=None):
     handoff,profile,contract,approvals,output=map(Path,(handoff,profile,contract,approvals,output))
     if output.exists(): raise ValueError("Choose a new output directory")
     profile_digest=sha(canonical(load_yaml(profile)))
@@ -38,7 +43,7 @@ def batch(handoff,profile,contract,approvals,output):
     if not isinstance(approved,dict): raise ValueError("Expected per-model approval mapping")
     output.mkdir(parents=True)
     results=[]
-    for row in plan_rows(handoff):
+    for row in plan_rows(handoff,slab_library):
         project=row.pop("project")
         result=dict(row,status="blocked")
         if "error" not in row:
@@ -60,18 +65,19 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--handoff",type=Path,required=True)
     p.add_argument("--list",action="store_true")
+    p.add_argument("--slab-library",type=Path,help="Optional private library containing the four saved slab projects")
     p.add_argument("--profile",type=Path)
     p.add_argument("--contract",type=Path)
     p.add_argument("--approvals",type=Path)
     p.add_argument("--output",type=Path)
     a=p.parse_args()
     if a.list:
-        rows=plan_rows(a.handoff)
+        rows=plan_rows(a.handoff,a.slab_library)
         print(json.dumps([{k:v for k,v in r.items() if k!="project"} for r in rows],indent=2,ensure_ascii=False))
         return int(any("error" in r for r in rows))
     if not all((a.profile,a.contract,a.approvals,a.output)):
         p.error("Batch needs --profile --contract --approvals --output")
-    result=batch(a.handoff,a.profile,a.contract,a.approvals,a.output)
+    result=batch(a.handoff,a.profile,a.contract,a.approvals,a.output,a.slab_library)
     print(json.dumps(result,indent=2,ensure_ascii=False))
     return int(any(r["status"]!="trial_generated" for r in result["models"]))
 if __name__=="__main__":

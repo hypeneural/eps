@@ -86,6 +86,24 @@ def main():
                     assert page.locator("a[href$='.dxf']").count()==0
                 assert not any(x.endswith(".glb") or "model-viewer.min.js" in x for x in requests)
                 assert not errors, errors
+                with context.expect_page() as public_tab:
+                    page.locator(".public-link").click()
+                public=public_tab.value
+                public_errors=[]
+                public.on("pageerror",lambda e:public_errors.append(str(e)))
+                public.wait_for_load_state("networkidle")
+                fits(public)
+                assert public.url.endswith("/publico.html")
+                assert public.locator("a[download], .download-panel, .other-files").count()==0
+                assert public.locator("#hero-image").evaluate("(i)=>i.complete && i.naturalWidth>0")
+                assert public.locator("#specifications").is_visible()
+                public.locator("#hero-link").click()
+                assert public.locator("#lightbox").is_visible()
+                public.keyboard.press("Escape")
+                assert not public.locator("#lightbox").is_visible()
+                public.screenshot(path=a.screenshots/f"public-{w}x{h}.png",full_page=True)
+                assert not public_errors,public_errors
+                public.close()
                 page.locator(".back a").click()
                 page.locator("#search").fill(item["id"])
                 page.locator(".model-card .details").first.click()
@@ -102,6 +120,10 @@ def main():
             assert download.value.suggested_filename
             page.locator(".model-card .details").first.click()
             assert page.locator("#hero-link").is_visible()
+            page.goto(url+"/modelos/"+item["slug"]+"/publico.html")
+            assert page.locator("#hero-link").is_visible()
+            assert page.locator("a[download]").count()==0
+            fits(page)
             context.close()
             browser.close()
     finally:
