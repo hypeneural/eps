@@ -242,8 +242,14 @@ def write_model(entry,base,stage,env):
                       "Área transversal (mm²)","Rebaixo assumido - largura (mm)",
                       "Rebaixo assumido - altura (mm)")
     presentation={k:item[k] for k in ("name","category","revision","images","render_note","public_url","whatsapp_url")}
+    social_img_path=folder/images[0]["file"]
+    with Image.open(social_img_path) as sim:
+        social_w,social_h=sim.size
     presentation["social_image"]=PUBLIC_ORIGIN+"/modelos/"+slug+"/"+images[0]["file"]
-    presentation["social_description"]="Conheça "+name+" da biblioteca Iso Nunes. Imagens e medidas de referência da peça em EPS."
+    presentation["social_image_width"]=social_w
+    presentation["social_image_height"]=social_h
+    dim_tag=f" ({item['dimensions']} mm)" if item["dimensions"] else ""
+    presentation["social_description"]=f"{name}{dim_tag} — EPS (poliestireno expandido). Veja imagens, medidas e visualização 3D na Iso Nunes."
     presentation["specs"]={k:specs[k] for k in public_spec_keys if k in specs}
     presentation["dimension_note"]="Medidas nominais de referência. Confirmar encaixe e aplicação." if not approved else "Dimensões da revisão apresentada. Confirmar adequação à aplicação."
     view_models=[{"file":f["file"],"label":("Peça em EPS" if f["file"]=="modelo.glb" else "Montagem com chapa")} for f in downloads if f["file"] in ("modelo.glb","montagem.glb")]

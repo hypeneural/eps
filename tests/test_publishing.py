@@ -336,3 +336,20 @@ class PublishingTests(unittest.TestCase):
             idx_pos=next(i for i,(op,p) in enumerate(MockFTPS.ops) if op=="RENAME" and p=="index.html")
             del_positions=[i for i,(op,p) in enumerate(MockFTPS.ops) if op=="DELETE" and "tp40-base-lisa-r01" in p]
             self.assertTrue(del_positions and all(i>idx_pos for i in del_positions))
+
+    def test_public_presentation_open_graph_and_whatsapp_utf8(self):
+        from urllib.parse import unquote
+        reg=self.registry([dict(self.entry,name="TP40 Base lisa — Referência")])
+        out=self.base/"site_og"
+        item=build_site(reg,out,viewer_dir=self.base/"no-vendor")[0]
+        pub=(out/"modelos/tp40-base-lisa-r01/publico.html").read_text(encoding="utf-8")
+        self.assertIn('property="og:image:secure_url"',pub)
+        self.assertIn('property="og:image:type" content="image/jpeg"',pub)
+        self.assertIn('property="og:image:width"',pub)
+        self.assertIn('property="og:image:height"',pub)
+        self.assertNotIn("download=",pub)
+        self.assertTrue(item["whatsapp_url"].startswith("https://wa.me/?text="))
+        decoded=unquote(item["whatsapp_url"].split("text=",1)[1])
+        self.assertIn("TP40 Base lisa — Referência",decoded)
+        self.assertIn("/modelos/tp40-base-lisa-r01/publico.html",decoded)
+        self.assertNotIn("/index.html",decoded)

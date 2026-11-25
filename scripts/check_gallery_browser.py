@@ -25,7 +25,7 @@ def main():
     try:
         with sync_playwright() as pw:
             browser=pw.chromium.launch()
-            for w,h in ((800,600),(1024,600),(1024,768),(1366,768),(390,844),(320,568)):
+            for w,h in ((800,600),(1024,600),(1024,768),(1366,768),(1920,1080),(390,844),(320,568)):
                 context=browser.new_context(viewport={"width":w,"height":h},accept_downloads=True)
                 page=context.new_page()
                 errors=[]
@@ -105,8 +105,16 @@ def main():
                 assert public.locator("#specifications").is_visible()
                 assert public.locator("a.whatsapp-link").count()==2
                 assert public.locator("a.whatsapp-link").first.get_attribute("href")==item["whatsapp_url"]
+                assert public.locator("a.whatsapp-link").last.get_attribute("href")==item["whatsapp_url"]
+                assert public.locator("a.whatsapp-link").first.get_attribute("target")=="_blank"
                 assert page.locator("a.whatsapp-link").get_attribute("href")==item["whatsapp_url"]
                 assert public.locator("meta[property=\"og:url\"]").get_attribute("content")==item["public_url"]
+                assert public.locator("meta[property=\"og:image:secure_url\"]").get_attribute("content").startswith("https://")
+                assert public.locator("meta[property=\"og:image:type\"]").get_attribute("content")=="image/jpeg"
+                assert int(public.locator("meta[property=\"og:image:width\"]").get_attribute("content"))>=300
+                assert int(public.locator("meta[property=\"og:image:height\"]").get_attribute("content"))>0
+                assert public.locator("#copy-public-link").get_attribute("data-public-url")==item["public_url"]
+                public.locator("#copy-public-link").click()
                 public.locator("#hero-link").click()
                 assert public.locator("#lightbox").is_visible()
                 public.keyboard.press("Escape")
@@ -141,6 +149,6 @@ def main():
     finally:
         server.shutdown()
         server.server_close()
-    print("Browser smoke tests passed at six resolutions and without JavaScript")
+    print("Browser smoke tests passed at seven resolutions and without JavaScript")
 if __name__=="__main__":
     main()

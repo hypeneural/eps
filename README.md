@@ -82,4 +82,4 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 [Portal de apresentação, compartilhamento e lote](docs/32_PORTAL_APRESENTACAO_PUBLICA.md). O link `publico.html` não apresenta downloads industriais; não representa controle de acesso ao site operacional.
 
 ### Portal V6 — compartilhamento comercial
-[Design, WhatsApp e validação de downloads](docs/33_PORTAL_V6_COMPARTILHAMENTO.md).
+[Design, WhatsApp e validação de downloads](docs/33_PORTAL_V6_COMPARTILHAMENTO.md) · [Relatório V6 Premium e validação ao vivo](docs/34_PORTAL_V6_PREMIUM_RELATORIO.md).
