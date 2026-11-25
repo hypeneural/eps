@@ -42,8 +42,11 @@ def main():
                 sha.update(block)
             if sha.hexdigest()!=expected:
                 raise ValueError("HTTPS hash mismatch: "+name)
-            if name.endswith((".dxf",".tap")) and "attachment" not in response.headers.get("Content-Disposition","").lower():
-                raise ValueError("Machine attachment header missing: "+name)
+            if name.endswith((".dxf",".tap")):
+                if "attachment" not in response.headers.get("Content-Disposition","").lower():
+                    raise ValueError("Machine attachment header missing: "+name)
+                if response.headers.get_content_type()!="application/octet-stream":
+                    raise ValueError("Unexpected machine MIME: "+name)
     if a.previous_site:
         from epscad.publishing.deploy import machine_file
         for name in local_inventory(a.previous_site).keys()-current.keys():

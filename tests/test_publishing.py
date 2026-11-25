@@ -54,6 +54,17 @@ class PublishingTests(unittest.TestCase):
         self.assertIn("TP40 &lt;teste&gt;",html)
         self.assertIn("Especificações técnicas",html)
         self.assertIn("public-presentation",html)
+        from urllib.parse import urlsplit,parse_qs
+        target="https://eps.etijucas.com.br/modelos/"+item["slug"]+"/publico.html"
+        self.assertEqual(item["public_url"],target)
+        share=urlsplit(item["whatsapp_url"])
+        self.assertEqual(share.netloc,"wa.me")
+        self.assertIn(target,parse_qs(share.query)["text"][0])
+        self.assertIn(\'property="og:image"\',html)
+        self.assertIn(\'property="og:url" content="\'+target+\'"\',html)
+        self.assertEqual(html.count(item["whatsapp_url"]),2)
+        self.assertIn(item["whatsapp_url"],(folder/"index.html").read_text(encoding="utf-8"))
+        self.assertIn(item["whatsapp_url"],(out/"index.html").read_text(encoding="utf-8"))
         self.assertIn('id="hero-image"',html)
         self.assertIn('id="load-3d"',html)
         for forbidden in (' download','Corte não liberado','Arquivos individuais','-revisao.zip','.tap','.dxf','.stl','../../index.html','Extensão X do percurso'):

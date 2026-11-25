@@ -28,3 +28,6 @@ Antes de pedir parâmetros já coletados, execute scripts/recover_cnc_v_evidence
 
 ## Apresentação pública e lote completo
 Leia docs/32_PORTAL_APRESENTACAO_PUBLICA.md. Gere uma página publico.html por revisão com projeção limitada aos dados de apresentação. Reuse galeria e 3D; não exponha downloads, histórico ou informações de máquina nessa página. Não confundir ocultação visual com autenticação. Use --slab-library para incluir as quatro lajotas no lote privado; não apagar handoffs. Para revisão exclusivamente Mach3, require_tap:true evita fallback DXF. Preserve homologação real e hashes.
+
+## Compartilhamento V6
+Leia docs/33_PORTAL_V6_COMPARTILHAMENTO.md. Compartilhe apenas publico.html por WhatsApp, com URL canônica e imagem verificada. Preserve logo original e CSS de apresentação leve. Teste download TAP real por hash e MIME; fixture de CI não é produto. Publique melhoria visual sem esperar todas as peças.

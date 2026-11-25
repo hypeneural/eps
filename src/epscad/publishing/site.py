@@ -7,6 +7,7 @@ import re
 import shutil
 import tempfile
 import zipfile
+from urllib.parse import quote
 from datetime import datetime, timezone
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -15,6 +16,7 @@ from epscad.exporters.integrity import verify_zip
 ROOT=Path(__file__).resolve().parents[3]
 PORTAL=ROOT/"portal"
 SLUG=re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
+PUBLIC_ORIGIN="https://eps.etijucas.com.br"
 MAX_ASSET=32*1024*1024
 VIEWER_SHA256="18b2e711035aa4705ee281530a55dc2338ff05eed3d70ae16d54105282a75ed5"
 VIEWER_LICENSE_SHA256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
@@ -222,6 +224,16 @@ def write_model(entry,base,stage,env):
             raise ValueError("Public bundle CRC failure")
     item["bundle"]=bundle
     item["bundle_bytes"]=(folder/bundle).stat().st_size
+    # Share the presentation, never the operational or machine download address.
+    # Keep social metadata outside the already-built production ZIP.
+    item["public_url"]=PUBLIC_ORIGIN+"/modelos/"+slug+"/"+item["public_page"]
+    message="Conheça "+name+" | Iso Nunes — Indústria de EPS.\nVeja imagens, medidas e modelo 3D:\n"+item["public_url"]
+    item["whatsapp_url"]="https://wa.me/?text="+quote(message,safe="")
+    if machine:
+        item["machine_bytes"]=(folder/machine).stat().st_size
+        item["machine_sha256"]=digest((folder/machine).read_bytes())
+        if not item["machine_bytes"]:
+            raise ValueError("Empty machine download")
     (folder/"index.html").write_text(env.get_template("model.html").render(m=item),encoding="utf-8")
     # Presentation receives a deliberately reduced projection, not the operator metadata.
     public_spec_keys=("Largura (mm)","Altura total (mm)","Espessura mínima (mm)",
@@ -229,7 +241,9 @@ def write_model(entry,base,stage,env):
                       "Microdobra - largura (mm)","Microdobra - profundidade (mm)",
                       "Área transversal (mm²)","Rebaixo assumido - largura (mm)",
                       "Rebaixo assumido - altura (mm)")
-    presentation={k:item[k] for k in ("name","category","revision","images","render_note")}
+    presentation={k:item[k] for k in ("name","category","revision","images","render_note","public_url","whatsapp_url")}
+    presentation["social_image"]=PUBLIC_ORIGIN+"/modelos/"+slug+"/"+images[0]["file"]
+    presentation["social_description"]="Conheça "+name+" da biblioteca Iso Nunes. Imagens e medidas de referência da peça em EPS."
     presentation["specs"]={k:specs[k] for k in public_spec_keys if k in specs}
     presentation["dimension_note"]="Medidas nominais de referência. Confirmar encaixe e aplicação." if not approved else "Dimensões da revisão apresentada. Confirmar adequação à aplicação."
     view_models=[{"file":f["file"],"label":("Peça em EPS" if f["file"]=="modelo.glb" else "Montagem com chapa")} for f in downloads if f["file"] in ("modelo.glb","montagem.glb")]

@@ -83,7 +83,12 @@ def main():
                 local_bundle=a.site/"modelos"/item["slug"]/item["bundle"]
                 assert sha256(download.value.path().read_bytes()).digest()==sha256(local_bundle.read_bytes()).digest()
                 if not item["machine"]:
-                    assert page.locator("a[href$='.dxf']").count()==0
+                    assert page.locator("a[href$='.dxf'],a[href$='.tap']").count()==0
+                else:
+                    with page.expect_download() as machine_download:
+                        page.locator(".download-panel a.primary[download]").click()
+                    assert machine_download.value.suggested_filename==item["machine"]
+                    assert sha256(machine_download.value.path().read_bytes()).hexdigest()==item["machine_sha256"]
                 assert not any(x.endswith(".glb") or "model-viewer.min.js" in x for x in requests)
                 assert not errors, errors
                 with context.expect_page() as public_tab:
@@ -97,6 +102,10 @@ def main():
                 assert public.locator("a[download], .download-panel, .other-files").count()==0
                 assert public.locator("#hero-image").evaluate("(i)=>i.complete && i.naturalWidth>0")
                 assert public.locator("#specifications").is_visible()
+                assert public.locator("a.whatsapp-link").count()==2
+                assert public.locator("a.whatsapp-link").first.get_attribute("href")==item["whatsapp_url"]
+                assert page.locator("a.whatsapp-link").get_attribute("href")==item["whatsapp_url"]
+                assert public.locator("meta[property=\"og:url\"]").get_attribute("content")==item["public_url"]
                 public.locator("#hero-link").click()
                 assert public.locator("#lightbox").is_visible()
                 public.keyboard.press("Escape")
@@ -123,6 +132,8 @@ def main():
             page.goto(url+"/modelos/"+item["slug"]+"/publico.html")
             assert page.locator("#hero-link").is_visible()
             assert page.locator("a[download]").count()==0
+            assert page.locator("a.whatsapp-link").first.is_visible()
+            assert page.locator("a.whatsapp-link").first.get_attribute("href")==item["whatsapp_url"]
             fits(page)
             context.close()
             browser.close()

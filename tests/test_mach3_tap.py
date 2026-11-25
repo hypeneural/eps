@@ -187,6 +187,11 @@ class Mach3Tests(unittest.TestCase):
             titem=by_id["tap-fixture"]
             self.assertEqual(titem["machine"],"tap-fixture-r02.tap")
             self.assertEqual(titem["machine_format"],"TAP")
+            self.assertEqual(titem["machine_bytes"],len(tap_bytes))
+            self.assertEqual(titem["machine_sha256"],sha(tap_bytes))
+            public_html=(out/"modelos/tap-fixture-r02/publico.html").read_text(encoding="utf-8")
+            self.assertNotIn(titem["machine"],public_html)
+            self.assertNotIn(" download",public_html)
             self.assertEqual((out/"modelos/tap-fixture-r02/tap-fixture-r02.tap").read_bytes(),tap_bytes)
             self.assertTrue((out/"modelos/tap-fixture-r02/tap-fixture-r02.dxf").is_file())
             idx_html=(out/"index.html").read_text(encoding="utf-8")

@@ -38,3 +38,8 @@ html{background:#f5f6f7;color:#202a30}.wrap{max-width:1280px}.brand img{max-widt
 @media(max-width:700px){.public-intro{padding:14px;margin:12px 0;gap:6px}.public-intro h1{font-size:25px}.public-intro>div{flex-basis:100%}.public-intro .public-link{width:100%}.public-detail .spec-panel{width:100%;display:contents}.public-detail .main-media{order:0}.public-detail .specs{order:1}.public-detail .public-material{order:2}.public-detail .hero{max-height:320px}.public-nav .nav-link{padding:5px;font-size:12px}}
 @media(max-width:540px){.public-detail .hero-link{min-height:180px}.public-detail .hero{max-height:240px}.public-nav .nav-link .ico{display:none}.public-presentation .brand-text{font-size:12px}.public-presentation .brand img{max-width:95px}.public-nav{flex:none;max-width:105px}.public-nav .nav-link{min-width:0}}
 @media(max-width:360px){.public-presentation .brand-text{display:none}.public-intro h1{font-size:22px}}
+
+/* Share actions use an ordinary HTTPS anchor; no SDK or network until clicked. */
+.whatsapp-link,.whatsapp-card-link{background:#e8f6ed;color:#145b36;border:1px solid #a9d7ba;border-radius:8px;font-weight:bold;min-height:44px}
+.whatsapp-card-link{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;padding:8px;margin-top:5px;text-align:center}
+.whatsapp-link:hover,.whatsapp-card-link:hover{background:#d9f0e1;text-decoration:none}
