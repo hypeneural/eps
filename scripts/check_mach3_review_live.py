@@ -108,9 +108,13 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
                 payload = ar.read()
                 assert ar.status == 200 and hashlib.sha256(payload).hexdigest() == inv[visual], visual
                 if visual == m["animation_data"]:
-                    assert json.loads(payload)["tap_sha256"] == m["sha256"], visual
+                    adata = json.loads(payload)
+                    assert adata["tap_sha256"] == m["sha256"], visual
+                    assert adata["physical_spacing_mm"] is None, visual
+                    assert adata["execution_authorized"] is False, visual
         verified_models.append({
             "animation_verified": True,
+            "animation_url": f"{base}/{quote(m['animation'], safe='/')}",
             "id": m["id"],
             "name": m["display_name"],
             "url": tap_url,
@@ -149,7 +153,12 @@ def main():
         p.error("Set EPS_REVIEW_USER and EPS_REVIEW_PASSWORD in environment")
     result = check_live_review_area(a.area, a.url, user, password)
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    return int(result["taps_online_verified"] != result["expected"] or not result["zip_verified"] or not result["access_control_401_verified"])
+    return int(
+        result["taps_online_verified"] != result["expected"]
+        or result["animations_online_verified"] != result["expected"]
+        or not result["zip_verified"]
+        or not result["access_control_401_verified"]
+    )
 
 
 if __name__ == "__main__":

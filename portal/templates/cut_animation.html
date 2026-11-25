@@ -1,14 +1,111 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Simular corte | {{ m.display_name }} | Iso Nunes</title>
-<link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../assets/brand.css"><link rel="stylesheet" href="../assets/cut-animation.css"><script src="../assets/cut-animation.js" defer></script></head>
-<body><header class="top"><div class="wrap head"><a class="brand" href="../index.html"><img src="../assets/{{ logo_name }}" alt="Iso Nunes"><span class="brand-text">Simulador de corte<small>Área técnica privada</small></span></a><a class="nav-link" href="../index.html#{{ m.id }}">Voltar à biblioteca</a></div></header>
-<main class="wrap cut-main"><div class="cut-heading"><div><p class="eyebrow">SCARA · FIO QUENTE · CONFERÊNCIA</p><h1>{{ m.display_name }}</h1><p class="muted">{{ m.width_mm }} × {{ m.height_mm }} mm · {{ m.segment_count }} segmentos · {{ m.total_length_mm }} mm de percurso</p></div><a class="btn secondary" href="{{ m.filename }}" download>Baixar TAP de conferência</a></div>
-<section class="cut-shell" id="cut-player" data-source="simulacao.json" data-hash="{{ m.sha256 }}">
-<div class="cut-stage" id="cut-stage"><canvas id="cut-canvas" aria-label="Animação esquemática da trajetória dos fios" hidden></canvas><img id="cut-fallback" src="simulacao.png" alt="Prévia estática da trajetória"><div class="cut-overlay"><span>SIMULAÇÃO · NÃO É CONTROLE CNC</span><button type="button" id="cut-full" hidden>Tela cheia</button></div></div>
-<div class="cut-controls" id="cut-controls" hidden><div class="cut-transport"><button type="button" id="cut-reset" aria-label="Reiniciar">↺</button><button type="button" id="cut-prev" aria-label="Segmento anterior">◀</button><button type="button" id="cut-play" class="cut-play">Reproduzir</button><button type="button" id="cut-next" aria-label="Próximo segmento">▶</button><label>Velocidade <select id="cut-speed"><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="5">5×</option></select></label></div>
-<label class="cut-timeline" for="cut-seek">Progresso <output id="cut-percent">0%</output></label><input id="cut-seek" type="range" min="0" max="1000" value="0" step="1">
-<div class="cut-options"><label>Vista <select id="cut-view"><option value="iso">Perspectiva</option><option value="front">Frontal XY</option></select></label><label>Ângulo <input type="range" id="cut-angle" min="-1" max="1" step=".02" value=".65"></label><label>Zoom <input type="range" id="cut-zoom" min="1" max="2.5" step=".05" value="1"></label><label><input type="checkbox" id="cut-dual" checked> Segundo fio</label><label><input type="checkbox" id="cut-stock" checked> Bloco</label><label><input type="checkbox" id="cut-path" checked> Trajetória restante</label></div>
-<div class="cut-metrics"><div><small>Posição nominal X</small><strong id="cut-x">—</strong></div><div><small>Posição nominal Y</small><strong id="cut-y">—</strong></div><div><small>Bloco TAP</small><strong id="cut-block">—</strong></div><div><small>Distância percorrida</small><strong id="cut-distance">—</strong></div></div></div>
-<p id="cut-error" role="status" class="muted">Prévia estática disponível. A animação requer JavaScript.</p></section>
-<p class="cut-note">Trajetória nominal extraída do TAP desta revisão. O segundo fio, estrutura, profundidade e espaçamento são esquemáticos, não medidos. As superfícies exibem o percurso, não remoção térmica ou separação física comprovada. A reprodução é acelerada e não estima o tempo de máquina. Arquivo sem homologação física.</p><details><summary>Integridade da revisão</summary><p class="cut-hash">SHA-256: {{ m.sha256 }}</p></details>
-</main></body></html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Simular corte | {{ m.display_name }} | Iso Nunes</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <link rel="stylesheet" href="../assets/brand.css">
+  <link rel="stylesheet" href="../assets/cut-animation.css">
+  <script src="../assets/cut-animation.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap head">
+      <a class="brand" href="../index.html">
+        <img src="../assets/{{ logo_name }}" alt="Iso Nunes">
+        <span class="brand-text">Simulador de corte<small>Área técnica privada · conferência</small></span>
+      </a>
+      <a class="nav-link" href="../index.html#{{ m.id }}">Voltar à biblioteca</a>
+    </div>
+  </header>
+
+  <main class="wrap cut-main">
+    <div class="cut-heading">
+      <div>
+        <p class="eyebrow">SCARA · FIO QUENTE · CONFERÊNCIA PRIVADA</p>
+        <h1>{{ m.display_name }}</h1>
+        <p class="muted">{{ m.width_mm }} × {{ m.height_mm }} mm · {{ m.segment_count }} segmentos · {{ m.total_length_mm }} mm de percurso nominal</p>
+      </div>
+      <a class="btn primary cut-tap-cta" href="{{ m.filename }}" download>Baixar TAP de conferência</a>
+    </div>
+
+    <section class="cut-shell" id="cut-player" data-source="simulacao.json" data-hash="{{ m.sha256 }}">
+      <div class="cut-stage" id="cut-stage">
+        <canvas id="cut-canvas" aria-label="Animação esquemática da trajetória dos fios quentes sobre o bloco de EPS" hidden></canvas>
+        <img id="cut-fallback" src="simulacao.png" alt="Prévia estática da trajetória nominal de {{ m.display_name }}">
+        <div class="cut-overlay">
+          <span class="cut-pill">SIMULAÇÃO · NÃO É CONTROLE CNC</span>
+          <button type="button" id="cut-full" hidden>Tela cheia</button>
+        </div>
+      </div>
+
+      <div class="cut-legend" id="cut-legend" aria-label="Legenda visual" hidden>
+        <span class="leg-item"><i class="sw sw-w1"></i>Fio 1 (nominal)</span>
+        <span class="leg-item"><i class="sw sw-w2"></i>Fio 2 (paralelo esquemático)</span>
+        <span class="leg-item"><i class="sw sw-surf"></i>Superfície percorrida</span>
+        <span class="leg-item"><i class="sw sw-reg-low"></i>Região inferior nominal</span>
+        <span class="leg-item"><i class="sw sw-reg-up"></i>Região superior nominal</span>
+      </div>
+
+      <div class="cut-controls" id="cut-controls" hidden>
+        <div class="cut-transport">
+          <button type="button" id="cut-reset" aria-label="Reiniciar animação" title="Reiniciar (R)">↺</button>
+          <button type="button" id="cut-prev" aria-label="Segmento anterior" title="Segmento anterior (←)">◀</button>
+          <button type="button" id="cut-play" class="cut-play" aria-pressed="false">Reproduzir</button>
+          <button type="button" id="cut-next" aria-label="Próximo segmento" title="Próximo segmento (→)">▶</button>
+          <label class="cut-inline-field">Velocidade
+            <select id="cut-speed">
+              <option value="0.5">0,5×</option>
+              <option value="1" selected>1×</option>
+              <option value="2">2×</option>
+              <option value="5">5×</option>
+            </select>
+          </label>
+          <span class="cut-step-badge" id="cut-step-info">Bloco 1 / {{ m.segment_count }}</span>
+        </div>
+
+        <label class="cut-timeline" for="cut-seek">
+          <span>Progresso da trajetória</span>
+          <output id="cut-percent">0%</output>
+        </label>
+        <input id="cut-seek" type="range" min="0" max="1000" value="0" step="1">
+
+        <div class="cut-options">
+          <label>Vista
+            <select id="cut-view">
+              <option value="iso">Perspectiva</option>
+              <option value="front">Frontal XY</option>
+            </select>
+          </label>
+          <label>Ângulo <input type="range" id="cut-angle" min="-1" max="1" step="0.02" value="0.62"></label>
+          <label>Zoom <input type="range" id="cut-zoom" min="0.85" max="2.5" step="0.05" value="1"></label>
+          <label class="cut-check"><input type="checkbox" id="cut-dual" checked> Segundo fio</label>
+          <label class="cut-check"><input type="checkbox" id="cut-stock" checked> Bloco EPS</label>
+          <label class="cut-check"><input type="checkbox" id="cut-regions" checked> Regiões nominais</label>
+          <label class="cut-check"><input type="checkbox" id="cut-machine" checked> Estrutura SCARA</label>
+          <label class="cut-check"><input type="checkbox" id="cut-path" checked> Trajetória restante</label>
+        </div>
+
+        <div class="cut-metrics">
+          <div><small>Posição nominal X</small><strong id="cut-x">—</strong></div>
+          <div><small>Posição nominal Y</small><strong id="cut-y">—</strong></div>
+          <div><small>Bloco TAP</small><strong id="cut-block">—</strong></div>
+          <div><small>Distância percorrida</small><strong id="cut-distance">—</strong></div>
+        </div>
+
+        <p class="cut-kbd">Atalhos: <kbd>Espaço</kbd> reproduzir/pausar · <kbd>←</kbd>/<kbd>→</kbd> passo por segmento · <kbd>R</kbd> reiniciar · <kbd>F</kbd> tela cheia</p>
+      </div>
+
+      <p id="cut-error" role="status" class="muted">Prévia estática disponível. A animação interativa requer JavaScript.</p>
+    </section>
+
+    <p class="cut-note">Trajetória nominal extraída diretamente do arquivo TAP desta revisão. A estrutura SCARA, o bloco de EPS, a textura, o segundo fio paralelo, a profundidade e o espaçamento são estritamente esquemáticos (não medidos). As regiões nominais ilustram a partição geométrica da trajetória XY sem indicar kerf térmico, remoção de material ou separação física comprovada. A reprodução é acelerada e não estima tempo real de máquina. Arquivo de conferência sem homologação física.</p>
+    <details class="cut-integrity">
+      <summary>Integridade da revisão (.TAP)</summary>
+      <p class="cut-hash">Arquivo: <code>{{ m.filename }}</code> · SHA-256: <code>{{ m.sha256 }}</code></p>
+    </details>
+  </main>
+</body>
+</html>

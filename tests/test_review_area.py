@@ -10,6 +10,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
 
 from build_mach3_review_files import encode_review, plans
 from epscad.exporters.mach3_tap import canonical, sha
+from epscad.publishing.cut_animation import BANNER, animation_data
 from epscad.publishing.review_area import (
     REVIEW_ZIP,
     build_review_area,
@@ -94,6 +95,30 @@ class ReviewAreaTests(unittest.TestCase):
                 self.assertFalse(animation["execution_authorized"])
                 self.assertIsNone(animation["physical_spacing_mm"])
                 self.assertTrue((out_auth / m["animation"]).is_file())
+                reg = animation["regions"]
+                self.assertTrue(reg["demonstrable"], m["id"])
+                self.assertEqual(reg["kind"], "x_monotone_bbox_partition")
+                self.assertFalse(reg["physical_separation_confirmed"])
+                self.assertGreater(reg["lower_area_mm2"], 0)
+                self.assertGreater(reg["upper_area_mm2"], 0)
+                self.assertAlmostEqual(
+                    reg["lower_area_mm2"] + reg["upper_area_mm2"],
+                    reg["bbox_area_mm2"],
+                    delta=0.1,
+                )
+            # Non-monotone X path must NOT fabricate cut regions
+            backtrack_tap = (
+                BANNER
+                + b"N10 G90 G21\r\n"
+                + b"N20 G01 X0.000 Y0.000 F600\r\n"
+                + b"N30 G01 X100.000 Y40.000\r\n"
+                + b"N40 G01 X50.000 Y80.000\r\n"
+                + b"N50 M30\r\n"
+            )
+            bt_anim = animation_data(backtrack_tap, "bt", "Backtrack", sha(backtrack_tap))
+            self.assertFalse(bt_anim["regions"]["demonstrable"])
+            self.assertEqual(bt_anim["regions"]["reason"], "non_monotone_x")
+            self.assertFalse(bt_anim["regions"]["physical_separation_confirmed"])
             self.assertIn("assets/cut-animation.js", local_review_inventory(out_auth))
             require_access_control(out_auth)
             html = (out_auth / "index.html").read_text(encoding="utf-8")
