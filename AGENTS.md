@@ -31,3 +31,6 @@ Leia docs/32_PORTAL_APRESENTACAO_PUBLICA.md. Gere uma página publico.html por r
 
 ## Compartilhamento V6
 Leia docs/33_PORTAL_V6_COMPARTILHAMENTO.md. Compartilhe apenas publico.html por WhatsApp, com URL canônica e imagem verificada. Preserve logo original e CSS de apresentação leve. Teste download TAP real por hash e MIME; fixture de CI não é produto. Publique melhoria visual sem esperar todas as peças.
+
+## Critério de conclusão V7
+Leia docs/35_PORTAL_V7_ENTREGA_MACH3.md. Não finalizar tarefa industrial com --list, fixture sintética ou CI visual. Execute o lote com dados revisados e o aceite check_mach3_delivery.py; declare a contagem real e publique visual separadamente. Não invente confirmações físicas nem exponha programas não homologados. Preserve o cabeçalho sticky, compartilhamento por ícone e acessibilidade.

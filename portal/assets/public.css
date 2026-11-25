@@ -44,3 +44,20 @@
 @media(max-width:540px){.public-top .brand-text{font-size:13px}.public-top .brand img{max-width:115px}.public-detail .hero{max-height:245px}.public-detail .hero-link{min-height:180px}.public-detail .media-heading{flex-wrap:wrap}.public-detail h2{font-size:17px}}
 @media(max-width:360px){.public-top .brand-text{display:block;font-size:12px}.public-top .brand img{max-width:100px}.v6-intro h1{font-size:22px}.public-share-actions .whatsapp-link,.public-share-actions .public-link{flex:1 1 100%;width:100%}}
 @media(prefers-reduced-motion:reduce){.public-presentation *{transition:none!important;scroll-behavior:auto!important}}
+
+/* V7 public page: sticky brand and share icon, more space for the product. */
+.public-top{position:sticky;top:0;z-index:40}
+.public-top .head{min-height:70px}.public-top .brand img{max-height:58px}
+.public-top .header-share,.public-share-end .footer-share{background:#17633d;color:white;border:1px solid #17633d}
+.public-top .header-share:hover,.public-share-end .footer-share:hover{background:#105331;text-decoration:none}
+.public-top .public-nav{flex-wrap:nowrap}
+.public-presentation .v6-intro{padding:19px 23px;gap:9px}
+.public-presentation .public-share-actions{flex:none}
+.public-presentation .public-share-actions .public-link{width:auto;min-height:44px}
+.public-share-end{padding:16px 21px}.public-share-end .footer-share{width:48px;height:48px;align-self:center}
+.public-presentation #gallery,.public-presentation #specifications,.public-presentation #viewer-section{scroll-margin-top:96px}
+@media(min-width:951px){.public-detail .spec-panel{position:static}}
+@media(min-width:951px) and (min-height:900px){.public-detail .spec-panel{position:sticky;top:88px}}
+@media(max-width:700px){.public-top .head{min-height:60px;flex-wrap:nowrap;gap:5px;padding-top:5px;padding-bottom:5px}.public-top .public-nav{flex:none;border:0;padding:0;gap:2px}.public-top .nav-link{min-width:44px;min-height:44px;padding:4px;font-size:11px}.public-top .brand img{max-height:46px;max-width:100px}.public-top .brand-text{font-size:12px}.public-presentation .v6-intro{padding:13px}.public-presentation .public-share-actions{flex-basis:auto}.public-presentation .public-share-actions .public-link{width:auto;flex:none}.public-presentation #gallery,.public-presentation #specifications,.public-presentation #viewer-section{scroll-margin-top:77px}.public-share-end{flex-direction:row;align-items:center;gap:10px}.public-share-end>div{min-width:0;flex:1}.public-share-end .footer-share{width:44px;height:44px}}
+@media(max-width:540px){.public-top .brand-text{display:none}.public-top .public-nav .nav-link{font-size:0;min-width:40px}.public-top .public-nav .nav-link .ico{display:block;width:21px;height:21px}.public-top .brand img{max-width:92px}.public-top .header-share{width:44px;height:44px}.public-top .head{padding-left:10px;padding-right:10px}.public-highlights>div{flex-basis:calc(50% - 8px)}}
+@media(max-height:650px) and (min-width:701px){.public-top .head{min-height:56px}.public-top .brand img{max-height:43px}.public-presentation #gallery,.public-presentation #specifications,.public-presentation #viewer-section{scroll-margin-top:74px}}

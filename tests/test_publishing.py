@@ -33,7 +33,7 @@ class PublishingTests(unittest.TestCase):
         page=(out/"index.html").read_text(encoding="utf-8")
         self.assertIn("TP40 &lt;teste&gt;",page)
         self.assertNotIn("Baixar DXF de corte",page)
-        self.assertIn("Corte não liberado",page)
+        self.assertIn("TAP pendente",page)
         self.assertNotIn("model-viewer.min.js",page)
         folder=out/"modelos/tp40-base-lisa-r01"
         self.assertTrue((folder/"modelo.glb").exists())

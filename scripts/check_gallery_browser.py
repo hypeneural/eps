@@ -104,6 +104,13 @@ def main():
                 assert public.locator("#hero-image").evaluate("(i)=>i.complete && i.naturalWidth>0")
                 assert public.locator("#specifications").is_visible()
                 assert public.locator("a.whatsapp-link").count()==2
+                public.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                assert abs(public.locator(".public-top").bounding_box()["y"])<=2
+                assert public.locator(".header-share").is_visible()
+                assert public.locator(".header-share").get_attribute("aria-label")
+                public.locator(".public-nav a[href='#specifications']").click()
+                assert public.locator("#specifications").bounding_box()["y"]>=public.locator(".public-top").bounding_box()["height"]-2
+                public.evaluate("window.scrollTo(0,0)")
                 assert public.locator("a.whatsapp-link").first.get_attribute("href")==item["whatsapp_url"]
                 assert public.locator("a.whatsapp-link").last.get_attribute("href")==item["whatsapp_url"]
                 assert public.locator("a.whatsapp-link").first.get_attribute("target")=="_blank"

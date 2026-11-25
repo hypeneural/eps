@@ -43,3 +43,22 @@ html{background:#f5f6f7;color:#202a30}.wrap{max-width:1280px}.brand img{max-widt
 .whatsapp-link,.whatsapp-card-link{background:#e8f6ed;color:#145b36;border:1px solid #a9d7ba;border-radius:8px;font-weight:bold;min-height:44px}
 .whatsapp-card-link{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;padding:8px;margin-top:5px;text-align:center}
 .whatsapp-link:hover,.whatsapp-card-link:hover{background:#d9f0e1;text-decoration:none}
+
+/* V7: compact operator actions; sticky navigation without a scroll listener. */
+.top{position:sticky;top:0;z-index:40;background:#fff;box-shadow:0 2px 7px rgba(25,32,35,.08)}
+.skip-link:focus{position:fixed;top:4px;left:4px;z-index:110}
+.specs,.viewer-shell,#gallery,#main{scroll-margin-top:94px}
+.card-shortcuts,.operator-share{display:flex;align-items:center;gap:6px;min-width:0}
+.card-shortcuts .details,.card-shortcuts .public-card-link{flex:1;min-width:0;min-height:44px;margin:0;padding:6px 3px;display:flex;align-items:center;justify-content:center;gap:3px;font-size:12px;text-align:center}
+.card-shortcuts .details .ico,.card-shortcuts .public-card-link .ico{width:15px;height:15px}
+.card-shortcuts .whatsapp-card-link,.share-icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;min-width:44px;min-height:44px;margin:0;padding:0;border-radius:8px}
+.share-icon .ico,.card-shortcuts .whatsapp-card-link .ico{width:23px;height:23px}
+.operator-share .public-link{flex:1;min-width:0;width:auto}
+.compact-package{min-height:40px;margin:4px 0 7px}
+.model-card .model-code{font-size:11px}.model-card .cut-note{margin:6px 0}
+.model-card .picture-action{background:rgba(255,255,255,.96)}
+.model-card .card-body h3{font-size:17px;line-height:1.3}
+.model-card .dimension{font-size:15px}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.model-card{transition:box-shadow .16s,border-color .16s}.model-card:hover{border-color:#c5cfd3;box-shadow:0 5px 16px rgba(24,32,36,.09)}}
+@media(max-width:540px){.list-mode .card-shortcuts{flex-wrap:wrap}.list-mode .card-shortcuts .details,.list-mode .card-shortcuts .public-card-link{flex-basis:85px}.card-shortcuts .details .ico,.card-shortcuts .public-card-link .ico{display:none}.card-body{padding:11px}.top .brand-text{font-size:13px}}
+@media(max-height:650px) and (min-width:701px){.top .head{min-height:56px}.top .brand img{max-height:43px}.specs,.viewer-shell,#gallery,#main{scroll-margin-top:70px}.card-body{padding:10px}.compact-package{min-height:37px}.model-card .picture img{max-height:145px}}
