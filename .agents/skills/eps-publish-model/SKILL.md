@@ -37,3 +37,6 @@ Consulte `docs/32_PORTAL_APRESENTACAO_PUBLICA.md`, `docs/33_PORTAL_V6_COMPARTILH
 
 ## Portal V7 — cabeçalho fixo, 3D e aceite estrito Mach3
 Consulte `docs/35_PORTAL_V7_ENTREGA_MACH3.md` e `docs/36_PORTAL_V7_OPERACIONAL_RELATORIO.md`. Preservar cabeçalho `sticky`, ícone WhatsApp persistente (`44px`), cartões compactos, auto-enquadramento 3D (`bounds="tight"` + `updateFraming`), desenho técnico `secao.jpg` em alta nitidez (`1800×1200`, `4:4:4`) e executar obrigatoriamente `scripts/check_mach3_delivery.py --site <pasta>` (e `--https` após deploy), reportando a contagem real `X/9` sem confundir melhoria visual ou fixture sintética com entrega industrial.
+
+## Geração offline obrigatória
+Use scripts/build_mach3_review_files.py antes de solicitar medições físicas. Gera nove TAPs para conferência offline com dados documentais, índice local e hashes; não publicar ou executar na máquina. Leia docs/38_MACH3_TAP_CONFERENCIA_OFFLINE.md. Homologação comercial continua separada.

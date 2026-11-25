@@ -34,3 +34,6 @@ Leia docs/33_PORTAL_V6_COMPARTILHAMENTO.md. Compartilhe apenas publico.html por 
 
 ## Critério de conclusão V7
 Leia docs/35_PORTAL_V7_ENTREGA_MACH3.md. Não finalizar tarefa industrial com --list, fixture sintética ou CI visual. Execute o lote com dados revisados e o aceite check_mach3_delivery.py; declare a contagem real e publique visual separadamente. Não invente confirmações físicas nem exponha programas não homologados. Preserve o cabeçalho sticky, compartilhamento por ícone e acessibilidade.
+
+## Geração offline sem questionário prévio
+Para pedido de geração dos nove TAPs, execute primeiro scripts/build_mach3_review_files.py com o backup privado, conforme docs/38_MACH3_TAP_CONFERENCIA_OFFLINE.md. Esta etapa não exige contrato ou aprovação física e não deve parar em --list. Entregue nove arquivos de conferência, relatório e índice privado. A execução física e publicação de produção seguem os gates existentes; nunca confundir esses estados. Não pedir novamente dados documentais recuperados.
