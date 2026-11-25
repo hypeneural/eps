@@ -152,7 +152,7 @@ class ReviewAreaTests(unittest.TestCase):
             site = tmp / "site"
             item = build_site(reg, site, logo=False, viewer_dir=tmp / "no-vendor", review_manifest=rdir / "report.json")[0]
             self.assertIsNone(item["machine"])
-            self.assertEqual(item["review_tap"]["href"], "conferencia/#tp40-base-lisa-r01")
+            self.assertEqual(item["review_tap"]["href"], "conferencia/tp40-base-lisa-r01/tp40-base-lisa-r01-NAO-EXECUTAR.tap")
             home = (site / "index.html").read_text(encoding="utf-8")
             detail = (site / "modelos/tp40-base-lisa-r01/index.html").read_text(encoding="utf-8")
             pub = (site / "modelos/tp40-base-lisa-r01/publico.html").read_text(encoding="utf-8")
@@ -162,6 +162,8 @@ class ReviewAreaTests(unittest.TestCase):
             self.assertIn("Arquivo disponível", detail)
             self.assertNotIn("TAP pendente", detail)
             # Public commercial presentation must NEVER mention conferencia or TAP downloads
+            self.assertIn('href="conferencia/tp40-base-lisa-r01/tp40-base-lisa-r01-NAO-EXECUTAR.tap" download', home)
+            self.assertIn('href="../../conferencia/tp40-base-lisa-r01/tp40-base-lisa-r01-NAO-EXECUTAR.tap" download', detail)
             self.assertIn("simulacao.html", home)
             self.assertIn("simulacao.html", detail)
             self.assertNotIn("simulacao.html", pub)

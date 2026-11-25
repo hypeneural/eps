@@ -16,8 +16,9 @@ def main():
     p.add_argument("--output", type=Path, required=True, help="Fresh local output directory for the private review area")
     p.add_argument("--logo", type=Path, help="Local original Iso Nunes PNG")
     p.add_argument("--auth-user-file", help="Absolute server path to .htpasswd (or set EPS_REVIEW_HTPASSWD_PATH)")
+    p.add_argument("--historical-source", type=Path, help="Private folder or ZIP containing original historical TAPs")
     a = p.parse_args()
-    auth_file = a.auth_user_file or os.environ.get("EPS_REVIEW_HTPASSWD_PATH")
+    auth_file = a.auth_user_file or os.environ.get("EPS_REVIEW_HTPASSWD_PATH") or os.environ.get("EPS_REVIEW_AUTH_FILE")
     user = os.environ.get("EPS_REVIEW_USER")
     password = os.environ.get("EPS_REVIEW_PASSWORD")
     htpasswd = make_htpasswd_bytes(user, password) if (user and password) else None
@@ -27,10 +28,12 @@ def main():
         logo=a.logo,
         auth_user_file=auth_file,
         htpasswd_bytes=htpasswd,
+        historical_source=a.historical_source,
     )
     print(json.dumps({
         "output": str(a.output.resolve()),
         "models": len(manifest["models"]),
+        "historical": manifest["historical"],
         "bundle": manifest["bundle"],
         "bundle_sha256": manifest["bundle_sha256"],
         "access_controlled": manifest["access_controlled"],

@@ -29,7 +29,7 @@ REVIEW_STATE = "review-state.json"
 REVIEW_ZIP = "isonunes-taps-conferencia-9-modelos.zip"
 OFFLINE_BANNER = b"(OFFLINE REVIEW ONLY - NOT APPROVED FOR MACHINE EXECUTION)\r\n"
 REVIEW_PATH = re.compile(
-    r"(?:index\.html|review-manifest\.json|\.htaccess|\.htpasswd|"
+    r"(?:index\.html|review-manifest\.json|historicos\.(?:html|json)|\.htaccess|\.htpasswd|"
     r"isonunes-taps-conferencia-9-modelos\.zip|"
     r"assets/[A-Za-z0-9_.-]+|"
     r"[a-z0-9-]+/(?:[a-z0-9-]+-NAO-EXECUTAR\.tap|simulacao\.(?:png|json|html)))"
@@ -104,6 +104,7 @@ def build_review_area(
     logo: Path | str | None = None,
     auth_user_file: str | None = None,
     htpasswd_bytes: bytes | None = None,
+    historical_source: Path | str | None = None,
 ) -> dict:
     review_dir = Path(review_dir).resolve()
     output = Path(output).resolve()
@@ -220,6 +221,11 @@ def build_review_area(
         bundle_bytes = zip_path.stat().st_size
         bundle_sha256 = digest(zip_path.read_bytes())
 
+        history = None
+        if historical_source is not None:
+            from epscad.publishing.historical_catalog import build_historical_catalog
+            history = build_historical_catalog(historical_source, stage, env, logo_name)
+
         manifest = {
             "purpose": "private_online_review_area_not_production",
             "production_approved": False,
@@ -230,6 +236,7 @@ def build_review_area(
             "bundle_sha256": bundle_sha256,
             "settings_observed": report["settings_observed"],
             "models": entries,
+            "historical": ({k: history[k] for k in ("source_files", "unique_files", "duplicates", "animations")} if history else None),
         }
         (stage / "review-manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
         html_out = env.get_template("review_area.html").render(
@@ -238,6 +245,7 @@ def build_review_area(
             bundle=REVIEW_ZIP,
             bundle_bytes=bundle_bytes,
             settings=report["settings_observed"],
+            history=history,
         )
         (stage / "index.html").write_text(html_out, encoding="utf-8")
         (stage / ".htaccess").write_text(render_htaccess(auth_user_file), encoding="utf-8")
@@ -252,7 +260,7 @@ def build_review_area(
 
 
 def validate_review_state(state: dict) -> dict[str, str]:
-    if state.get("format") != 1 or not isinstance(state.get("files"), dict) or len(state["files"]) > 500:
+    if state.get("format") != 1 or not isinstance(state.get("files"), dict) or len(state["files"]) > 5000:
         raise ValueError("Invalid review area state")
     for name, checksum in state["files"].items():
         if not REVIEW_PATH.fullmatch(name) or any(p in (".", "..") for p in PurePosixPath(name).parts) or not re.fullmatch("[0-9a-f]{64}", checksum):
@@ -330,6 +338,8 @@ def deploy_review_area(root: Path | str, *, remote_subdir: str = "conferencia") 
         previous: dict[str, str] = {}
         if REVIEW_STATE in remote_names(ftp):
             previous = validate_review_state(json.loads(read_remote(ftp, REVIEW_STATE, 1024 * 1024)))
+        if "historicos.json" in previous and "historicos.json" not in current:
+            raise ValueError("Refusing to remove historical library: rebuild with --historical-source")
         # Upload .htpasswd and .htaccess FIRST so no TAP file is ever reachable unauthenticated!
         priority = lambda n: (0 if n == ".htpasswd" else 1 if n == ".htaccess" else 2 if n != "index.html" else 3, n)
         for name in sorted(current, key=priority):

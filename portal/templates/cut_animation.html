@@ -17,7 +17,7 @@
         <img src="../assets/{{ logo_name }}" alt="Iso Nunes">
         <span class="brand-text">Simulador de corte<small>Área técnica privada · conferência</small></span>
       </a>
-      <a class="nav-link" href="../index.html#{{ m.id }}">Voltar à biblioteca</a>
+      <a class="nav-link" href="{{ '../historicos.html' if m.historical else '../index.html#' ~ m.id }}">Voltar à biblioteca</a>
     </div>
   </header>
 
@@ -28,7 +28,7 @@
         <h1>{{ m.display_name }}</h1>
         <p class="muted">{{ m.width_mm }} × {{ m.height_mm }} mm · {{ m.segment_count }} segmentos · {{ m.total_length_mm }} mm de percurso nominal</p>
       </div>
-      <a class="btn primary cut-tap-cta" href="{{ m.filename }}" download>Baixar TAP de conferência</a>
+      <a class="btn primary cut-tap-cta" href="{{ m.filename }}" download>{{ "Baixar TAP histórico" if m.historical else "Baixar TAP de conferência" }}</a>
     </div>
 
     <section class="cut-shell" id="cut-player" data-source="simulacao.json" data-hash="{{ m.sha256 }}">
@@ -50,6 +50,7 @@
       </div>
 
       <div class="cut-controls" id="cut-controls" hidden>
+        <div class="cut-presets" aria-label="Atalhos de visualização"><button type="button" id="cut-overview">Visão da máquina</button><button type="button" id="cut-profile">Perfil de corte</button><button type="button" id="cut-result">Ver resultado nominal</button><button type="button" id="cut-fit">Reenquadrar</button></div><p id="cut-stage-status" class="cut-stage-status" aria-live="off">Pronto para visualizar o corte</p>
         <div class="cut-transport">
           <button type="button" id="cut-reset" aria-label="Reiniciar animação" title="Reiniciar (R)">↺</button>
           <button type="button" id="cut-prev" aria-label="Segmento anterior" title="Segmento anterior (←)">◀</button>
@@ -72,7 +73,7 @@
         </label>
         <input id="cut-seek" type="range" min="0" max="1000" value="0" step="1">
 
-        <div class="cut-options">
+        <details class="cut-advanced"><summary>Ajustes da visualização e dados técnicos</summary><div class="cut-options">
           <label>Vista
             <select id="cut-view">
               <option value="iso">Perspectiva</option>
@@ -95,13 +96,13 @@
           <div><small>Distância percorrida</small><strong id="cut-distance">—</strong></div>
         </div>
 
-        <p class="cut-kbd">Atalhos: <kbd>Espaço</kbd> reproduzir/pausar · <kbd>←</kbd>/<kbd>→</kbd> passo por segmento · <kbd>R</kbd> reiniciar · <kbd>F</kbd> tela cheia</p>
+        </details><p class="cut-kbd">Atalhos: <kbd>Espaço</kbd> reproduzir/pausar · <kbd>←</kbd>/<kbd>→</kbd> passo por segmento · <kbd>R</kbd> reiniciar · <kbd>F</kbd> tela cheia</p>
       </div>
 
       <p id="cut-error" role="status" class="muted">Prévia estática disponível. A animação interativa requer JavaScript.</p>
     </section>
 
-    <p class="cut-note">Trajetória nominal extraída diretamente do arquivo TAP desta revisão. A estrutura SCARA, o bloco de EPS, a textura, o segundo fio paralelo, a profundidade e o espaçamento são estritamente esquemáticos (não medidos). As regiões nominais ilustram a partição geométrica da trajetória XY sem indicar kerf térmico, remoção de material ou separação física comprovada. A reprodução é acelerada e não estima tempo real de máquina. Arquivo de conferência sem homologação física.</p>
+    {% if m.historical %}<p class="cut-note">Programa histórico original. Arcos são amostrados para visualização; modos omitidos são interpretados nominalmente (XY absoluto e I/J incremental por padrão). Origem e posição física não confirmadas. Não executar sem validação.</p>{% endif %}<p class="cut-note">Trajetória nominal extraída diretamente do arquivo TAP desta revisão. A estrutura SCARA, o bloco de EPS, a textura, o segundo fio paralelo, a profundidade e o espaçamento são estritamente esquemáticos (não medidos). As regiões nominais ilustram a partição geométrica da trajetória XY sem indicar kerf térmico, remoção de material ou separação física comprovada. A reprodução é acelerada e não estima tempo real de máquina. Arquivo de conferência sem homologação física.</p>
     <details class="cut-integrity">
       <summary>Integridade da revisão (.TAP)</summary>
       <p class="cut-hash">Arquivo: <code>{{ m.filename }}</code> · SHA-256: <code>{{ m.sha256 }}</code></p>

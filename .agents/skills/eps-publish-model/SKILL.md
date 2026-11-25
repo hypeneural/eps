@@ -43,3 +43,6 @@ Use `scripts/build_mach3_review_files.py` para gerar os nove TAPs reais de confe
 
 ## Simulador interativo privado (V1.1) e evolução 3D
 O build `scripts/build_mach3_review_area.py` gera automaticamente `<slug>/simulacao.json` e `<slug>/simulacao.html` a partir dos bytes verificados de cada TAP (`docs/40_SIMULADOR_CORTE_INTERATIVO.md`, `docs/41_SIMULADOR_CORTE_V2_EVOLUCAO_3D.md`). Nunca alterar TAPs ou ZIP por causa da animação; manter `physical_spacing_mm: null`, `execution_authorized: false` e `regions.physical_separation_confirmed: false` (emitir regiões apenas quando geometricamente demonstráveis). Validar interações em Playwright (`320×568` a `1920×1080` + sem JS), garantir que `publico.html` não mencione `simulacao.html`/`conferencia/` e exigir `taps_online_verified: 9` e `animations_online_verified: 9` em `scripts/check_mach3_review_live.py`. Preservar Canvas 2D como fallback em qualquer evolução WebGL/Three.js futura.
+
+## V10 — biblioteca histórica
+Consulte docs/42_ACERVO_HISTORICO_E_UX.md. Importar a pasta Dados por --historical-source, manter originais e aliases somente na área privada, contabilizar todos os hashes e testar download direto, histórico, presets, fullscreen e autenticação. Não apagar acervo em rebuild parcial.

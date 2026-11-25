@@ -137,7 +137,7 @@ def load_review_tap_index(manifest_path):
         if not tap_file.is_file():
             raise FileNotFoundError("Missing review TAP file: "+str(tap_file))
         data=tap_file.read_bytes()
-        if not data or digest(data)!=m["sha256"] or len(data)!=m["bytes"]:
+        if not re.fullmatch(r"[a-z0-9-]+", slug) or tap_file.name != slug+"-NAO-EXECUTAR.tap" or not data or digest(data)!=m["sha256"] or len(data)!=m["bytes"]:
             raise ValueError("Review TAP checksum mismatch: "+slug)
         index[slug]={"bytes":len(data),"sha256_short":m["sha256"][:12],"filename":tap_file.name}
     return index
@@ -258,7 +258,8 @@ def write_model(entry,base,stage,env,*,review_tap=None,review_area_url="conferen
     elif review_tap:
         # Operational pointer only to the authenticated private review area; never exposed in publico.html.
         item["review_tap"]={"bytes":review_tap["bytes"],"sha256_short":review_tap["sha256_short"],
-                            "href":review_area_url.rstrip("/")+"/#"+slug}
+                            "href":review_area_url.rstrip("/")+"/"+slug+"/"+review_tap["filename"],
+                            "animation_href":review_area_url.rstrip("/")+"/"+slug+"/simulacao.html"}
     (folder/"index.html").write_text(env.get_template("model.html").render(m=item),encoding="utf-8")
     # Presentation receives a deliberately reduced projection, not the operator metadata.
     public_spec_keys=("Largura (mm)","Altura total (mm)","Espessura mínima (mm)",

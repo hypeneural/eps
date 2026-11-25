@@ -10,10 +10,11 @@
     if (search && category) {
       var filter = function () {
         var count = 0;
-        var q = search.value.trim().toLowerCase();
+        var normalize=function(v){return v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");};
+        var q = normalize(search.value.trim());
         document.querySelectorAll(".review-card").forEach(function (card) {
           var match = (!category.value || card.dataset.category === category.value) &&
-            card.textContent.toLowerCase().indexOf(q) !== -1;
+            normalize(card.textContent).indexOf(q) !== -1;
           card.hidden = !match;
           if (match) count++;
         });
@@ -467,6 +468,7 @@
       $("cut-y").textContent = fmt(pos.p[1]) + " mm";
       $("cut-block").textContent = "N" + seg[pos.i].block;
       $("cut-distance").textContent = fmt(dist) + " mm";
+      if ($("cut-stage-status")) { var label=dist===0?"Bloco inicial · pronto para visualizar":dist>=total?"Trajetória concluída · resultado nominal":"Visualizando o percurso do fio"; if($("cut-stage-status").textContent!==label)$("cut-stage-status").textContent=label; }
       if ($("cut-step-info")) {
         $("cut-step-info").textContent = "Bloco " + (pos.i + 1) + " / " + seg.length;
       }
@@ -529,11 +531,26 @@
     }
 
     function toggleFullscreen() {
-      if (!$("cut-stage").requestFullscreen) return;
+      if (!root.requestFullscreen) return;
       if (document.fullscreenElement) document.exitFullscreen();
-      else $("cut-stage").requestFullscreen().catch(function () {});
+      else root.requestFullscreen().catch(function () {});
     }
 
+    function preset(front, machine, result) {
+      $("cut-view").value=front?"front":"iso"; $("cut-machine").checked=machine;
+      $("cut-dual").checked=!front; $("cut-stock").checked=!result;
+      $("cut-path").checked=!result; $("cut-zoom").value=1; $("cut-angle").value=.62;
+      if(result)seek(total); else paint();
+    }
+    $("cut-overview").addEventListener("click",function(){preset(false,true,false);});
+    $("cut-profile").addEventListener("click",function(){preset(true,false,false);});
+    $("cut-result").disabled=!regions;
+    $("cut-result").addEventListener("click",function(){if(regions){$("cut-regions").checked=true;preset(false,false,true);}});
+    $("cut-fit").addEventListener("click",function(){$("cut-zoom").value=1;$("cut-angle").value=.62;paint();});
+    var drag=null;
+    canvas.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse" && $("cut-view").value!=="front"){drag={x:e.clientX,a:Number($("cut-angle").value)};canvas.setPointerCapture(e.pointerId);}});
+    canvas.addEventListener("pointermove",function(e){if(drag){$("cut-angle").value=Math.max(-1,Math.min(1,drag.a+(e.clientX-drag.x)/160));paint();}});
+    ["pointerup","pointercancel","lostpointercapture"].forEach(function(n){canvas.addEventListener(n,function(){drag=null;});});
     $("cut-play").addEventListener("click", togglePlay);
     $("cut-seek").addEventListener("input", function () { seek(total * Number(this.value) / 1000); });
     $("cut-reset").addEventListener("click", function () { seek(0); });
@@ -549,7 +566,7 @@
 
     document.addEventListener("keydown", function (ev) {
       var tag = ev.target && ev.target.tagName;
-      if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+      if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || tag === "BUTTON" || tag === "A" || tag === "SUMMARY" || ev.altKey || ev.ctrlKey || ev.metaKey) return;
       if (ev.code === "Space") { ev.preventDefault(); togglePlay(); }
       else if (ev.code === "ArrowRight") { ev.preventDefault(); stepNext(); }
       else if (ev.code === "ArrowLeft") { ev.preventDefault(); stepPrev(); }
@@ -558,7 +575,7 @@
     });
 
     document.addEventListener("visibilitychange", function () { if (document.hidden) stop(); });
-    if ($("cut-stage").requestFullscreen) {
+    if (root.requestFullscreen) {
       $("cut-full").hidden = false;
       $("cut-full").addEventListener("click", toggleFullscreen);
     }

@@ -46,6 +46,16 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
     for m in manifest["models"]:
         must_401.extend([m["animation"], m["animation_data"]])
     must_401.extend(["assets/cut-animation.js", "assets/cut-animation.css"])
+    history = json.loads((area/"historicos.json").read_text(encoding="utf-8")) if manifest.get("historical") else None
+    history_paths = []
+    if history:
+        history_paths = ["historicos.html", "historicos.json"]
+        for item in history["models"]:
+            history_paths.append(item["file"])
+            for key in ("preview", "animation", "animation_data"):
+                if item.get(key):
+                    history_paths.append(item[key])
+        must_401.extend(history_paths)
     for rel in must_401:
         target = f"{base}/{quote(rel, safe='/')}"
         try:
@@ -125,7 +135,17 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
             "content_type": "application/octet-stream",
         })
 
+    for rel in history_paths:
+        with fetch(f"{base}/{quote(rel, safe='/')}", auth_header) as hr:
+            body = hr.read()
+            assert hr.status == 200 and hashlib.sha256(body).hexdigest() == inv[rel], rel
+            if rel.endswith(".tap"):
+                assert hr.headers.get_content_type() == "application/octet-stream"
+                assert "attachment" in hr.headers.get("Content-Disposition", "").lower()
     return {
+        "historical_online_verified": history["unique_files"] if history else 0,
+        "historical_animations_verified": history["animations"] if history else 0,
+        "historical_source_files": history["source_files"] if history else 0,
         "purpose": "private_review_area_https_verification_not_production_homologation",
         "review_area_url": f"{base}/",
         "zip_url": f"{base}/{quote(zip_rel, safe='/')}",

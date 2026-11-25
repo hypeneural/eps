@@ -40,3 +40,6 @@ Para pedido de geração dos nove TAPs, execute primeiro `scripts/build_mach3_re
 
 ## Simulação interativa privada
 Ao montar a área de conferência, `build_mach3_review_area.py` gera automaticamente `simulacao.json` e `simulacao.html` por revisão a partir dos bytes TAP verificados. Use `docs/40_SIMULADOR_CORTE_INTERATIVO.md`. Não publique a trajetória técnica em `publico.html`, não invente espaçamento dos fios e não confunda visualização com homologação. Confira `animations_online_verified` no verificador HTTPS e teste a reprodução no navegador.
+
+## Acervo histórico e experiência do gestor (V10)
+Leia docs/42_ACERVO_HISTORICO_E_UX.md. Ao atualizar o portal com a pasta Dados, use --historical-source no build privado, preserve os 9 TAPs atuais, agrupe duplicatas por hash, mantenha originais somente na área autenticada, verifique todos os arquivos/visuais HTTPS e reporte falhas de parser sem inventar geometria. Nunca publicar originais na página comercial nem no Git. O botão de download no catálogo deve apontar para o próprio TAP protegido, sem página intermediária.
