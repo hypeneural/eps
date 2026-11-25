@@ -152,6 +152,22 @@ def main():
             assert page.locator("a.whatsapp-link").first.get_attribute("href")==item["whatsapp_url"]
             fits(page)
             context.close()
+            # Check every published product, not just the first card, without JS.
+            context=browser.new_context(java_script_enabled=False,viewport={"width":390,"height":844},accept_downloads=True)
+            page=context.new_page()
+            for m in items:
+                folder=a.site/"modelos"/m["slug"]
+                page.goto(url+"/modelos/"+m["slug"]+"/publico.html")
+                fits(page)
+                assert page.locator("a[download]").count()==0
+                assert page.locator(".header-share").get_attribute("href")==m["whatsapp_url"]
+                if m["machine"]:
+                    page.goto(url+"/modelos/"+m["slug"]+"/index.html")
+                    with page.expect_download() as dl:
+                        page.locator(".download-panel a.primary[download]").click()
+                    assert dl.value.suggested_filename==m["machine"]
+                    assert sha256(dl.value.path().read_bytes()).hexdigest()==m["machine_sha256"]
+            context.close()
             browser.close()
     finally:
         server.shutdown()
