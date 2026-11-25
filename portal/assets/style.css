@@ -62,5 +62,12 @@ html{background:#f5f6f7;color:#202a30}.wrap{max-width:1280px}.brand img{max-widt
 @media(hover:hover) and (prefers-reduced-motion:no-preference){.model-card{transition:box-shadow .16s,border-color .16s}.model-card:hover{border-color:#c5cfd3;box-shadow:0 5px 16px rgba(24,32,36,.09)}}
 model-viewer{height:420px;border:1px solid #d4dde1;border-radius:9px}
 .lightbox-body img{background:#fff;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.status.review-available{background:#e3f1fa;color:#124d73;border:1px solid #bfd9ec}
+.review-tap-btn{min-height:48px;padding:9px 12px;background:#145875;color:#fff;border-color:#145875}
+.review-tap-btn:hover{background:#0f455c;border-color:#0f455c}
+.review-note{font-size:11px;color:#526168;margin:2px 0 6px;text-align:center}
+.main-nav{display:flex;align-items:center;gap:4px;flex:none}
+.review-area-nav{background:#e3f1fa;color:#124d73}
+.review-area-nav:hover{background:#d1e7f6;text-decoration:none}
 @media(max-width:540px){model-viewer{height:280px}.list-mode .card-shortcuts{flex-wrap:wrap}.list-mode .card-shortcuts .details,.list-mode .card-shortcuts .public-card-link{flex-basis:85px}.card-shortcuts .details .ico,.card-shortcuts .public-card-link .ico{display:none}.card-body{padding:11px}.top .brand-text{font-size:13px}}
 @media(max-height:650px) and (min-width:701px){.top .head{min-height:56px}.top .brand img{max-height:43px}.specs,.viewer-shell,#gallery,#main{scroll-margin-top:70px}.card-body{padding:10px}.compact-package{min-height:37px}.model-card .picture img{max-height:145px}}

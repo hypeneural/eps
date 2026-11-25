@@ -90,5 +90,5 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 ### Contrato Mach3 e perfil privado
 [Resolver o vínculo do contrato e concluir a entrega](docs/37_MACH3_CONTRATO_LOCAL_E_ENTREGA.md). Use `--bind-reviewed-contract` para calcular o hash de um contrato já revisado e `EPS_SCARA_PROFILE_FILE` para o perfil completo privado; nunca use templates vazios como produção.
 
-### TAPs para conferência offline antes da homologação
-[Gerador de nove arquivos reais para análise offline](docs/38_MACH3_TAP_CONFERENCIA_OFFLINE.md). Não exige contrato físico; não autoriza operação nem publicação comercial.
+### TAPs para conferência offline e área privada online autenticada
+[Gerador de nove arquivos reais](docs/38_MACH3_TAP_CONFERENCIA_OFFLINE.md) · [Área privada autenticada de conferência (`/conferencia/`)](docs/39_AREA_PRIVADA_CONFERENCIA_TAP.md). Separa disponibilidade do arquivo TAP (conferência em área protegida por HTTP Basic Auth, sem exposição em `publico.html`) da homologação industrial (`check_mach3_delivery.py`) e da liberação de produção (`--allow-production`).

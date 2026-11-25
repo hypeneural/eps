@@ -1,7 +1,7 @@
 # V7 — interface compacta e critério de conclusão industrial
 Base 36a10fa: V6 5/5 checks verdes, 9 páginas, mas zero TAP industrial. Os checks de interface e fixture sintética não certificam entrega industrial.
 ## Interface
-Cabeçalho sticky nas páginas, logo original, ícone WhatsApp de 44px persistente no topo da apresentação, links acessíveis sem JavaScript, cartões compactos, ZIP secundário. A página pública mantém somente dados de apresentação e OG; sem downloads de máquina. Status único no cartão quando TAP não existe: TAP pendente · não usar para corte. Não ocultar uma pendência real. Testar âncoras, foco e scroll em sete resoluções e sem JS.
+Cabeçalho sticky nas páginas, logo original, ícone WhatsApp de 44px persistente no topo da apresentação, links acessíveis sem JavaScript, cartões compactos, ZIP secundário. A página pública mantém somente dados de apresentação e OG; sem downloads de máquina. No catálogo operacional, separar disponibilidade de arquivo de conferência (`Arquivo disponível` + acesso à área privada autenticada `/conferencia/`, conforme `docs/39_AREA_PRIVADA_CONFERENCIA_TAP.md`) da homologação de fabricação (`TAP pendente · não usar para corte` apenas quando não há TAP gerado). Não ocultar pendência de homologação física. Testar âncoras, foco e scroll em sete resoluções e sem JS.
 ## Entrega real
 Execute o lote existente com os nove projetos e contrato revisado; não apenas --list. A tarefa industrial exige arquivos reais e aprovação da revisão correspondente, não uma fixture. A verificação independente de entrega agora é:
 ```powershell

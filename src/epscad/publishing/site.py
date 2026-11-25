@@ -124,7 +124,25 @@ def zip_member(z,name,data):
     info.external_attr=0o644<<16
     z.writestr(info,data)
 
-def write_model(entry,base,stage,env):
+def load_review_tap_index(manifest_path):
+    """Read and verify locally generated offline review TAPs for linking to the private area."""
+    p=Path(manifest_path).resolve()
+    report=load_json(p)
+    if report.get("purpose")!="offline_review_not_machine_execution" or report.get("production_approved") is not False:
+        raise ValueError("Invalid offline review manifest")
+    index={}
+    for m in report.get("models") or []:
+        slug=m["id"]
+        tap_file=(p.parent/m["file"]).resolve()
+        if not tap_file.is_file():
+            raise FileNotFoundError("Missing review TAP file: "+str(tap_file))
+        data=tap_file.read_bytes()
+        if not data or digest(data)!=m["sha256"] or len(data)!=m["bytes"]:
+            raise ValueError("Review TAP checksum mismatch: "+slug)
+        index[slug]={"bytes":len(data),"sha256_short":m["sha256"][:12],"filename":tap_file.name}
+    return index
+
+def write_model(entry,base,stage,env,*,review_tap=None,review_area_url="conferencia/"):
     model_id=entry["id"]
     revision=entry["revision"]
     if not SLUG.fullmatch(model_id) or not re.fullmatch(r"r[0-9]{2,5}",revision):
@@ -237,6 +255,10 @@ def write_model(entry,base,stage,env):
         item["machine_sha256"]=digest((folder/machine).read_bytes())
         if not item["machine_bytes"]:
             raise ValueError("Empty machine download")
+    elif review_tap:
+        # Operational pointer only to the authenticated private review area; never exposed in publico.html.
+        item["review_tap"]={"bytes":review_tap["bytes"],"sha256_short":review_tap["sha256_short"],
+                            "href":review_area_url.rstrip("/")+"/#"+slug}
     (folder/"index.html").write_text(env.get_template("model.html").render(m=item),encoding="utf-8")
     # Presentation receives a deliberately reduced projection, not the operator metadata.
     public_spec_keys=("Largura (mm)","Altura total (mm)","Espessura mínima (mm)",
@@ -259,11 +281,12 @@ def write_model(entry,base,stage,env):
     (folder/item["public_page"]).write_text(env.get_template("public_model.html").render(m=presentation,view_models=view_models),encoding="utf-8")
     return item
 
-def build_site(registry,output,*,logo=None,viewer_dir=None):
+def build_site(registry,output,*,logo=None,viewer_dir=None,review_manifest=None,review_area_url="conferencia/"):
     registry=Path(registry).resolve()
     output=Path(output).resolve()
     if output.exists():
         raise ValueError("Choose a fresh output directory")
+    review_index=load_review_tap_index(review_manifest) if review_manifest else {}
     records=load_json(registry)
     if not isinstance(records,list) or len(records)>500:
         raise ValueError("Expected up to 500 model records")
@@ -295,6 +318,7 @@ def build_site(registry,output,*,logo=None,viewer_dir=None):
             shutil.copyfile(local_mv,stage/"assets/model-viewer.min.js")
             shutil.copyfile(local_mv_lic,stage/"assets/MODEL-VIEWER-LICENSE.txt")
         env.globals["local_viewer"]=has_local_viewer
+        env.globals["review_area_url"]=review_area_url if review_index else None
         from epscad.publishing.brand import write_brand
         write_brand(stage/"assets"/"brand.css",stage/"assets"/"logo.png" if logo else None)
         items=[]
@@ -303,7 +327,8 @@ def build_site(registry,output,*,logo=None,viewer_dir=None):
             if entry["id"] in seen:
                 raise ValueError("Only one current revision per model is allowed")
             seen.add(entry["id"])
-            items.append(write_model(entry,registry.parent,stage,env))
+            slug=entry["id"]+"-"+entry["revision"]
+            items.append(write_model(entry,registry.parent,stage,env,review_tap=review_index.get(slug),review_area_url=review_area_url))
         items.sort(key=lambda x:(not bool(x["machine"]),x["name"].casefold()))
         (stage/"index.html").write_text(env.get_template("index.html").render(models=items,categories=sorted({m["category"] for m in items})),encoding="utf-8")
         (stage/"catalog.json").write_text(json.dumps(items,ensure_ascii=False,indent=2),encoding="utf-8")
