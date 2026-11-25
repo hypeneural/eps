@@ -87,6 +87,14 @@ class ReviewAreaTests(unittest.TestCase):
                 htpasswd_bytes=htpw,
             )
             self.assertTrue(manifest_auth["access_controlled"])
+            for m in manifest_auth["models"]:
+                animation = json.loads((out_auth / m["animation_data"]).read_text(encoding="utf-8"))
+                self.assertEqual(animation["tap_sha256"], m["sha256"])
+                self.assertEqual(len(animation["segments"]), m["segment_count"])
+                self.assertFalse(animation["execution_authorized"])
+                self.assertIsNone(animation["physical_spacing_mm"])
+                self.assertTrue((out_auth / m["animation"]).is_file())
+            self.assertIn("assets/cut-animation.js", local_review_inventory(out_auth))
             require_access_control(out_auth)
             html = (out_auth / "index.html").read_text(encoding="utf-8")
             self.assertIn("Arquivo disponível", html)
@@ -129,6 +137,9 @@ class ReviewAreaTests(unittest.TestCase):
             self.assertIn("Arquivo disponível", detail)
             self.assertNotIn("TAP pendente", detail)
             # Public commercial presentation must NEVER mention conferencia or TAP downloads
+            self.assertIn("simulacao.html", home)
+            self.assertIn("simulacao.html", detail)
+            self.assertNotIn("simulacao.html", pub)
             self.assertNotIn("conferencia/", pub)
             self.assertNotIn(".tap", pub.lower())
             self.assertNotIn("download=", pub)

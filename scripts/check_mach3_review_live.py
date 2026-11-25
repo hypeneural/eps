@@ -43,6 +43,9 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
 
     # 1. Verify unauthenticated access is strictly rejected with 401
     must_401 = ["index.html", manifest["bundle"]] + [m["file"] for m in manifest["models"]]
+    for m in manifest["models"]:
+        must_401.extend([m["animation"], m["animation_data"]])
+    must_401.extend(["assets/cut-animation.js", "assets/cut-animation.css"])
     for rel in must_401:
         target = f"{base}/{quote(rel, safe='/')}"
         try:
@@ -81,6 +84,9 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
             for m in manifest["models"]:
                 assert m["filename"] in names and hashlib.sha256(zf.read(m["filename"])).hexdigest() == m["sha256"]
 
+    for rel in ["assets/cut-animation.js", "assets/cut-animation.css"]:
+        with fetch(f"{base}/{rel}", auth_header) as rr:
+            assert rr.status == 200 and hashlib.sha256(rr.read()).hexdigest() == inv[rel], rel
     verified_models = []
     for m in manifest["models"]:
         rel = m["file"]
@@ -97,7 +103,14 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
         with fetch(sim_url, auth_header) as sr:
             sdata = sr.read()
             assert sr.status == 200 and hashlib.sha256(sdata).hexdigest() == inv[m["preview"]]
+        for visual in (m["animation"], m["animation_data"]):
+            with fetch(f"{base}/{quote(visual, safe='/')}", auth_header) as ar:
+                payload = ar.read()
+                assert ar.status == 200 and hashlib.sha256(payload).hexdigest() == inv[visual], visual
+                if visual == m["animation_data"]:
+                    assert json.loads(payload)["tap_sha256"] == m["sha256"], visual
         verified_models.append({
+            "animation_verified": True,
             "id": m["id"],
             "name": m["display_name"],
             "url": tap_url,
@@ -116,6 +129,7 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
         "zip_sha256": manifest["bundle_sha256"],
         "expected": 9,
         "taps_online_verified": len(verified_models),
+        "animations_online_verified": sum(m["animation_verified"] for m in verified_models),
         "access_control_401_verified": True,
         "control_files_blocked": True,
         "zip_verified": True,

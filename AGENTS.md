@@ -37,3 +37,6 @@ Leia docs/35_PORTAL_V7_ENTREGA_MACH3.md. Não finalizar tarefa industrial com --
 
 ## Geração offline e área privada de conferência online
 Para pedido de geração dos nove TAPs, execute primeiro `scripts/build_mach3_review_files.py` com o backup privado, conforme `docs/38_MACH3_TAP_CONFERENCIA_OFFLINE.md` e `docs/39_AREA_PRIVADA_CONFERENCIA_TAP.md`. Os 4 estados são independentes: (1) arquivo TAP gerado para conferência, (2) disponibilização na área privada online autenticada (`/conferencia/`, sem nunca expor na página comercial `publico.html`), (3) homologação industrial presencial (`check_mach3_delivery.py`) e (4) liberação comercial para fabricação (`--allow-production`). Preserve sempre os avisos internos dos arquivos de conferência, nunca invente medições/aprovações e nunca versione backups, macros, XML/PST ou credenciais no Git.
+
+## Simulação interativa privada
+Ao montar a área de conferência, `build_mach3_review_area.py` gera automaticamente `simulacao.json` e `simulacao.html` por revisão a partir dos bytes TAP verificados. Use `docs/40_SIMULADOR_CORTE_INTERATIVO.md`. Não publique a trajetória técnica em `publico.html`, não invente espaçamento dos fios e não confunda visualização com homologação. Confira `animations_online_verified` no verificador HTTPS e teste a reprodução no navegador.

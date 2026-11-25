@@ -32,7 +32,7 @@ REVIEW_PATH = re.compile(
     r"(?:index\.html|review-manifest\.json|\.htaccess|\.htpasswd|"
     r"isonunes-taps-conferencia-9-modelos\.zip|"
     r"assets/[A-Za-z0-9_.-]+|"
-    r"[a-z0-9-]+/(?:[a-z0-9-]+-NAO-EXECUTAR\.tap|simulacao\.png))"
+    r"[a-z0-9-]+/(?:[a-z0-9-]+-NAO-EXECUTAR\.tap|simulacao\.(?:png|json|html)))"
 )
 
 DISPLAY_META = {
@@ -132,7 +132,7 @@ def build_review_area(
         stage.mkdir()
         assets_dir = stage / "assets"
         assets_dir.mkdir()
-        for asset in ("style.css", "eps-pattern.svg"):
+        for asset in ("style.css", "eps-pattern.svg", "cut-animation.js", "cut-animation.css"):
             shutil.copyfile(PORTAL / "assets" / asset, assets_dir / asset)
         if logo:
             with Image.open(logo) as im:
@@ -166,6 +166,9 @@ def build_review_area(
             filename = f"{slug}-NAO-EXECUTAR.tap"
             (dest_dir / filename).write_bytes(tap_bytes)
             shutil.copyfile(sim_src, dest_dir / "simulacao.png")
+            from epscad.publishing.cut_animation import animation_data
+            animation = animation_data(tap_bytes, slug, m["name"], m["sha256"])
+            (dest_dir / "simulacao.json").write_text(json.dumps(animation, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
             zip_files.append((filename, tap_bytes))
 
             disp_name, category = DISPLAY_META.get(slug, (m["name"], "Outros"))
@@ -177,6 +180,8 @@ def build_review_area(
                 "filename": filename,
                 "file": f"{slug}/{filename}",
                 "preview": f"{slug}/simulacao.png",
+                "animation": f"{slug}/simulacao.html",
+                "animation_data": f"{slug}/simulacao.json",
                 "bytes": len(tap_bytes),
                 "sha256": m["sha256"],
                 "path_sha256": m["path_sha256"],
@@ -188,6 +193,9 @@ def build_review_area(
                 "production_approved": False,
                 "execution_authorized": False,
             })
+
+        for entry in entries:
+            (stage / entry["animation"]).write_text(env.get_template("cut_animation.html").render(m=entry, logo_name=logo_name), encoding="utf-8")
 
         entries.sort(key=lambda r: (0 if r["category"] == "Telhas" else 1, r["display_name"].casefold()))
 
