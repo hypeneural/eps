@@ -53,4 +53,22 @@ Os itens abaixo são **exclusivamente** os que não podem ser comprovados pelos 
 ## 4. Biblioteca Privada de Testes e Portal Iso Nunes
 
 - **Biblioteca privada local (`scripts/build_private_test_library.py` → `outputs/private_test_library/index.html`):** painel HTML 100% offline e fora do catálogo público reunindo os **34 programas originais preservados** de `MACROS_CNC_V.zip` (com destaque para `telha tp 40 base lisa.tap`), os **5 candidatos CAM TP40**, os **4 candidatos CAM de lajotas EPS**, `approvals.TEMPLATE.json` (`trial_authorized: false`) e a ficha consolidada `CNC_V`.
-- **Portal público:** botão de produção homologada padronizado para **`BAIXAR ARQUIVO MACH3 (.TAP)`**; snapshot local de **9 modelos** (`5` Telhas + `4` Lajes, todos `Em revisão` sem `.tap`/`.dxf`) validado no Playwright em 6 resoluções + sem JS e dry-run de deploy (`outputs/site_v4_catalog9`).
+- **Portal público:** botão de produção homologada padronizado para **`BAIXAR ARQUIVO MACH3 (.TAP)`**; snapshot de **9 modelos** (`5` Telhas + `4` Lajes, todos `Em revisão` sem `.tap`/`.dxf`) validado no Playwright em 6 resoluções + sem JS, dry-run de deploy e **publicado ao vivo** em `https://eps.etijucas.com.br` após autorização explícita.
+
+---
+
+## 5. Publicação Ao Vivo dos 9 Modelos e Evidências para Revisão
+
+- **Deploy incremental FTPS estrito:** `scripts/deploy_gallery.py --site outputs/site_v4_catalog9 --execute` → `Uploaded and read back: 176` (incluindo endurecimento de reconexão automática durante `sweep_temp` e gravação final de `portal-state.json` em `src/epscad/publishing/deploy.py`).
+- **Conferência HTTPS byte a byte:** `scripts/check_gallery_live.py --site outputs/site_v4_catalog9 --url https://eps.etijucas.com.br` → `HTTPS bytes and revision checks passed`.
+- **Auditoria ao vivo no Chromium (`https://eps.etijucas.com.br`):**
+  - 9 cartões visíveis (`4` Lajes + `5` Telhas) com 0 overflow e 0 erros de console/rede;
+  - Filtros `Lajes` (`4`), `Telhas` (`5`), `Todas` (`9`) e 8/8 buscas por medidas (`330x120`, `H12`, `1250`, `H7`, `H8`, `1020x70`, `980x67`, `nao-existe-999`) aprovados;
+  - Download `capa-laje-h12-1000-r01-revisao.zip` (`677.135 B`) verificado por SHA-256 exato;
+  - Visualizador 3D local `Model Viewer` (`modelo.glb`) funcionando com `0` requisições externas (CDN).
+- **Verificações locais e CI:** `agent_preflight.py --json` (`errors: []`), `pip check` (`No broken requirements found.`), `unittest` (**`99 tests OK`**) e GitHub Actions **5/5 verdes** na branch `feat/mach3-direct-tap` (PR `#3`). Nenhum arquivo `.tap`/`.dxf` experimental, backup privado ou credencial foi exposto no portal ou no Git.
+
+![Portal V4 ao vivo com 9 modelos (4 Lajes + 5 Telhas)](img/mach3_tap/08_live_v4_catalog9_home.jpg)
+![Visualizador 3D local da Capa de Laje EPS H12 ao vivo](img/mach3_tap/09_live_v4_slab_h12_3d.jpg)
+![Planejamento CAM XY invertido da Capa de Laje EPS H12](img/mach3_tap/10_cam_plan_slab_h12.jpg)
+*Capturas do portal V4 ao vivo (9 modelos em `Em revisão`) e da simulação CAM offline de seção constante (não homologada).*
