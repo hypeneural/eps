@@ -21,3 +21,53 @@ html{background:#f5f6f7;color:#202a30}.wrap{max-width:1280px}.brand img{max-widt
 .lightbox .media-heading{min-height:44px}.lightbox-body{gap:6px}.lightbox-body img{max-width:calc(100% - 100px)}.specs{scroll-margin-top:12px}.single-model:not(.list-mode) .model-card{max-width:1000px}
 @media(max-width:700px){.mobile-measures{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;font-size:13px;font-weight:bold}.measure-grid span{min-height:0}.single-model:not(.list-mode) .model-card{max-width:480px}}
 @media(max-width:540px){.lightbox-body img{max-width:calc(100% - 100px)}.media-tools a{font-size:12px}.brand-text{overflow-wrap:break-word}.file-link{min-height:48px}}
+/* V4 Mach3 direct TAP status semantics and operator button clarity. */
+.status.homologating{background:#e5eff7;color:#174a73}.status.superseded{background:#eceff1;color:#4a5a63}.tap-primary{min-height:52px;padding:10px 14px;background:#13603d;box-shadow:0 2px 6px rgba(19,96,61,.18)}.btn-sub{display:block;font-size:11px;font-weight:normal;opacity:.92;margin-top:2px;white-space:normal}.history-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}.history-list li{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid #e4eaea;font-size:12px}.history-list .status{margin:0;padding:3px 6px;font-size:11px}.history-list small{width:100%;color:#51656d}
+
+/* Public product presentation — separate navigation and no operational actions. */
+.public-link,.public-card-link{background:#fff;color:#155875;color:var(--brand);border:1px solid #cbd6db;border-radius:7px;min-height:44px;font-weight:bold}
+.public-card-link{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;padding:8px;margin-top:3px}
+.public-link:hover,.public-card-link:hover{background:#f2f4f5;background:var(--brand-soft);text-decoration:none}
+.public-intro{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:18px 0 14px;padding:20px;background:#fff url('eps-pattern.svg');box-shadow:inset 0 0 0 1000px rgba(255,255,255,.87);border:1px solid #dfe4e6;border-radius:12px}
+.public-intro>div{flex:1;min-width:0}.public-intro h1{font-size:32px;overflow-wrap:break-word}.public-intro .muted{margin-bottom:0}
+.public-intro .public-link{width:auto;flex:none;padding:10px 14px}.public-copy-field{width:100%;padding:10px;border:1px solid #b8c9cd;border-radius:6px}
+#public-share-status:empty{display:none}.public-nav{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:4px}
+.public-detail .spec-panel{width:340px}.public-detail .hero-link{min-height:260px}.public-detail .hero{max-height:510px}.public-material p{font-size:14px}.public-material .muted{font-size:13px}
+.public-presentation .foot{padding-top:16px;padding-bottom:24px}
+@media(max-width:950px){.public-detail .spec-panel{width:280px}.public-detail .hero{max-height:360px}.public-detail .hero-link{min-height:210px}}
+@media(max-width:700px){.public-intro{padding:14px;margin:12px 0;gap:6px}.public-intro h1{font-size:25px}.public-intro>div{flex-basis:100%}.public-intro .public-link{width:100%}.public-detail .spec-panel{width:100%;display:contents}.public-detail .main-media{order:0}.public-detail .specs{order:1}.public-detail .public-material{order:2}.public-detail .hero{max-height:320px}.public-nav .nav-link{padding:5px;font-size:12px}}
+@media(max-width:540px){.public-detail .hero-link{min-height:180px}.public-detail .hero{max-height:240px}.public-nav .nav-link .ico{display:none}.public-presentation .brand-text{font-size:12px}.public-presentation .brand img{max-width:95px}.public-nav{flex:none;max-width:105px}.public-nav .nav-link{min-width:0}}
+@media(max-width:360px){.public-presentation .brand-text{display:none}.public-intro h1{font-size:22px}}
+
+/* Share actions use an ordinary HTTPS anchor; no SDK or network until clicked. */
+.whatsapp-link,.whatsapp-card-link{background:#e8f6ed;color:#145b36;border:1px solid #a9d7ba;border-radius:8px;font-weight:bold;min-height:44px}
+.whatsapp-card-link{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;padding:8px;margin-top:5px;text-align:center}
+.whatsapp-link:hover,.whatsapp-card-link:hover{background:#d9f0e1;text-decoration:none}
+
+/* V7: compact operator actions; sticky navigation without a scroll listener. */
+.top{position:sticky;top:0;z-index:40;background:#fff;box-shadow:0 2px 7px rgba(25,32,35,.08)}
+.skip-link:focus{position:fixed;top:4px;left:4px;z-index:110}
+.specs,.viewer-shell,#gallery,#main{scroll-margin-top:94px}
+.card-shortcuts,.operator-share{display:flex;align-items:center;gap:6px;min-width:0}
+.card-shortcuts .details,.card-shortcuts .public-card-link{flex:1;min-width:0;min-height:44px;margin:0;padding:6px 3px;display:flex;align-items:center;justify-content:center;gap:3px;font-size:12px;text-align:center}
+.card-shortcuts .details .ico,.card-shortcuts .public-card-link .ico{width:15px;height:15px}
+.card-shortcuts .whatsapp-card-link,.share-icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;min-width:44px;min-height:44px;margin:0;padding:0;border-radius:8px}
+.share-icon .ico,.card-shortcuts .whatsapp-card-link .ico{width:23px;height:23px}
+.operator-share .public-link{flex:1;min-width:0;width:auto}
+.compact-package{min-height:40px;margin:4px 0 7px}
+.model-card .model-code{font-size:11px}.model-card .cut-note{margin:6px 0}
+.model-card .picture-action{background:rgba(255,255,255,.96)}
+.model-card .card-body h3{font-size:17px;line-height:1.3}
+.model-card .dimension{font-size:15px}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.model-card{transition:box-shadow .16s,border-color .16s}.model-card:hover{border-color:#c5cfd3;box-shadow:0 5px 16px rgba(24,32,36,.09)}}
+model-viewer{height:420px;border:1px solid #d4dde1;border-radius:9px}
+.lightbox-body img{background:#fff;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.status.review-available{background:#e3f1fa;color:#124d73;border:1px solid #bfd9ec}
+.review-tap-btn{min-height:48px;padding:9px 12px;background:#145875;color:#fff;border-color:#145875}
+.review-tap-btn:hover{background:#0f455c;border-color:#0f455c}
+.review-note{font-size:11px;color:#526168;margin:2px 0 6px;text-align:center}
+.main-nav{display:flex;align-items:center;gap:4px;flex:none}
+.review-area-nav{background:#e3f1fa;color:#124d73}
+.review-area-nav:hover{background:#d1e7f6;text-decoration:none}
+@media(max-width:540px){model-viewer{height:280px}.list-mode .card-shortcuts{flex-wrap:wrap}.list-mode .card-shortcuts .details,.list-mode .card-shortcuts .public-card-link{flex-basis:85px}.card-shortcuts .details .ico,.card-shortcuts .public-card-link .ico{display:none}.card-body{padding:11px}.top .brand-text{font-size:13px}}
+@media(max-height:650px) and (min-width:701px){.top .head{min-height:56px}.top .brand img{max-height:43px}.specs,.viewer-shell,#gallery,#main{scroll-margin-top:70px}.card-body{padding:10px}.compact-package{min-height:37px}.model-card .picture img{max-height:145px}}

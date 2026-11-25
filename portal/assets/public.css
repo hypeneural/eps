@@ -1,0 +1,63 @@
+/* Presentation-only V6. No external fonts, animations or libraries. */
+.public-presentation{background:#f5f6f7;color:#22292d}
+.public-top{border-bottom-color:var(--accent);box-shadow:0 2px 8px rgba(20,25,30,.06)}
+.public-top .head{min-height:82px;gap:12px}
+.public-top .brand img{max-height:70px;max-width:185px}
+.public-top .brand-text{font-size:15px}
+.public-top .public-nav{max-width:none;flex:none;gap:4px}
+.public-top .nav-link{padding:8px 10px;color:#30383c;border-radius:7px}
+.public-top .nav-link:hover{background:var(--brand-soft);text-decoration:none;color:var(--brand)}
+.v6-intro{position:relative;border-radius:14px;border:1px solid #dfe4e6;border-left:5px solid var(--brand);padding:26px 28px;background-color:#fff;background-image:url(eps-pattern.svg);background-size:140px;box-shadow:inset 0 0 0 1000px rgba(255,255,255,.86),0 4px 18px rgba(20,28,34,.05);gap:16px}
+.v6-intro h1{font-size:clamp(24px,3.1vw,36px);letter-spacing:-.6px;line-height:1.14;text-wrap:balance;color:#141a1d}
+.public-title{flex:1;min-width:0}
+.public-share-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px}
+.public-share-actions .btn{width:auto;margin:0;min-height:46px;padding:10px 16px;font-weight:700}
+.public-share-actions .whatsapp-link,.public-share-end .whatsapp-link{background:#15693d;border-color:#15693d;color:#fff}
+.public-share-actions .whatsapp-link:hover,.public-share-end .whatsapp-link:hover{background:#0f5330;border-color:#0f5330;color:#fff;text-decoration:none}
+.public-highlights{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 18px}
+.public-highlights>div{flex:1 1 160px;min-width:0;background:#fff;border:1px solid #dfe4e6;border-radius:11px;padding:14px 16px;border-top:3px solid var(--brand);box-shadow:0 2px 10px rgba(20,28,34,.035)}
+.public-highlights span{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#526168;display:block}
+.public-highlights strong{display:block;font-size:26px;line-height:1.22;color:#141a1d;overflow-wrap:break-word}
+.public-highlights small{font-size:12px;font-weight:normal;color:#526168}
+.public-detail{gap:18px}.public-detail .spec-panel{width:350px}
+@media(min-width:701px){.public-detail{align-items:flex-start}}
+@media(min-width:951px){.public-detail .spec-panel{position:sticky;top:18px}}
+.public-detail .media-panel,.public-detail .viewer-shell,.public-detail .spec-panel section{border:1px solid #dfe4e6;border-radius:12px;padding:18px;box-shadow:0 3px 14px rgba(24,32,36,.045)}
+.public-detail .hero-link{border-radius:9px;overflow:hidden;background:#edf0f1}
+.public-detail .hero{display:block;max-height:520px;object-fit:contain}
+.public-detail .image-choice{border-radius:8px}.public-detail .image-choice[aria-current=true]{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}
+.public-detail h2{font-size:19px;color:#141a1d}.public-detail th,.public-detail td{padding:10px 4px;line-height:1.4}
+.public-detail th{overflow-wrap:break-word}.public-detail td{white-space:normal}
+.public-detail .viewer-shell #load-3d{background:var(--brand);border-color:var(--brand);color:#fff;min-height:46px;font-weight:700}
+.public-detail .viewer-shell #load-3d:hover{background:#a51b08;border-color:#a51b08}
+.public-share-end{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:22px 0;padding:26px 28px;border-radius:14px;background:#192126;color:#f5f7f8;border:1px solid #2a343b;border-left:5px solid var(--brand);box-shadow:0 6px 20px rgba(18,24,28,.12)}
+.public-share-end .eyebrow{color:#ff9b8c}
+.public-share-end h2{font-size:21px;color:#fff;margin:2px 0 6px}
+.public-share-end p:last-child{margin:0;color:#d0d8dc}
+.public-share-end .btn{width:auto;flex:none;padding:13px 20px;font-weight:700;background:#1b834d;border-color:#1b834d}
+.public-share-end .btn:hover{background:#146b3e;border-color:#146b3e}
+.public-footer{border-top:1px solid #dfe4e6}
+#gallery,#specifications,#viewer-section{scroll-margin-top:16px}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.public-presentation .btn,.public-presentation .image-choice,.public-presentation .nav-link,.public-highlights>div{transition:background-color .16s,border-color .16s,box-shadow .16s,transform .16s}.public-presentation .btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(25,32,35,.14)}.public-highlights>div:hover{border-color:#c6cfd4;box-shadow:0 4px 14px rgba(20,28,34,.07)}}
+@media(max-width:950px){.public-detail .spec-panel{width:290px}.public-detail .media-panel,.public-detail .viewer-shell,.public-detail .spec-panel section{padding:14px}.public-detail .hero{max-height:360px}}
+@media(max-width:700px){.public-top .head{min-height:65px;flex-wrap:wrap;padding-top:8px;padding-bottom:7px}.public-top .brand img{max-height:48px;max-width:140px}.public-top .public-nav{justify-content:flex-start;flex:1 1 100%;gap:4px;border-top:1px solid #e4e8ea;padding-top:3px}.public-top .nav-link{min-height:38px;padding:5px 8px;font-size:12px}.v6-intro{padding:16px;gap:12px}.v6-intro h1{font-size:24px}.public-share-actions{flex:1 1 100%;justify-content:stretch}.public-share-actions .whatsapp-link{flex:1.4 1 185px;white-space:normal}.public-share-actions .public-link{flex:1 1 130px;white-space:normal}.public-highlights{gap:8px;margin-bottom:12px}.public-highlights>div{flex:1 1 calc(50% - 8px);padding:10px 12px}.public-highlights strong{font-size:22px}.public-detail{align-items:stretch;gap:12px}.public-detail .main-media{width:100%;max-width:100%}.public-detail .spec-panel{display:contents;width:100%}.public-detail .main-media{order:0}.public-detail .specs{order:1}.public-detail .public-material{order:2}.public-detail .hero{max-height:320px}.public-share-end{flex-direction:column;align-items:stretch;padding:18px;gap:10px}.public-share-end .btn{width:100%;white-space:normal}.public-share-end h2{font-size:18px}}
+@media(max-width:540px){.public-top .brand-text{font-size:13px}.public-top .brand img{max-width:115px}.public-detail .hero{max-height:245px}.public-detail .hero-link{min-height:180px}.public-detail .media-heading{flex-wrap:wrap}.public-detail h2{font-size:17px}}
+@media(max-width:360px){.public-top .brand-text{display:block;font-size:12px}.public-top .brand img{max-width:100px}.v6-intro h1{font-size:22px}.public-share-actions .whatsapp-link,.public-share-actions .public-link{flex:1 1 100%;width:100%}}
+@media(prefers-reduced-motion:reduce){.public-presentation *{transition:none!important;scroll-behavior:auto!important}}
+
+/* V7 public page: sticky brand and share icon, more space for the product. */
+.public-top{position:sticky;top:0;z-index:40}
+.public-top .head{min-height:70px}.public-top .brand img{max-height:58px}
+.public-top .header-share,.public-share-end .footer-share{background:#17633d;color:white;border:1px solid #17633d}
+.public-top .header-share:hover,.public-share-end .footer-share:hover{background:#105331;text-decoration:none}
+.public-top .public-nav{flex-wrap:nowrap}
+.public-presentation .v6-intro{padding:19px 23px;gap:9px}
+.public-presentation .public-share-actions{flex:none}
+.public-presentation .public-share-actions .public-link{width:auto;min-height:44px}
+.public-share-end{padding:16px 21px}.public-share-end .footer-share{width:48px;height:48px;align-self:center}
+.public-presentation #gallery,.public-presentation #specifications,.public-presentation #viewer-section{scroll-margin-top:96px}
+@media(min-width:951px){.public-detail .spec-panel{position:static}}
+@media(min-width:951px) and (min-height:900px){.public-detail .spec-panel{position:sticky;top:88px}}
+@media(max-width:700px){.public-top .head{min-height:60px;flex-wrap:nowrap;gap:5px;padding-top:5px;padding-bottom:5px}.public-top .public-nav{flex:none;border:0;padding:0;gap:2px}.public-top .nav-link{min-width:44px;min-height:44px;padding:4px;font-size:11px}.public-top .brand img{max-height:46px;max-width:100px}.public-top .brand-text{font-size:12px}.public-presentation .v6-intro{padding:13px}.public-presentation .public-share-actions{flex-basis:auto}.public-presentation .public-share-actions .public-link{width:auto;flex:none}.public-presentation #gallery,.public-presentation #specifications,.public-presentation #viewer-section{scroll-margin-top:77px}.public-share-end{flex-direction:row;align-items:center;gap:10px}.public-share-end>div{min-width:0;flex:1}.public-share-end .footer-share{width:44px;height:44px}}
+@media(max-width:540px){.public-top .brand-text{display:none}.public-top .public-nav .nav-link{font-size:0;min-width:40px}.public-top .public-nav .nav-link .ico{display:block;width:21px;height:21px}.public-top .brand img{max-width:92px}.public-top .header-share{width:44px;height:44px}.public-top .head{padding-left:10px;padding-right:10px}.public-highlights>div{flex-basis:calc(50% - 8px)}}
+@media(max-height:650px) and (min-width:701px){.public-top .head{min-height:56px}.public-top .brand img{max-height:43px}.public-presentation #gallery,.public-presentation #specifications,.public-presentation #viewer-section{scroll-margin-top:74px}}

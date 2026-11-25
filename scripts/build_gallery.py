@@ -11,8 +11,9 @@ def main():
     p.add_argument("--registry",required=True,type=Path)
     p.add_argument("--output",required=True,type=Path)
     p.add_argument("--logo",type=Path,help="Local original Iso Nunes PNG")
+    p.add_argument("--review-manifest",type=Path,help="Optional outputs/mach3_review_9/report.json linking to private authenticated /conferencia/")
     a=p.parse_args()
-    items=build_site(a.registry,a.output,logo=a.logo)
+    items=build_site(a.registry,a.output,logo=a.logo,review_manifest=a.review_manifest)
     print(f"{len(items)} models: {a.output.resolve()}")
 if __name__=="__main__":
     main()

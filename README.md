@@ -65,3 +65,30 @@ Abra http://127.0.0.1:8000. Prefira registrar pacote CAD já verificado por regi
 [Auditoria e checklist de homologação](docs/21_PORTAL_V3_AUDITORIA.md). Use `python scripts/generate_catalog.py --list` para escolher o gerador CAD correto. Visualizador local: `python scripts/fetch_model_viewer.py`; sem vendor válido, apenas imagens/downloads. Publicação web não libera fabricação.
 
 [Auditoria UX V4 e próximos critérios](docs/24_PORTAL_V4_UX.md).
+
+## Mach3 direto (experimental)
+[Auditoria dos TAP e plano de homologação](docs/25_MACH3_DIRECT_TAP.md) · [Relatório forense, simulador, biblioteca histórica e checklist](docs/26_MACH3_HOMOLOGACAO_E_BIBLIOTECA.md). O fluxo legado continua disponível; TAP somente após aprovação específica e perfil real homologado.
+
+### Mach3: teste antes de liberação
+[Fluxo de candidato local](docs/27_MACH3_TESTE_ANTES_DA_LIBERACAO.md) · [Planejador CAM dos 5 modelos](docs/28_PLANEJADOR_TRAJETORIAS_5_MODELOS.md) · [Lajes EPS](docs/29_BIBLIOTECA_LAJES_EPS.md) · [Evidência e lote](docs/30_MACH3_EVIDENCIA_E_LOTE.md) · [Relatório consolidado e biblioteca privada](docs/31_RELATORIO_LOTE_EVIDENCIA_LAJES.md). Use `recover_cnc_v_evidence.py`, `prepare_private_handoff.py`, `build_private_test_library.py` e `prepare_mach3_batch.py` para preparar testes locais sem alterar o perfil nem publicar candidato.
+
+## Biblioteca de lajotas e capas EPS
+[Pesquisa, fontes e fluxo](docs/29_BIBLIOTECA_LAJES_EPS.md). `python scripts/prepare_slab_reference.py --list` lista referências; gere o pacote nominal com `--output` em pasta nova. Capa recortada não equivale a moldada, e rebaixos precisam de conferência.
+
+### Recuperação automática CNC_V e lote TAP
+[Fluxo de evidência e geração em lote](docs/30_MACH3_EVIDENCIA_E_LOTE.md). Recuperar dados dos backups antes de solicitar valores; uma execução de lote produz os candidatos individuais revisados.
+
+### Apresentação pública por peça e lote de nove modelos
+[Portal de apresentação, compartilhamento e lote](docs/32_PORTAL_APRESENTACAO_PUBLICA.md). O link `publico.html` não apresenta downloads industriais; não representa controle de acesso ao site operacional.
+
+### Portal V6 — compartilhamento comercial
+[Design, WhatsApp e validação de downloads](docs/33_PORTAL_V6_COMPARTILHAMENTO.md) · [Relatório V6 Premium e validação ao vivo](docs/34_PORTAL_V6_PREMIUM_RELATORIO.md).
+
+### V7 — interface compacta e aceite industrial
+[Critério de entrega Mach3](docs/35_PORTAL_V7_ENTREGA_MACH3.md) · [Relatório operacional V7 e aceite ao vivo](docs/36_PORTAL_V7_OPERACIONAL_RELATORIO.md). O comando `python scripts/check_mach3_delivery.py --site <snapshot> --https` distingue publicação visual de entrega dos nove TAPs reais.
+
+### Contrato Mach3 e perfil privado
+[Resolver o vínculo do contrato e concluir a entrega](docs/37_MACH3_CONTRATO_LOCAL_E_ENTREGA.md). Use `--bind-reviewed-contract` para calcular o hash de um contrato já revisado e `EPS_SCARA_PROFILE_FILE` para o perfil completo privado; nunca use templates vazios como produção.
+
+### TAPs para conferência offline, área privada autenticada, simulador 3D e acervo histórico
+[Gerador de nove arquivos reais](docs/38_MACH3_TAP_CONFERENCIA_OFFLINE.md) · [Área privada autenticada (`/conferencia/`)](docs/39_AREA_PRIVADA_CONFERENCIA_TAP.md) · [Simulador interativo V1](docs/40_SIMULADOR_CORTE_INTERATIVO.md) · [Auditoria V1.1 e avaliação 3D](docs/41_SIMULADOR_CORTE_V2_EVOLUCAO_3D.md) · [Acervo histórico e UX V10/V10.1](docs/42_ACERVO_HISTORICO_E_UX.md) · [Relatório V10.1 Digital Twin 3D e Biblioteca Histórica](docs/43_V10_1_DIGITAL_TWIN_E_BIBLIOTECA_HISTORICA.md). Separa disponibilidade dos TAPs atuais/históricos e simulação 2D/3D (Three.js r180 local sob HTTP Basic Auth, sem exposição em `publico.html`) da homologação industrial (`check_mach3_delivery.py`) e da liberação de produção (`--allow-production`).

@@ -1,0 +1,44 @@
+family: slab_lajota_reference
+status: reference_only
+unit: mm
+sources:
+  isopack_moldada: https://www.isopack.com.br/produto/capa-de-laje-em-eps-moldada/
+  isopack_padrao: https://www.isopack.com.br/produto/capa-de-laje-em-eps-modelo-padrao/
+  styroville: https://styroville.com.br/produto/capa-de-laje-tavela-em-eps/
+  isoplast: https://isoplast.ind.br/16/produto/lajota-eps-unidirecional-e-bidirecional
+  isorecort: https://www.isorecort.com.br/lajotas/
+  kingspan: https://kingspan-isoeste.com.br/solucoes-kingspan/lajota-eps-padrao/
+  eme: https://emeindustria.ind.br/produtos/lajotas-de-eps/
+variants:
+  capa-laje-h7-1250:
+    length_mm: 1250
+    width_mm: 330
+    height_mm: 70
+    published_fit_mm: [25, 15]
+    source: isopack_moldada
+    source_process: molded
+    note: "Conceito recortado inspirado nas dimensões publicadas; não é reprodução do produto moldado."
+  capa-laje-h7-1000:
+    length_mm: 1000
+    width_mm: 330
+    height_mm: 70
+    published_fit_mm: [27, 15]
+    source: isopack_padrao
+    source_process: standard
+    note: "Combinação nominal dentro da faixa do catálogo; encaixe configurável."
+  capa-laje-h8-1000:
+    length_mm: 1000
+    width_mm: 330
+    height_mm: 80
+    published_fit_mm: [27, 15]
+    source: isopack_padrao
+    source_process: standard
+    note: "Combinação nominal dentro da faixa do catálogo; encaixe configurável."
+  capa-laje-h12-1000:
+    length_mm: 1000
+    width_mm: 330
+    height_mm: 120
+    published_fit_mm: [27, 15]
+    source: isopack_padrao
+    source_process: standard
+    note: "Combinação nominal dentro da faixa do catálogo; encaixe configurável."

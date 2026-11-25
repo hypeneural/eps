@@ -33,7 +33,7 @@ class PublishingTests(unittest.TestCase):
         page=(out/"index.html").read_text(encoding="utf-8")
         self.assertIn("TP40 &lt;teste&gt;",page)
         self.assertNotIn("Baixar DXF de corte",page)
-        self.assertIn("Corte não liberado",page)
+        self.assertIn("TAP pendente",page)
         self.assertNotIn("model-viewer.min.js",page)
         folder=out/"modelos/tp40-base-lisa-r01"
         self.assertTrue((folder/"modelo.glb").exists())
@@ -46,6 +46,34 @@ class PublishingTests(unittest.TestCase):
         (folder/"thumb.jpg").write_bytes(b"changed")
         with self.assertRaises(ValueError):
             local_inventory(out)
+    def test_public_presentation_has_no_operational_downloads(self):
+        out=self.base/"public-presentation"
+        item=build_site(self.registry([self.entry]),out)[0]
+        folder=out/"modelos"/item["slug"]
+        html=(folder/item["public_page"]).read_text(encoding="utf-8")
+        self.assertIn("TP40 &lt;teste&gt;",html)
+        self.assertIn("Especificações técnicas",html)
+        self.assertIn("public-presentation",html)
+        from urllib.parse import urlsplit,parse_qs
+        target="https://eps.etijucas.com.br/modelos/"+item["slug"]+"/publico.html"
+        self.assertEqual(item["public_url"],target)
+        share=urlsplit(item["whatsapp_url"])
+        self.assertEqual(share.netloc,"wa.me")
+        self.assertIn(target,parse_qs(share.query)["text"][0])
+        self.assertIn('property="og:image"',html)
+        self.assertIn('property="og:url" content="'+target+'"',html)
+        self.assertEqual(html.count(item["whatsapp_url"]),2)
+        self.assertIn(item["whatsapp_url"],(folder/"index.html").read_text(encoding="utf-8"))
+        self.assertIn(item["whatsapp_url"],(out/"index.html").read_text(encoding="utf-8"))
+        self.assertIn('id="hero-image"',html)
+        self.assertIn('id="load-3d"',html)
+        for forbidden in (' download','Corte não liberado','Arquivos individuais','-revisao.zip','.tap','.dxf','.stl','../../index.html','Extensão X do percurso'):
+            self.assertNotIn(forbidden,html)
+        self.assertIn('href="publico.html" target="_blank" rel="noopener noreferrer"',(folder/"index.html").read_text(encoding="utf-8"))
+        self.assertIn("modelos/"+item["slug"]+"/publico.html",local_inventory(out))
+        with zipfile.ZipFile(folder/item["bundle"]) as z:
+            self.assertNotIn("publico.html",z.namelist())
+
     def test_no_public_permission(self):
         with self.assertRaises(ValueError):
             build_site(self.registry([dict(self.entry,public_authorized=False)]),self.base/"blocked")
@@ -192,6 +220,8 @@ class PublishingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,"hash approval"):
                 build_site(self.registry([entry]),self.base/"release-no-approval")
             entry["release"]={"approved":True,**hashes}
+            with self.assertRaisesRegex(ValueError,"requires approved TAP"):
+                build_site(self.registry([dict(entry,require_tap=True)]),self.base/"no-dxf-fallback")
             out=self.base/"release-fixture-site"
             item=build_site(self.registry([entry]),out)[0]
             self.assertEqual(item["status"],"production_released")
@@ -306,3 +336,25 @@ class PublishingTests(unittest.TestCase):
             idx_pos=next(i for i,(op,p) in enumerate(MockFTPS.ops) if op=="RENAME" and p=="index.html")
             del_positions=[i for i,(op,p) in enumerate(MockFTPS.ops) if op=="DELETE" and "tp40-base-lisa-r01" in p]
             self.assertTrue(del_positions and all(i>idx_pos for i in del_positions))
+
+    def test_public_presentation_open_graph_and_whatsapp_utf8(self):
+        from urllib.parse import unquote
+        reg=self.registry([dict(self.entry,name="TP40 Base lisa — Referência")])
+        out=self.base/"site_og"
+        item=build_site(reg,out,viewer_dir=self.base/"no-vendor")[0]
+        pub=(out/"modelos/tp40-base-lisa-r01/publico.html").read_text(encoding="utf-8")
+        self.assertIn('property="og:image:secure_url"',pub)
+        self.assertIn('property="og:image:type" content="image/jpeg"',pub)
+        self.assertIn('property="og:image:width"',pub)
+        self.assertIn('property="og:image:height"',pub)
+        self.assertNotIn("download=",pub)
+        self.assertTrue(item["whatsapp_url"].startswith("https://wa.me/?text="))
+        decoded=unquote(item["whatsapp_url"].split("text=",1)[1])
+        self.assertIn("TP40 Base lisa — Referência",decoded)
+        self.assertIn("/modelos/tp40-base-lisa-r01/publico.html",decoded)
+        self.assertNotIn("/index.html",decoded)
+        self.assertIn('title="Imagens"',pub)
+        self.assertIn('title="Medidas"',pub)
+        app_js=(out/"assets/app.js").read_text(encoding="utf-8")
+        self.assertIn("bounds','tight'",app_js)
+        self.assertIn("updateFraming",app_js)

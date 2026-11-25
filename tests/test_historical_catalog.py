@@ -1,0 +1,45 @@
+import hashlib
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"src"))
+from epscad.publishing.historical_catalog import inventory, project_history
+
+class HistoricalCatalogTests(unittest.TestCase):
+    def test_arc_samples_keep_endpoints(self):
+        data=b"N5 G21\r\nN10 G1 X0 Y0\r\nN15 X10\r\nN20 G3 X0 Y0 I-5 J0\r\nN25 M5M30\r\n"
+        h=hashlib.sha256(data).hexdigest()
+        parsed, visual=project_history(data,"history","Arc",h)
+        self.assertEqual(parsed["metrics"]["arc_count"],1)
+        self.assertGreater(len(visual["segments"]),2)
+        self.assertEqual(visual["segments"][-1]["end"],(0.0,0.0))
+        self.assertFalse(visual["production_approved"])
+
+    def test_dedup_and_modal_trajectory(self):
+        data=b"N5 G21\r\nN10 G1 X0 Y0\r\nN15 X10\r\nN20 Y5\r\nN25 X0\r\nN30 M5M30\r\n"
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)
+            (p/"a.TAP").write_bytes(data)
+            (p/"b.tap").write_bytes(data)
+            n, rows=inventory(p)
+            self.assertEqual(n,2)
+            self.assertEqual(len(rows),1)
+            h=hashlib.sha256(data).hexdigest()
+            self.assertEqual(len(rows[h]["aliases"]),2)
+            parsed, visual=project_history(data,"history","Test",h)
+            self.assertEqual(visual["distance_mm"],25)
+            self.assertEqual(visual["segments"][-1]["end"],(0.0,5.0))
+            self.assertFalse(visual["execution_authorized"])
+            self.assertFalse(visual["regions"]["demonstrable"])
+
+    def test_zero_height_straight_line_supported(self):
+        data = b"N5 G21\r\nN10 G1 X0 Y0\r\nN15 X1400 Y0\r\nN20 M5M30\r\n"
+        h = hashlib.sha256(data).hexdigest()
+        parsed, visual = project_history(data, "line1400", "linha reta 1400", h)
+        self.assertEqual(visual["bbox"]["width"], 1400.0)
+        self.assertEqual(visual["bbox"]["height"], 0.0)
+        self.assertEqual(visual["distance_mm"], 1400.0)
+        self.assertEqual(len(visual["segments"]), 1)
+        self.assertFalse(visual["regions"]["demonstrable"])

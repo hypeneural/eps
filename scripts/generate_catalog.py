@@ -112,6 +112,8 @@ def main():
     ]
     if a.output is not None:
         cmd.extend(["--output", str(a.output)])
+    if a.blender is not None:
+        cmd.extend(["--blender", a.blender, "--samples", str(a.samples)])
     subprocess.run(cmd, cwd=ROOT, check=True)
     return 0
 

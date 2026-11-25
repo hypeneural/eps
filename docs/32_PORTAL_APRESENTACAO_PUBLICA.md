@@ -1,0 +1,13 @@
+# Portal Iso Nunes — apresentação pública e lote de nove modelos
+Base: eb0fa01, relatório 31. A página operacional continua em modelos/<slug>/index.html. Cada revisão ganha modelos/<slug>/publico.html, com link em nova aba no catálogo e no detalhe. A página pública recebe somente nome, categoria, revisão, imagens, notas e lista de especificações dimensionais permitidas. Não recebe máquina, ZIP, histórico interno ou parâmetros de fabricação. A galeria e o visualizador são compartilhados, sem duplicar os arquivos pesados. Não há botão de download de qualquer formato na apresentação. GLB e imagens permanecem acessíveis ao navegador para visualização; não é controle de acesso. A área operacional existente continua aberta. Noindex/nofollow mantidos; se for necessária confidencialidade, separar hospedagem/autenticação/rede.
+## UX
+Logo original, paleta institucional, descrição material neutra, galeria ampliável, 3D opcional, botão copiar link com fallback, medidas e adaptação a 320px e telas da fábrica. Não anunciar propriedades ou homologação estrutural não comprovadas. Sem JS, imagens e especificações continuam acessíveis. Testar teclado, foco e fallback sem WebGL.
+## Lote
+O relatório 31 tinha nove planejadores mas prepare_mach3_batch.py listava apenas cinco. A biblioteca privada agora grava os quatro projetos YAML e suas entradas de aprovação. Use uma pasta nova (não sobrescrever a anterior).
+```powershell
+python scripts/build_private_test_library.py --help
+python scripts/prepare_mach3_batch.py --handoff outputs/private_trial_handoff_5models --slab-library outputs/private_test_library_v5 --list
+```
+Após revisão do contrato e hashes dos nove projetos, adicionar --profile, --contract, --approvals e --output. Não gerar aprovação fictícia. Cada revisão comercial requer evidências e hashes reais. Para modelos exclusivamente Mach3, registrar require_tap:true no registro local; impede fallback silencioso para DXF em uma revisão de produção. O DXF interno continua sendo evidência geométrica, não download obrigatório do operador.
+## Deploy
+Reutilizar registry, logo e viewer local. Build em pasta nova; executar suite e check_gallery_browser.py nas seis resoluções; screenshots da apresentação. Conferir inventário e ausência de downloads no HTML público; não inferir proteção de arquivos. Executar dry-run FTPS, publicar snapshot autorizado e check_gallery_live.py com snapshot anterior. Novos TAPs comerciais somente após teste e aprovação de revisão; não mudar flags por solicitação de aparência. Não instalar software no PC CNC. Não publicar credenciais, contratos ou arquivos privados. Não usar --initialize em site existente.
