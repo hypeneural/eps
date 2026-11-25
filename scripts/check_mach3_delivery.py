@@ -74,11 +74,13 @@ def main():
     p.add_argument("--https",action="store_true",help="Also verify exact bytes and headers at official portal")
     a=p.parse_args()
     r=inspect(a.site)
-    print(json.dumps(r,ensure_ascii=False,indent=2))
-    if r["delivered"]!=r["expected"]:
-        return 1
+    # HTTPS validation must run even for a partial release. Previously --https
+    # returned before contacting the server if any TAP was missing.
+    r["https_verified"]=None
     if a.https:
-        subprocess.run([sys.executable,str(ROOT/"scripts/check_gallery_live.py"),"--site",str(a.site)],check=True)
-    return 0
+        result=subprocess.run([sys.executable,str(ROOT/"scripts/check_gallery_live.py"),"--site",str(a.site)],check=False)
+        r["https_verified"]=result.returncode==0
+    print(json.dumps(r,ensure_ascii=False,indent=2))
+    return int(r["delivered"]!=r["expected"] or r["https_verified"] is False)
 if __name__=="__main__":
     raise SystemExit(main())

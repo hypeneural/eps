@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -29,7 +30,12 @@ def load_json(path: str | Path) -> dict[str, Any]:
 def load_machine_profile(profile_id: str) -> dict[str, Any]:
     if profile_id not in {"scara_hotwire_eps", "scara_hotwire_teste"}:
         raise FileNotFoundError("Unknown machine profile: "+profile_id)
-    target = ROOT / "machine_profiles" / f"{profile_id}.yaml"
+    # Explicit private profile used consistently by build, validation and publishing.
+    override = os.environ.get("EPS_SCARA_PROFILE_FILE") if profile_id == "scara_hotwire_eps" else None
+    target = Path(override).expanduser().resolve() if override else ROOT / "machine_profiles" / f"{profile_id}.yaml"
     if not target.exists():
         raise FileNotFoundError(f"Machine profile not found: {target}")
-    return load_yaml(target)
+    profile = load_yaml(target)
+    if profile.get("id") != profile_id:
+        raise ValueError("Machine profile ID mismatch")
+    return profile
