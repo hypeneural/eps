@@ -1,6 +1,95 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Acervo histórico | Iso Nunes</title><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/brand.css"><link rel="stylesheet" href="assets/cut-animation.css"><script defer src="assets/cut-animation.js"></script></head><body>
-<header class="top"><div class="wrap head"><a class="brand" href="index.html"><img src="assets/{{ logo_name }}" alt="Iso Nunes"><span class="brand-text">Acervo histórico<small>Área técnica privada</small></span></a><a class="nav-link" href="index.html">Modelos atuais</a></div></header>
-<main class="wrap cut-main"><div class="intro"><div><p class="eyebrow">BIBLIOTECA ORIGINAL DA FÁBRICA</p><h1>Programas históricos</h1><p>{{ history.source_files }} arquivos encontrados · {{ history.unique_files }} únicos · {{ history.duplicates }} cópias · {{ history.animations }} animados</p></div></div>
-<p>Arquivos originais preservados, sem aprovação de execução nesta revisão. As trajetórias são nominais; nomes e dimensões não certificam produtos. Não executar na máquina sem validação apropriada.</p>
-<div class="cut-search"><label>Buscar <input id="cut-search" type="search" placeholder="Telha, código, nome ou medida"></label><label>Categoria <select id="cut-category"><option value="">Todas</option>{% for c in history.models|map(attribute="category")|unique|sort %}<option>{{ c }}</option>{% endfor %}</select></label><span id="cut-count" aria-live="polite"></span></div>
-<section class="history-grid">{% for m in history.models %}<article class="review-card history-card" data-category="{{ m.category }}"><div class="meta"><span>{{ m.category }}</span><span>{{ m.copies }} origem(ns)</span></div><h2>{{ m.display_name }}</h2>{% if m.animation %}<a href="{{ m.animation }}"><img src="{{ m.preview }}" loading="lazy" decoding="async" alt="Trajetória de {{ m.display_name }}"></a><p>{{ m.width_mm }} × {{ m.height_mm }} mm · {{ m.arc_count }} arcos</p><a class="cut-sim-link" href="{{ m.animation }}">▶ Simular trajetória</a>{% else %}<p>Visualização não suportada: {{ m.visual_error }}</p>{% endif %}<a class="btn secondary" href="{{ m.file }}" download>Baixar TAP histórico</a><details><summary>Origens e identificação</summary><p class="cut-hash">SHA-256: {{ m.sha256 }}</p>{% for alias in m.aliases %}<p class="cut-hash">{{ alias }}</p>{% endfor %}</details></article>{% endfor %}</section></main></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Acervo histórico (.TAP) | Iso Nunes</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/brand.css">
+  <link rel="stylesheet" href="assets/cut-animation.css">
+  <script defer src="assets/cut-animation.js"></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap head">
+      <a class="brand" href="index.html">
+        <img src="assets/{{ logo_name }}" alt="Iso Nunes">
+        <span class="brand-text">Acervo histórico (.TAP)<small>Área técnica privada autenticada</small></span>
+      </a>
+      <nav aria-label="Navegação">
+        <a class="nav-link" href="index.html">9 modelos atuais</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap cut-main">
+    <section class="history-banner">
+      <div>
+        <p class="eyebrow">BIBLIOTECA ORIGINAL DA FÁBRICA · SOMENTE CONFERÊNCIA</p>
+        <h1>Programas históricos da máquina SCARA</h1>
+        <p class="muted">Arquivos originais preservados byte a byte, deduplicados por SHA-256 e separados dos 9 modelos atuais. As extensões exibidas correspondem à trajetória nominal do arquivo — não certificam dimensão final da peça nem autorizam execução direta.</p>
+      </div>
+      <div class="history-stats">
+        <span><strong>{{ history.source_files }}</strong> encontrados</span>
+        <span><strong>{{ history.unique_files }}</strong> únicos</span>
+        <span><strong>{{ history.duplicates }}</strong> cópias agrupadas</span>
+        <span><strong>{{ history.animations }}</strong> animados</span>
+      </div>
+    </section>
+
+    <div class="cut-search">
+      <label>Buscar <input id="cut-search" type="search" placeholder="Telha, esquadro, linha reta, código ou origem"></label>
+      <label>Categoria
+        <select id="cut-category">
+          <option value="">Todas</option>
+          {% for c in history.models|map(attribute="category")|unique|sort %}
+          <option>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <span id="cut-count" aria-live="polite"></span>
+    </div>
+
+    <section class="history-grid" aria-label="Programas históricos catalogados">
+      {% for m in history.models %}
+      <article class="review-card history-card" data-category="{{ m.category }}">
+        <div class="meta">
+          <span>{{ m.category }}</span>
+          <span>{{ m.copies }} {{ 'origem' if m.copies == 1 else 'origens' }}</span>
+        </div>
+        <h2>{{ m.display_name }}</h2>
+        {% if m.animation %}
+        <a href="{{ m.animation }}">
+          <img src="{{ m.preview }}" loading="{{ 'eager' if loop.index <= 4 else 'lazy' }}" decoding="async" alt="Trajetória nominal histórica de {{ m.display_name }}">
+        </a>
+        <div class="history-tags">
+          <span class="history-tag">Histórico original</span>
+          <span class="history-tag">{{ m.segment_count }} segs</span>
+          {% if m.arc_count %}<span class="history-tag history-tag-arc">{{ m.arc_count }} arcos G2/G3</span>{% endif %}
+          {% if m.reverse_x_count %}<span class="history-tag history-tag-warn">{{ m.reverse_x_count }} retornos -X</span>{% endif %}
+        </div>
+        <p class="history-extent">Extensão nominal: {{ m.width_mm }} × {{ m.height_mm }} mm · percurso {{ m.total_length_mm }} mm</p>
+        <a class="cut-sim-link" href="{{ m.animation }}">▶ Simular trajetória (2D / 3D)</a>
+        {% else %}
+        <p class="muted">Visualização não suportada: {{ m.visual_error }}</p>
+        {% endif %}
+        <a class="btn secondary" href="{{ m.file }}" download>Baixar TAP histórico ({{ m.bytes }} B)</a>
+        <details>
+          <summary>Origens e integridade SHA-256</summary>
+          <p class="cut-hash">SHA-256: <code>{{ m.sha256 }}</code></p>
+          {% for alias in m.aliases %}
+          <p class="cut-hash">{{ alias }}</p>
+          {% endfor %}
+        </details>
+      </article>
+      {% endfor %}
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <span>Iso Nunes · Indústria de EPS</span>
+    <span>Acervo histórico privado · Sem homologação de execução</span>
+  </footer>
+</body>
+</html>

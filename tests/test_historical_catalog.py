@@ -33,3 +33,13 @@ class HistoricalCatalogTests(unittest.TestCase):
             self.assertEqual(visual["segments"][-1]["end"],(0.0,5.0))
             self.assertFalse(visual["execution_authorized"])
             self.assertFalse(visual["regions"]["demonstrable"])
+
+    def test_zero_height_straight_line_supported(self):
+        data = b"N5 G21\r\nN10 G1 X0 Y0\r\nN15 X1400 Y0\r\nN20 M5M30\r\n"
+        h = hashlib.sha256(data).hexdigest()
+        parsed, visual = project_history(data, "line1400", "linha reta 1400", h)
+        self.assertEqual(visual["bbox"]["width"], 1400.0)
+        self.assertEqual(visual["bbox"]["height"], 0.0)
+        self.assertEqual(visual["distance_mm"], 1400.0)
+        self.assertEqual(len(visual["segments"]), 1)
+        self.assertFalse(visual["regions"]["demonstrable"])

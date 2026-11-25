@@ -88,9 +88,12 @@ def build_historical_catalog(source, stage, env, logo_name):
             (folder/"simulacao.json").write_text(json.dumps(visual, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
             bb = visual["bbox"]
             row.update(preview=slug+"/simulacao.png", animation=slug+"/simulacao.html",
-                       animation_data=slug+"/simulacao.json", width_mm=bb["width"], height_mm=bb["height"],
+                       animation_data=slug+"/simulacao.json", width_mm=round(bb["width"], 1), height_mm=round(bb["height"], 1),
                        total_length_mm=round(visual["distance_mm"], 1), segment_count=len(visual["segments"]),
-                       arc_count=parsed["metrics"]["arc_count"], warnings=visual["warnings"])
+                       arc_count=parsed["metrics"]["arc_count"],
+                       reverse_x_count=parsed["metrics"].get("reverse_x_count", 0),
+                       collinear_overlap_mm=round(parsed["metrics"].get("collinear_overlap_mm", 0.0), 1),
+                       warnings=visual["warnings"])
             (folder/"simulacao.html").write_text(env.get_template("cut_animation.html").render(m=row, logo_name=logo_name), encoding="utf-8")
         except (ValueError, UnicodeError, ArithmeticError) as exc:
             for filename_tmp in ("simulacao.png", "simulacao.json", "simulacao.html"):

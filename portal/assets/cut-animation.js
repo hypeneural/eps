@@ -120,19 +120,20 @@
       var showPath = $("cut-path").checked;
 
       var span = Math.max(1, b.width, b.height);
-      var pad = Math.max(b.height * 0.14, span * 0.032);
-      var offset = dual ? Math.max(b.height * 0.62, span * 0.04) : 0;
+      var effH = Math.max(b.height, span * 0.045);
+      var pad = Math.max(effH * 0.14, span * 0.032);
+      var offset = dual ? Math.max(effH * 0.62, span * 0.04) : 0;
       var depth = front ? 0 : span * 0.24;
       var angle = Number($("cut-angle").value);
       var dx = depth * angle;
       var dy = depth * 0.46;
 
       var framePadX = showMachine ? Math.max(span * 0.07, 26) : 0;
-      var framePadTop = showMachine ? Math.max(b.height * 0.42, span * 0.055) : 0;
-      var framePadBot = showMachine ? Math.max(b.height * 0.34, span * 0.045) : 0;
+      var framePadTop = showMachine ? Math.max(effH * 0.42, span * 0.055) : 0;
+      var framePadBot = showMachine ? Math.max(effH * 0.34, span * 0.045) : 0;
 
       var worldW = b.width + 2 * (pad + framePadX) + Math.abs(dx);
-      var worldH = b.height + offset + 2 * pad + framePadTop + framePadBot + dy;
+      var worldH = effH + offset + 2 * pad + framePadTop + framePadBot + dy;
       var marginX = Math.max(20, Math.min(36, w * 0.05));
       var marginY = 66;
       var scale = Math.min(
@@ -141,7 +142,7 @@
       ) * Number($("cut-zoom").value);
 
       var cx = b.x_min + b.width / 2 + dx / 2;
-      var cy = b.y_min + (b.height + offset + framePadTop - framePadBot) / 2 + dy / 2;
+      var cy = b.y_min + (effH + offset + framePadTop - framePadBot) / 2 + dy / 2;
       var ox = w / 2 - cx * scale;
       var oy = h / 2 + cy * scale + 6;
 
@@ -539,20 +540,28 @@
       else root.requestFullscreen().catch(function () {});
     }
 
+    function setActivePreset(activeId) {
+      ["cut-overview", "cut-profile", "cut-result"].forEach(function (id) {
+        var el = $(id);
+        if (el) el.setAttribute("aria-pressed", id === activeId ? "true" : "false");
+      });
+    }
     function closeThree(message){if(three){three.dispose();three=null;} $("cut-three-host").hidden=true;canvas.classList.remove("cut-canvas-hidden");var toggle=$("cut-three-toggle");if(toggle){toggle.setAttribute("aria-pressed","false");toggle.textContent="Explorar em 3D";}var status=$("cut-three-status");status.hidden=!message;status.textContent=message||"";resize();}
-    if($("cut-three-toggle"))$("cut-three-toggle").addEventListener("click",function(){if(three){closeThree();return;}if(loadingThree)return;loadingThree=true;var btn=this;btn.disabled=true;btn.textContent="Carregando 3D…";import("../assets/cut-three.js").then(function(mod){$("cut-three-host").hidden=false;canvas.classList.add("cut-canvas-hidden");three=mod.createCutThree($("cut-three-host"),data,function(){closeThree("Modo 3D indisponível. Visualização leve restaurada.");});btn.textContent="Voltar ao modo leve";btn.setAttribute("aria-pressed","true");$("cut-three-status").hidden=false;$("cut-three-status").textContent="Arraste para girar · roda do mouse para zoom · representação esquemática";resize();}).catch(function(){closeThree("Este navegador não carregou o modo 3D. Use a visualização leve.");}).finally(function(){loadingThree=false;btn.disabled=false;});});
-    function preset(front, machine, result) {
+    if($("cut-three-toggle"))$("cut-three-toggle").addEventListener("click",function(){if(three){closeThree();return;}if(loadingThree)return;loadingThree=true;var btn=this;btn.disabled=true;btn.textContent="Carregando 3D…";import("../assets/cut-three.js").then(function(mod){$("cut-three-host").hidden=false;canvas.classList.add("cut-canvas-hidden");three=mod.createCutThree($("cut-three-host"),data,function(){closeThree("Modo 3D indisponível. Visualização leve restaurada.");});btn.textContent="Voltar ao modo leve";btn.setAttribute("aria-pressed","true");$("cut-three-status").hidden=false;$("cut-three-status").textContent="Modo 3D WebGL2 · arraste para girar · roda/pinça para zoom · representação esquemática";three.fit($("cut-view").value==="front");resize();}).catch(function(){closeThree("Este navegador não carregou o modo 3D. Use a visualização leve.");}).finally(function(){loadingThree=false;btn.disabled=false;});});
+    function preset(front, machine, result, activeId) {
       $("cut-view").value=front?"front":"iso"; $("cut-machine").checked=machine;
       $("cut-dual").checked=!front; $("cut-stock").checked=!result;
       $("cut-path").checked=!result; $("cut-zoom").value=1; $("cut-angle").value=.62;
+      setActivePreset(activeId || "");
       if(three)three.fit(front);
       if(result)seek(total); else paint();
     }
-    $("cut-overview").addEventListener("click",function(){preset(false,true,false);});
-    $("cut-profile").addEventListener("click",function(){preset(true,false,false);});
+    $("cut-overview").addEventListener("click",function(){preset(false,true,false,"cut-overview");});
+    $("cut-profile").addEventListener("click",function(){preset(true,false,false,"cut-profile");});
     $("cut-result").disabled=!regions;
-    $("cut-result").addEventListener("click",function(){if(regions){$("cut-regions").checked=true;preset(false,false,true);}});
-    $("cut-fit").addEventListener("click",function(){$("cut-zoom").value=1;$("cut-angle").value=.62;if(three)three.fit();paint();});
+    $("cut-result").addEventListener("click",function(){if(regions){$("cut-regions").checked=true;preset(false,false,true,"cut-result");}});
+    $("cut-fit").addEventListener("click",function(){$("cut-zoom").value=1;$("cut-angle").value=.62;if(three)three.fit($("cut-view").value==="front");paint();});
+    setActivePreset("cut-overview");
     var drag=null;
     canvas.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse" && $("cut-view").value!=="front"){drag={x:e.clientX,a:Number($("cut-angle").value)};canvas.setPointerCapture(e.pointerId);}});
     canvas.addEventListener("pointermove",function(e){if(drag){$("cut-angle").value=Math.max(-1,Math.min(1,drag.a+(e.clientX-drag.x)/160));paint();}});
@@ -566,8 +575,12 @@
     ["cut-view", "cut-angle", "cut-zoom", "cut-dual", "cut-stock", "cut-regions", "cut-machine", "cut-path"].forEach(function (id) {
       var el = $(id);
       if (!el) return;
-      el.addEventListener("input", paint);
-      el.addEventListener("change", paint);
+      var handler = function () {
+        if (id === "cut-view" && three) three.fit(el.value === "front");
+        paint();
+      };
+      el.addEventListener("input", handler);
+      el.addEventListener("change", handler);
     });
 
     document.addEventListener("keydown", function (ev) {
@@ -585,7 +598,12 @@
       $("cut-full").hidden = false;
       $("cut-full").addEventListener("click", toggleFullscreen);
     }
-    document.addEventListener("fullscreenchange", resize);
+    document.addEventListener("fullscreenchange", function () {
+      if ($("cut-full")) {
+        $("cut-full").textContent = document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia";
+      }
+      resize();
+    });
     window.addEventListener("resize", resize);
 
     $("cut-fallback").hidden = true;

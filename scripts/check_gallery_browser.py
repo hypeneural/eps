@@ -87,7 +87,12 @@ def main():
                 local_bundle=a.site/"modelos"/item["slug"]/item["bundle"]
                 assert sha256(download.value.path().read_bytes()).digest()==sha256(local_bundle.read_bytes()).digest()
                 if not item["machine"]:
-                    assert page.locator("a[href$='.dxf'],a[href$='.tap']").count()==0
+                    if item.get("review_tap"):
+                        assert page.locator("a[href$='.dxf']").count()==0
+                        tap_links=page.locator("a[href$='.tap']")
+                        assert tap_links.count()==1 and tap_links.first.get_attribute("href")==f"../../{item['review_tap']['href']}"
+                    else:
+                        assert page.locator("a[href$='.dxf'],a[href$='.tap']").count()==0
                 else:
                     with page.expect_download() as machine_download:
                         page.locator(".download-panel a.primary[download]").click()
@@ -103,7 +108,7 @@ def main():
                 public.wait_for_load_state("networkidle")
                 fits(public)
                 assert public.url.endswith("/publico.html")
-                assert public.locator("a[download], .download-panel, .other-files").count()==0
+                assert public.locator("a[download], .download-panel, .other-files, a[href$='.dxf'], a[href$='.tap'], a[href*='conferencia/'], a[href*='simulacao.html']").count()==0
                 assert public.locator("#hero-image").evaluate("(i)=>i.complete && i.naturalWidth>0")
                 assert public.locator("#specifications").is_visible()
                 assert public.locator("a.whatsapp-link").count()==2

@@ -151,6 +151,10 @@ def check_live_review_area(area: Path, base_url: str, username: str, password: s
         "historical_online_verified": history["unique_files"] if history else 0,
         "historical_animations_verified": history["animations"] if history else 0,
         "historical_source_files": history["source_files"] if history else 0,
+        "historical_duplicates": history["duplicates"] if history else 0,
+        "historical_catalog_url": (f"{base}/historicos.html" if history else None),
+        "three_available": bool(manifest.get("three_available")),
+        "three_assets_verified": len(three_paths),
         "purpose": "private_review_area_https_verification_not_production_homologation",
         "review_area_url": f"{base}/",
         "zip_url": f"{base}/{quote(zip_rel, safe='/')}",
@@ -178,9 +182,21 @@ def main():
         p.error("Set EPS_REVIEW_USER and EPS_REVIEW_PASSWORD in environment")
     result = check_live_review_area(a.area, a.url, user, password)
     print(json.dumps(result, ensure_ascii=False, indent=2))
+    manifest = json.loads((a.area / "review-manifest.json").read_text(encoding="utf-8"))
+    hist_meta = manifest.get("historical")
+    hist_ok = (
+        not hist_meta
+        or (
+            result["historical_online_verified"] == hist_meta["unique_files"]
+            and result["historical_animations_verified"] == hist_meta["animations"]
+        )
+    )
+    three_ok = (not manifest.get("three_available")) or result["three_assets_verified"] == 5
     return int(
         result["taps_online_verified"] != result["expected"]
         or result["animations_online_verified"] != result["expected"]
+        or not hist_ok
+        or not three_ok
         or not result["zip_verified"]
         or not result["access_control_401_verified"]
     )
